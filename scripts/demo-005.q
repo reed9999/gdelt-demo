@@ -1,6 +1,10 @@
 -- Continuing my adaptation of this script:
 -- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 
+-- Previous iteration failed with FAILED: ParseException line 12:49 extraneous input ';' expecting EOF near '<EOF>'
+-- Hive line numbers in errors from AWS EMR make no sense to me. Here I comment
+-- out the interesting where clauses.
+
 CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
@@ -30,6 +34,6 @@ INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-005/'
 SELECT *
 FROM gdelt_events
 --10 means demand
-WHERE eventcode LIKE "10%"
-AND actor1countrycode IN ("USA", "DEU", "BRA", "ARG") OR
-actor2countrycode IN ("USA", "DEU", "BRA", "ARG");
+WHERE eventcode LIKE "10%";
+-- AND actor1countrycode IN ("USA", "DEU", "BRA", "ARG") OR
+-- actor2countrycode IN ("USA", "DEU", "BRA", "ARG");
