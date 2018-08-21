@@ -19,11 +19,11 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  -- WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
   -- This may not work, because I saved off the data as a DynamoDB supposedly.
-  -- Therefore I presume the SERDEPROPERTIES change but nevertheless, let's
-  -- see what happens!
-  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/data/';
+  -- Therefore I presume the SERDEPROPERTIES change.
+  -- For now, to avoid a cryptic error, let's suppress this idea.
+  --WITH SERDEPROPERTIES (/'serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/data/';
 
 -- Total requests per operating system for a given time frame
 INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-005/'
