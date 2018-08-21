@@ -19,12 +19,17 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+  -- WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+  -- This may not work, because I saved off the data as a DynamoDB supposedly.
+  -- Therefore I presume the SERDEPROPERTIES change but nevertheless, let's
+  -- see what happens!
+  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/data/';
 
 -- Total requests per operating system for a given time frame
-INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-004/'
-SELECT actor1countrycode, actor2countrycode, COUNT(*), 'DEMAND'
+INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-005/'
+SELECT *
 FROM gdelt_events
 --10 means demand
 WHERE eventcode LIKE "10%"
-GROUP BY actor1countrycode, actor2countrycode;
+AND actor1countrycode IN ("USA", "DEU", "BRA", "ARG") OR
+actor2countrycode IN ("USA", "DEU", "BRA", "ARG");

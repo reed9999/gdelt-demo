@@ -1,7 +1,4 @@
--- Continuing my adaptation of this script:
--- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
-
-CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
+CREATE EXTERNAL TABLE gdelt_small_demo(
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
   `actor1ethniccode` string,`actor1religion1code` string,`actor1religion2code` string,
@@ -18,13 +15,8 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `actiongeo_type` INT,`actiongeo_fullname` string,`actiongeo_countrycode` string,`actiongeo_adm1code` string,
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
-  ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+LOCATION 's3://philip-hadoop-bucket/data';
 
--- Total requests per operating system for a given time frame
-INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-004/'
-SELECT actor1countrycode, actor2countrycode, COUNT(*), 'DEMAND'
-FROM gdelt_events
---10 means demand
-WHERE eventcode LIKE "10%"
-GROUP BY actor1countrycode, actor2countrycode;
+INSERT OVERWRITE TABLE gdelt_small_demo SELECT *
+FROM gdelt_events;
