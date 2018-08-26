@@ -4,7 +4,7 @@ Demonstration project--Learning to do interesting stuff with AWS and the GDELT d
 This is an early-stage demo project to showcase my autodidactic process for learning about AWS and in particular how to ''do data science'' (whatever that ends up meaning to me) on AWS. The main goal is to demonstrate the value of my work to potential employers.
 
 ## Currently troubleshooting
-1. I don't understand why some of my Hive QL scripts fail, and the line numbers in the error output are opaque to me. At the moment demo-004 and demo-005-part2b work, but the other two for 005 do not.
+1. I don't understand why some of my Hive QL scripts fail, and the line numbers in the error output are opaque to me. At the moment demo-004 and demo-005-part2b work. The original demo-005 failed because I had meant to separate out what's now load-gdelt-events.q, but I hadn't deleted the part I wanted to extract out of there into part2. I don't know why 005-part2 is failing. 
 
 1. I need Hive on my computer. Runnincg EMR jobs every time I want to troubleshoot QL is fun for a while, but plainly ridiculous for a development environment. I've mostly got it, but apparently I skipped a few steps in the Hadoop installation tutorial or something.
 

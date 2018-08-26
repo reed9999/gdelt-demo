@@ -1,6 +1,3 @@
--- Summary: Adapting the AWS CloudFront demo by integrating this:
--- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
-
 CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
@@ -21,28 +18,21 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
 
---
---
---
--- CREATE EXTERNAL TABLE IF NOT EXISTS cloudfront_logs (
---   DateObject Date,
---   Time STRING,
---   Location STRING,
---   Bytes INT,
---   RequestIP STRING,
---   Method STRING,
---   Host STRING,
---   Uri STRING,
---   Status INT,
---   Referrer STRING,
---   OS String,
---   Browser String,
---   BrowserVersion String
--- )
--- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
--- WITH SERDEPROPERTIES (
---   "input.regex" = "^(?!#)([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+([^ ]+)\\s+[^\(]+[\(]([^\;]+).*\%20([^\/]+)[\/](.*)$"
--- ) LOCATION '${INPUT}/cloudfront/data';
+-- Continuing my adaptation of this script:
+-- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 
--- Total requests per operating system for a given time frame
-INSERT OVERWRITE DIRECTORY '${OUTPUT}/first-demo-query/' SELECT DISTINCT actor1code FROM gdelt_events ;
+-- Last time it probably failed because I had intended to delete the second
+-- query and move it to a different step (to isolate for tshoot) but forgot.
+-- In development, I'd like to read the miniature DB I saved off to my bucket
+-- as a DynamoDB export, not reload from CSV files each time.
+-- But first things first, as we know this should work.
+
+-- By the way comments are at the bottom to help me figure out the error
+-- messages' line numbering, which is really unclear.
+
+
+-- Note also:
+-- first-demo-query.q had the query ending:
+-- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+--   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
+-- This works for the ENTIRE GDELT dataset, not for development/testing
