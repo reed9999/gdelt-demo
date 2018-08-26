@@ -21,7 +21,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
 
--- Total requests per operating system for a given time frame
 INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-004/'
 SELECT actor1countrycode, actor2countrycode, COUNT(*), 'DEMAND'
 FROM gdelt_events

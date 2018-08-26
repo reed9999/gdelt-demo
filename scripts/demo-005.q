@@ -1,7 +1,8 @@
 -- Continuing my adaptation of this script:
 -- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 
--- Previous iteration failed with FAILED: ParseException line 12:49 extraneous input ';' expecting EOF near '<EOF>'
+-- FAILED: ParseException line 10:26 cannot recognize input near '"10%"' ';' '<EOF>' in constant
+
 -- Hive line numbers in errors from AWS EMR make no sense to me. Here I comment
 -- out the interesting where clauses.
 
@@ -24,16 +25,20 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+
   -- This may not work, because I saved off the data as a DynamoDB supposedly.
   -- Therefore I presume the SERDEPROPERTIES change.
   -- For now, to avoid a cryptic error, let's suppress this idea.
   --WITH SERDEPROPERTIES (/'serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/data/';
 
--- Total requests per operating system for a given time frame
 INSERT OVERWRITE DIRECTORY '${OUTPUT}/demo-005/'
 SELECT *
 FROM gdelt_events
+-- Since I'm struggling with LIKE,
+WHERE eventcode IN ('10', '101', '102', '1011','1012');
 --10 means demand
-WHERE eventcode LIKE "10%";
+----------
+-- attempts that aren't working yet.
+-- WHERE eventcode LIKE '10%';
 -- AND actor1countrycode IN ("USA", "DEU", "BRA", "ARG") OR
 -- actor2countrycode IN ("USA", "DEU", "BRA", "ARG");
