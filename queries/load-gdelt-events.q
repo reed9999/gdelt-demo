@@ -21,15 +21,8 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
 -- Continuing my adaptation of this script:
 -- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 
--- Last time it probably failed because I had intended to delete the second
--- query and move it to a different step (to isolate for tshoot) but forgot.
--- In development, I'd like to read the miniature DB I saved off to my bucket
--- as a DynamoDB export, not reload from CSV files each time.
--- But first things first, as we know this should work.
-
 -- By the way comments are at the bottom to help me figure out the error
 -- messages' line numbering, which is really unclear.
-
 
 -- Note also:
 -- first-demo-query.q had the query ending:
