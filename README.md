@@ -3,11 +3,11 @@ Demonstration project--Learning to do interesting stuff with AWS and the GDELT d
 
 This is an early-stage demo project to showcase my autodidactic process for learning about AWS and in particular how to ''do data science'' (whatever that ends up meaning to me) on AWS. The main goal is to demonstrate the value of my work to potential employers.
 
-## The entire showcase
-This GDELT project is the latest one I'm building on here, but some of my previous work will also be of interest. See the respective README.md files for more: 
+## The rest of the showcase
+This GDELT project is the latest one I'm building on here, but some of my previous work will also be of interest. See the respective README.md files for more:
 
 
-* **[Thumbs up for Privacy?](https://github.com/reed9999/thumbs-up-for-privacy)** (R, regressions) [This is my first-authored paper](https://www.sciencedirect.com/science/article/pii/S0049089X16302368) using a million row dataset. This work was published as "Thumbs Up for Privacy?" in _Social Science Research_, by Reed, Spiro, and Butts. About 90% of the analysis, the prose, and the R code are my original work. 
+* **[Thumbs up for Privacy?](https://github.com/reed9999/thumbs-up-for-privacy)** (R, regressions) [This is my first-authored paper](https://www.sciencedirect.com/science/article/pii/S0049089X16302368) using a million row dataset. This work was published as "Thumbs Up for Privacy?" in _Social Science Research_, by Reed, Spiro, and Butts. About 90% of the analysis, the prose, and the R code are my original work.
 
 * **[Neural Networks and Deep Learning](https://github.com/reed9999/neural-networks-and-deep-learning)** (exploratory, Python, neural networks) I hacked around on Nielsen's eBook code. It shows my curiosity about one of the ''mysteries'' about ML to my social-science-educated brain: Why can't we improve predictions with a little bit of a theoretical nudge?
 
@@ -19,31 +19,39 @@ Rest of my github forked repos aren't showcasing anything yet, but stuff I want 
 
 I also did a good bit of qualitative research for my dissertation. I'm a big believer in mixed quant/qual methods.
 
-## Currently troubleshooting
-1. I don't understand why some of my Hive QL scripts fail, and the line numbers in the error output are opaque to me. At the moment demo-004 and demo-005-part2b work. The original demo-005 failed because I had meant to separate out what's now load-gdelt-events.q, but I hadn't deleted the part I wanted to extract out of there into part2. I don't know why 005-part2 is failing. 
+## Research questions
+What makes this more than just a SQL tutorial? For one thing, my intent to use this data to address interesting RQs.
 
-1. I need Hive on my computer. Runnincg EMR jobs every time I want to troubleshoot QL is fun for a while, but plainly ridiculous for a development environment. I've mostly got it, but apparently I skipped a few steps in the Hadoop installation tutorial or something.
+In this kind of research there's some iteration in RQs, because things you think *a priori* might be interesting turn out not to be, and vice versa. But it's good to keep a running list of ideas.
+
+1. **Actor affinity by dyad** - Do some actor dyads consistently produce higher Rosenstein scores than others? I'd think this would be a trivial "Yes" because relationships between allies should produce more positive news than those between adversaries. So this is exploring the obvious, but a good sanity check to make sure I'm understanding the nature of this data.
+  1. **Asymmetrical relationships** - Just brainstorming. If X threatens Y more than Y threatens X that's also significant and interesting.
 
 
+## Currently working on...
+
+1. I'm continuing to learn Hive QL which also means brushing up on SQL. See `queries` directory: Right now, everything up to `demo-010` should work, but `demo-011` fails. Its cousin is the `mysql` directory which has some MySQLized versions of setup scripts.
 
 ## Accomplished so far
-I created a toy example where I query for all the unique ``actor1code`` values. To limit AWS charges for now, I ran it for only one date's worth of data which I manually copied to my S3 bucket. See ``scripts/first-demo-shorter.q``.
+I've created several toy examples which can form the basis of my more serious work here. See `queries` directory:
 
+* `load-gdelt-events.q` is just a hacked example to create and populate our gdelt_events table.
+* `first-demo-shorter.q` and `demo-*.q` from 003 to 010 are just simple queries to get familiar with this table.6
 I have also just installed my own local Spark, HDFS, and Hive, and am beginning to play around with them.
 
-## Next steps
-1. Troubleshooting above.
+## Next steps (last update: 2018-08-31)
 1. Finish installation of Hive on my local computer for easier QL debugging.
 1. Learn more about Hive and about PySpark and integrate in here as helpful.
     1. Confirm or finish my install of Spark and PySpark
 1. Automate pulling scripts from github to my S3 bucket.
 1. Automate creating cluster with step[s] then terminating.
-1. Something more analytical in my queries than just ``SELECT DISTINCT``.
-1. Learn how to do this locally or in a smaller sandbox environment so not needed to use an AWS xlarge every time.
+1. Build more analytical queries to at least the mid-range level--more meaningful than what I have now, and starting to build up toward my research questions, even if not quite 'production-quality' (i.e. my final RQs)
+1. Finish installation of Hive on my local computer for easier QL debugging. Less important now that AWS RDS is on the way.  
+1. Learn more about GDELT itself.
+    1. GDELT's setup on Google Big Query could be helpful here (if a tangent from my AWS tutelage). See [this explanation](https://www.gdeltproject.org/data.html).
 1. Build "something more analytical" into a full suite showing data science understanding.
 
 ## Background
 I have some data sciencey, big dataish skills from my PhD program; now I need a millieu to showcase and keep building them.
 
 The premise is that I want to use a big open dataset on AWS and do some analysis (using data science skills) while learning the AWS stuff. [GDELT, the Global Database of Events, Language and Tone](https://registry.opendata.aws/gdelt/) seems like a good choice because media and language are interesting to me.
-
