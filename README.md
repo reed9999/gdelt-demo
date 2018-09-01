@@ -48,6 +48,9 @@ I have also just installed my own local Spark, HDFS, and Hive, and am beginning 
 1. Build more analytical queries to at least the mid-range level--more meaningful than what I have now, and starting to build up toward my research questions, even if not quite 'production-quality' (i.e. my final RQs)
 1. Finish installation of Hive on my local computer for easier QL debugging. Less important now that AWS RDS is on the way.  
 1. Learn more about GDELT itself.
+    1. Learn more about other ways people have used GDELT:
+        * [linwoodc3/gdeltPyR](https://github.com/linwoodc3/gdeltPyR)
+        * Examples at [AWS GDELT page](https://registry.opendata.aws/gdelt/)
     1. GDELT's setup on Google Big Query could be helpful here (if a tangent from my AWS tutelage). See [this explanation](https://www.gdeltproject.org/data.html).
 1. Build "something more analytical" into a full suite showing data science understanding.
 
