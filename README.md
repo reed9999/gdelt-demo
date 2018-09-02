@@ -30,6 +30,7 @@ In this kind of research there's some iteration in RQs, because things you think
 
 ## Currently working on...
 
+1. Driving repetitive tasks with Python3 and boto3 rather than bash and CLI. Actually each is better for different things, but Python gives me more intuitive control over looping (I don't really love bash syntax) and supports my broader pedagogical goals. See `automation` directory.   
 1. I'm continuing to learn Hive QL which also means brushing up on SQL. See `queries` directory: Right now, everything up to `demo-010` should work, but `demo-011` fails. Its cousin is the `mysql` directory which has some MySQLized versions of setup scripts.
 
 ## Accomplished so far

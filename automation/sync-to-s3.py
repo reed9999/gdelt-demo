@@ -3,13 +3,13 @@
 # Python equivalent to scripts/sync-to-s3.sh
 # Truthfully I'm not sure this adds that much value other than learning
 # the Pythonic way to do it.
-# See https://github.com/boto/boto3/issues/358
+# Framework of this file is from https://github.com/boto/boto3/issues/358
 ##############################################################################
 
 import os
-import boto3
+# import boto3
+from pathlib import Path
 import awscli
-
 from awscli.clidriver import create_clidriver
 
 def aws_cli(*cmd):
@@ -34,7 +34,7 @@ def aws_cli(*cmd):
 S3_BUCKET = 'philip-hadoop-bucket'
 SCRIPTS_DIR = os.path.join('automation', 'scripts')
 QUERIES_DIR = os.path.join('queries')
-BASE_DIR = "/home/philip/aws/gdelt-demo" #HARDCODED and only for Linux
+BASE_DIR = os.path.join(str(Path.home()), 'aws', 'gdelt-demo')
 dirs_to_sync = [SCRIPTS_DIR, QUERIES_DIR]
 for dir in dirs_to_sync:
     local_dir = os.path.join(BASE_DIR, dir)
