@@ -1,0 +1,2 @@
+INSERT OVERWRITE DIRECTORY '${OUTPUT}/dyads1/'
+SELECT * FROM dyads_by_stability_pre1983;
