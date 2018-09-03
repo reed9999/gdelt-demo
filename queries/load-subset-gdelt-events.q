@@ -1,4 +1,6 @@
 -- DRY -- only the external source differs from the load-mini version.
+-- WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
+
 CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
@@ -17,7 +19,4 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-    WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
-
--- Continuing my adaptation of this script:
--- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
+  WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://reed9999/data/events/';
