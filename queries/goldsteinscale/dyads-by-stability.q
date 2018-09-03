@@ -9,7 +9,7 @@ SELECT
   actor2geo_countrycode,
   avg(goldsteinscale) as avg_goldsteinscale,
   count(*)
-FROM gdelt.events
+FROM gdelt_events     -- not gdelt.events!
 WHERE year < 1983
 GROUP BY
   actor1geo_countrycode,
@@ -22,7 +22,7 @@ SELECT
   actor2geo_countrycode,
   avg(goldsteinscale) as avg_goldsteinscale,
   count(*)
-FROM gdelt.events
+FROM gdelt_events
 WHERE monthyear=201601
 GROUP BY
   actor1geo_countrycode,
