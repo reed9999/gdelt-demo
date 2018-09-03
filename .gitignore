@@ -1,4 +1,12 @@
 secret
+automation/.idea
+
+### Temporary ignores -- very new and ugly stuff
+mysql/load-lookup-tables.sql
+scripts/rds-create-mysql.sh
+__*
+
+### Boilerplate ignores
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
