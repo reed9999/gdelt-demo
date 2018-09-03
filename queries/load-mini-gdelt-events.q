@@ -1,3 +1,5 @@
+-- Continuing my adaptation of this script:
+-- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
@@ -17,13 +19,6 @@ CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
-
--- Continuing my adaptation of this script:
--- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
-
--- By the way comments are at the bottom to help me figure out the error
--- messages' line numbering, which is really unclear.
-
 -- Note also:
 -- first-demo-query.q had the query ending:
 -- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
