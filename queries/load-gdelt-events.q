@@ -1,5 +1,6 @@
 -- DRY -- only the external source differs from the load-mini version.
-CREATE EXTERNAL TABLE IF NOT EXISTS gdelt_events (
+DROP TABLE IF EXISTS gdelt_events;
+CREATE EXTERNAL TABLE gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
   `actor1code` string,`actor1name` string,`actor1countrycode` string,`actor1knowngroupcode` string,
   `actor1ethniccode` string,`actor1religion1code` string,`actor1religion2code` string,
