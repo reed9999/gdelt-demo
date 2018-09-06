@@ -3,13 +3,6 @@ Demonstration project--Learning to do interesting stuff with AWS and the GDELT d
 
 This is an early-stage demo project to showcase my autodidactic process for learning about AWS and in particular how to ''do data science'' (whatever that ends up meaning to me) on AWS. The main goal is to demonstrate the value of my work to potential employers.
 
-## This branch: subset-of-data
-This is my first attempt to use git branches to track my different means of experimentation. Here the point is to move a subset of the GDELT data to a new bucket, run the same queries, and see how much faster it gets.
-
-The genesis of this experiment is that my previous Hadoop was kind of dumb. I wanted to limit the data on which my query would run, but I still ran it on the entirety of GDELT 1.0 with WHERE clauses for the dates. I suspect this gave me the worst of both worlds: took longer, but only a tiny sliver of data mattered.
-
-So here I will create a new bucket, move the same data in here, and run the query. I'm sure it will take much less time!  
-
 ## The rest of the showcase
 This GDELT project is the latest one I'm building on here, but some of my previous work will also be of interest. See the respective README.md files for more:
 
