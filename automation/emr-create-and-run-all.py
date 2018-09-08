@@ -2,6 +2,7 @@
 # Start up a small AWS Elastic MapReduce (EMR) custer and load it with some
 # predetermined steps.
 # Python equivalent to scripts/emr-create-and-run-all.py
+# See notes in comment block at the bottom.
 ###############################################################################
 
 import os
@@ -58,9 +59,6 @@ NEW_STEP_1 = {
         }
 
 emr_client = boto3.client('emr')
-# The doc is quite opaque but a cluster here is called a "job flow," AFAICT
-# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/emr.html
-# https://github.com/aws-samples/aws-python-sample/issues/8
 response = emr_client.run_job_flow(
     Name='boto3 EMR creation test 2',
     # LogUri='string',
@@ -68,29 +66,14 @@ response = emr_client.run_job_flow(
     # AmiVersion='string',
     ReleaseLabel='emr-4.6.0',
     Instances={
-        'MasterInstanceType': 'm3.xlarge',
-        'SlaveInstanceType': 'm3.xlarge',
-        'InstanceCount': 3,
+        'MasterInstanceType': 'm1.large',
+        'SlaveInstanceType': 'm1.large',
+        'InstanceCount': 2,
         'Ec2KeyName' : 'MainKeyPair',
         # InstanceGroups, InstanceFleets not accepted because we specified
          # the above]
     },
-    Steps=[ #NEW_STEP_1
-    {
-                'Name': 'Load the gdelt_events table',
-                'ActionOnFailure': 'CONTINUE',
-                'HadoopJarStep': {
-                    'Properties': [
-                        {
-                            'Key': 'string',
-                            'Value': 'string'
-                        },
-                    ],
-                    'Jar': 'command-runner.jar',
-                    'Args': [ '--help',
-                        'Is there a jar to run PySpark steps?'],
-                }
-            }
+    Steps=[
     ],
     BootstrapActions=[],
     # SupportedProducts=[ #incompatible with Applications stating versions
@@ -99,19 +82,22 @@ response = emr_client.run_job_flow(
     #     'tez',
     # ],
     Applications=[
-        # { 'Name': 'Hadoop', },
-        # { 'Name': 'Hive',},
-        # { 'Name': 'Mahout',},
-        # { 'Name': 'Hue',},
-        # { 'Name': 'Ganglia',},
-        # { 'Name': 'Tez',},
         {'Name': x} for x in APPLICATIONS_SETS[APPLICATIONS_SET_CHOSEN]
     ],
     VisibleToAllUsers=True,
     JobFlowRole='EMR_EC2_DefaultRole',
     ServiceRole='EMR_DefaultRole',
+    ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
 )
 
 if response:
     print("Succeded (probably). Here is response:\n")
     print(response)
+
+
+##
+# Additional notes -- mostly for my own reference
+# The doc is quite opaque but creating a cluster is called a "job flow," to my
+# understanding.
+# https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/emr.html
+# https://github.com/aws-samples/aws-python-sample/issues/8
