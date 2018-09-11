@@ -4,10 +4,16 @@ Demonstration project--Learning to do interesting stuff with AWS and the GDELT d
 This is an early-stage demo project to showcase my autodidactic process for learning about AWS and in particular how to ''do data science'' (whatever that ends up meaning to me) on AWS. The main goal is to demonstrate the value of my work to potential employers.
 
 For [more project background](#background) and [other projects I want to showcase](#rest-of-showcase), please see below.
+
+## Where does the showcase start?
+
+If you have Jupyter Notebook installed, run `jupyter notebook` and then via the Web GUI access `Start-here.ipynb`. 
+It's still very much in process, but will be the point of entry for this project.
+
 ## Research questions
 What makes this more than just a SQL tutorial? For one thing, my intent to use this data to address interesting RQs.
 
-In this kind of research there's some iteration in RQs, because things you think *a priori* might be interesting turn out not to be, and vice versa. But it's good to keep a running list of ideas.re 
+In this kind of research there's some iteration in RQs, because things you think *a priori* might be interesting turn out not to be, and vice versa. But it's good to keep a running list of ideas.
 
 1. **Actor affinity by dyad** - Do some actor dyads consistently produce higher Rosenstein scores than others? I'd think this would be a trivial "Yes" because relationships between allies should produce more positive news than those between adversaries. So this is exploring the obvious, but a good sanity check to make sure I'm understanding the nature of this data.
   1. **Asymmetrical relationships** - Just brainstorming. If X threatens Y more than Y threatens X that's also significant and interesting.
@@ -18,7 +24,9 @@ In this kind of research there's some iteration in RQs, because things you think
 Updated 2018-09-09. Some of these overlap with the "next steps" section below, 
 but better to track everything that comes to mind rather than worry too much about defining each item.
 
-1. Finish the Karau book and integrate in here as helpful.
+1. Get my first attempts at Spark SQL to work well.
+    1. Column names
+1. Finish Karau et al.'s *Learning Spark* and integrate in here as helpful.
     1. Convert existing QL.
     2. Do more interesting queries.
     3. Use the fruits of those queries to do more interesting analysis if appropriate. 
@@ -31,7 +39,7 @@ I've created several toy examples which can form the basis of my more serious wo
 * `load-gdelt-events.q` is just a hacked example to create and populate our gdelt_events table.
 * `first-demo-shorter.q` and `demo-*.q` from 003 to 010 are just simple queries to get familiar with this table.6
 
-I have also been working through Karau et al.'s *Learning Spark*, up to chapter 4 but also jumping to 9 on Spark SQL. 
+I have also been working through the Karau book, up to chapter 4 but also jumping to 9 on Spark SQL. 
 
 ## Next steps 
 Updated 2018-09-09. Some of these overlap with each other, and also with the "working on" section above, 
