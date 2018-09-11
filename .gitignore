@@ -1,5 +1,8 @@
 secret
-automation/.idea
+.idea
+metastore_db
+juliensimon-aws
+
 
 ### Temporary ignores -- very new and ugly stuff
 scripts/rds-create-mysql.sh
