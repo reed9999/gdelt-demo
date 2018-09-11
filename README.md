@@ -1,22 +1,29 @@
+<style>
+<!--borrowed shamelessly from https://www.w3schools.com/css/css_border.asp-->
+.w3-container:after,.w3-container:before,.w3-panel:after,.w3-panel:before,.w3-row:after,.w3-row:before,.w3-row-padding:after,.w3-row-padding:before,
+.w3-cell-row:before,.w3-cell-row:after,.w3-clear:after,.w3-clear:before,.w3-bar:before,.w3-bar:after{content:"";display:table;clear:both}
+.w3-pale-blue,.w3-hover-pale-blue:hover{color:#000!important;background-color:#ddffff!important}
+.w3-purple,.w3-hover-purple:hover{color:#fff!important;background-color:#9c27b0!important}
+.w3-leftbar{border-left:6px solid #ccc!important}.w3-rightbar{border-right:6px solid #ccc!important}
+.w3-border-blue,.w3-hover-border-blue:hover{border-color:#2196F3!important}
+.w3-border-purple,.w3-hover-border-purple:hover{border-color:#9c27b0!important}
+.w3-border-deep-purple,.w3-hover-border-deep-purple:hover{border-color:#673ab7!important}
+.reed9999-note {padding:10px; font-size: medium; font-weight:bold;}
+p.reed9999-note{font-weight:bold;}
+</style>
 # gdelt-demo
 Demonstration project--Learning to do interesting stuff with AWS and the GDELT dataset
 
-This is an early-stage demo project to showcase my autodidactic process for learning about AWS and in particular how to ''do data science'' (whatever that ends up meaning to me) on AWS. The main goal is to demonstrate the value of my work to potential employers.
+This is an early-stage demo project to showcase my autodidactic process and my acquired skills. Broadly speaking the goal is to get better at ''doing data science'' (whatever that ends up meaning to me) while enhancing skills in Spark, AWS, Hadoop, and Python along the way.
 
-For [more project background](#background) and [other projects I want to showcase](#rest-of-showcase), please see below.
+<div class="w3-container w3-pale-blue w3-leftbar w3-border-blue reed9999-note">
+For the main showcase see <a href="https://github.com/reed9999/gdelt-demo/blob/master/Start-here.ipynb">Start-here.ipynb</a>.
 
-## Where does the showcase start?
+</div>
 
 If you have Jupyter Notebook installed, run `jupyter notebook` and then via the Web GUI access `Start-here.ipynb`. 
-It's still very much in process, but will be the point of entry for this project.
 
-## Research questions
-What makes this more than just a SQL tutorial? For one thing, my intent to use this data to address interesting RQs.
-
-In this kind of research there's some iteration in RQs, because things you think *a priori* might be interesting turn out not to be, and vice versa. But it's good to keep a running list of ideas.
-
-1. **Actor affinity by dyad** - Do some actor dyads consistently produce higher Rosenstein scores than others? I'd think this would be a trivial "Yes" because relationships between allies should produce more positive news than those between adversaries. So this is exploring the obvious, but a good sanity check to make sure I'm understanding the nature of this data.
-  1. **Asymmetrical relationships** - Just brainstorming. If X threatens Y more than Y threatens X that's also significant and interesting.
+For [more project background](#background) and [other projects I want to showcase](#rest-of-showcase), please see below.
 
 
 ## Currently working on...
