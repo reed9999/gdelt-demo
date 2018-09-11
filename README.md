@@ -1,5 +1,12 @@
-<style>
+# gdelt-demo
+Demonstration project--Learning to do interesting stuff with AWS and the GDELT dataset
+
+This is an early-stage demo project to showcase my autodidactic process and my acquired skills. Broadly speaking the goal is to get better at ''doing data science'' (whatever that ends up meaning to me) while enhancing skills in Spark, AWS, Hadoop, and Python along the way.
+
 <!--borrowed shamelessly from https://www.w3schools.com/css/css_border.asp-->
+<!--
+<style>
+oops. apparently GitHub doesn't deal well with this sort of markup.
 .w3-container:after,.w3-container:before,.w3-panel:after,.w3-panel:before,.w3-row:after,.w3-row:before,.w3-row-padding:after,.w3-row-padding:before,
 .w3-cell-row:before,.w3-cell-row:after,.w3-clear:after,.w3-clear:before,.w3-bar:before,.w3-bar:after{content:"";display:table;clear:both}
 .w3-pale-blue,.w3-hover-pale-blue:hover{color:#000!important;background-color:#ddffff!important}
@@ -11,16 +18,13 @@
 .reed9999-note {padding:10px; font-size: medium; font-weight:bold;}
 p.reed9999-note{font-weight:bold;}
 </style>
-# gdelt-demo
-Demonstration project--Learning to do interesting stuff with AWS and the GDELT dataset
-
-This is an early-stage demo project to showcase my autodidactic process and my acquired skills. Broadly speaking the goal is to get better at ''doing data science'' (whatever that ends up meaning to me) while enhancing skills in Spark, AWS, Hadoop, and Python along the way.
 
 <div class="w3-container w3-pale-blue w3-leftbar w3-border-blue reed9999-note">
+-->
 For the main showcase see <a href="https://github.com/reed9999/gdelt-demo/blob/master/Start-here.ipynb">Start-here.ipynb</a>.
-
+<!--
 </div>
-
+-->
 If you have Jupyter Notebook installed, run `jupyter notebook` and then via the Web GUI access `Start-here.ipynb`. 
 
 For [more project background](#background) and [other projects I want to showcase](#rest-of-showcase), please see below.
