@@ -2,6 +2,8 @@ secret
 .idea
 metastore_db
 juliensimon-aws
+manual-steps.md
+temp*
 
 
 ### Temporary ignores -- very new and ugly stuff
