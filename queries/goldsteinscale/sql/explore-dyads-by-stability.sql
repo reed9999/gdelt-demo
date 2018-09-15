@@ -13,6 +13,11 @@ GROUP BY
   actor2geo_countrycode
 ORDER BY avg_goldsteinscale DESC, actor1geo_countrycode, actor2geo_countrycode;
 
+-- If the lookup tables are loaded, here's the more user friendly way: 
+
+
+
+
 -- So what does a really unstable dyad look like?
 SELECT
   actor1code, actor1name, actor1ethniccode,
@@ -40,3 +45,6 @@ FROM gdelt.events
 WHERE
   actor1geo_countrycode = "IS" AND
   actor2geo_countrycode = "LE";
+
+
+-- TODO Let's create a table of dyads/goldstein by year. 

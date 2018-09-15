@@ -8,6 +8,7 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 
@@ -26,19 +27,21 @@ def get_event_column_names():
 # Not yet ready to worry about training/testing
 regression = LinearRegression(normalize=False, copy_X=True,)
 
-# events_columns = pd.read_csv(header_filename, delimiter="\t", dtype=str)
 filename = "/home/philip/aws/data/mini/1982-micro.csv"
-# just_data = pd.read_csv("__temp.csv", delimiter="\t", names=get_event_column_names(), index_col=0)
 events_data = pd.read_csv(filename, delimiter="\t", names=get_event_column_names(),index_col=['globaleventid'])
 X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
+y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
-#Regress it on itself as a sanity check.
-regression.fit(X=X, y=X)
-print("Coefficient on a regression on itself is: {}".format(regression.coef_))
-predictions = regression.predict(np.array([[17], [13], [97], [149]]))
-print("Predictions on this 'identity regression': {}".format(predictions))
+regression.fit(X=X, y=y)
+print("Coefficient on the regression: {}".format(regression.coef_))
+predictions = regression.predict(np.array([[-10], [-0.1], [0], [7.5]]))
+print("Predictions on this regression: {}".format(predictions))
+r2 = r2_score([[-10], [-0.1], [0], [7.5]], predictions)
+print("r2: {}".format(r2))
 
 # The method used in the diabetes example is handy to have around.
+# I will soon be modifying this to the ML train/test paradigm to get real 
+# prediction metrics. 
 # # Train the model using the training sets
 # regr.fit(diabetes_X_train, diabetes_y_train)
 
