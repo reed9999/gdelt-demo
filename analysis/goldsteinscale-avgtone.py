@@ -12,13 +12,17 @@ from sklearn.linear_model import LinearRegression
 # (which I'm well aware are many....)
 # Not yet ready to worry about training/testing
 regression = LinearRegression(normalize=False, copy_X=True,)
-data_as_dict = {'income': [0, 50, 100], 'age': [35, 27, 88]}
-data = pd.DataFrame(data_as_dict)
-X=data[['age']]
-regression.fit(X=data[['age']], y=data[['income']])
-print("Coefficient on age is: {}".format(regression.coef_))
+header_filename = "/home/philip/aws/data/events.csv"
+events_columns = pd.read_csv(header_filename, delimiter="\t",)
+filename = "/home/philip/aws/data/mini/1982-micro.csv"
+events_data = events_columns.append(pd.read_csv(filename, delimiter="\t", header=None))
+X = np.array(events_data.goldsteinscale)
+
+#Regress it on itself as a sanity check.
+regression.fit(X=X, y=X)
+print("Coefficient on a regression on itself is: {}".format(regression.coef_))
 predictions = regression.predict(np.array([[17], [13], [97], [149]]))
-print("Predictions on arbitrary ages: {}".format(predictions))
+print("Predictions on this 'identity regression': {}".format(predictions))
 
 # The method used in the diabetes example is handy to have around.
 # # Train the model using the training sets
