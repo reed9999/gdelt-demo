@@ -24,11 +24,21 @@ def get_event_column_names():
             column_names = str(f.readline()).split('\t')
       return column_names
 
-class GoldsteinscaleAvgtoneRegression(LinearRegression):
+def get_events():
+      filenames = ["/home/philip/aws/data/mini/1982-micro.csv"]
+      events_data = None
+      for filename in filenames:
+            if not events_data:
+                  events_data = pd.read_csv(filename, delimiter="\t", names=
+                        get_event_column_names(),index_col=['globaleventid'])
+            else:
+                  pass
+      return events_data
 
+class GoldsteinscaleAvgtoneRegression(LinearRegression):
+      
       def go(self, verbose=False):
-            filename = "/home/philip/aws/data/mini/1982-micro.csv"
-            events_data = pd.read_csv(filename, delimiter="\t", names=get_event_column_names(),index_col=['globaleventid'])
+            events_data = get_events()
             X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
             y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
