@@ -26,7 +26,7 @@ def get_event_column_names():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-      def go(self):
+      def go(self, verbose=False):
             filename = "/home/philip/aws/data/mini/1982-micro.csv"
             events_data = pd.read_csv(filename, delimiter="\t", names=get_event_column_names(),index_col=['globaleventid'])
             X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
@@ -37,10 +37,12 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
             print("Coefficient on the regression: {}".format(regression.coef_))
 
             predictions = regression.predict(X)
-            print("Predictions on this regression: {}".format(predictions))
+            if verbose:
+                  print("Predictions on this regression: {}".format(predictions))
             r2 = r2_score(y, predictions)
             print("r2: {}".format(r2))
 
+GARegression = GoldsteinscaleAvgtoneRegression
 if __name__ == "__main__":
       GoldsteinscaleAvgtoneRegression().go()
 # The method used in the diabetes example is handy to have around.
