@@ -1,5 +1,6 @@
 secret
 .idea
+.vscode
 metastore_db
 juliensimon-aws
 manual-steps.md

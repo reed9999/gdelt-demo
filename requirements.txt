@@ -3,3 +3,5 @@ pandas
 matplotlib
 sklearn
 boto3
+scipy
+#Also python3-tk but that's at apt level, not pip level.
