@@ -3,6 +3,8 @@
 # tone of the media coverage on the goldsteinscale. What this *should* indicate 
 # is that stability is associated with positive tone. At least that seems most 
 # intuitive.
+# I haven't yet done this as a training/testing setup (in other words, more 
+# like how a social scientist uses regression) but will be a good step soon.
 
 import os
 import pandas as pd
@@ -22,24 +24,25 @@ def get_event_column_names():
             column_names = str(f.readline()).split('\t')
       return column_names
 
-## Near-minimal case to remind myself of the subtleties of sklearn 
-# (which I'm well aware are many....)
-# Not yet ready to worry about training/testing
-regression = LinearRegression(normalize=False, copy_X=True,)
+class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-filename = "/home/philip/aws/data/mini/1982-micro.csv"
-events_data = pd.read_csv(filename, delimiter="\t", names=get_event_column_names(),index_col=['globaleventid'])
-X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
-y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
+      def go(self):
+            filename = "/home/philip/aws/data/mini/1982-micro.csv"
+            events_data = pd.read_csv(filename, delimiter="\t", names=get_event_column_names(),index_col=['globaleventid'])
+            X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
+            y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
-regression.fit(X=X, y=y)
-print("Coefficient on the regression: {}".format(regression.coef_))
+            regression = self
+            self.fit(X=X, y=y)
+            print("Coefficient on the regression: {}".format(regression.coef_))
 
+            predictions = regression.predict(X)
+            print("Predictions on this regression: {}".format(predictions))
+            r2 = r2_score(y, predictions)
+            print("r2: {}".format(r2))
 
-predictions = regression.predict(X)
-print("Predictions on this regression: {}".format(predictions))
-r2 = r2_score(y, predictions)
-print("r2: {}".format(r2))
+if __name__ == "__main__":
+      GoldsteinscaleAvgtoneRegression().go()
 # The method used in the diabetes example is handy to have around.
 # I will soon be modifying this to the ML train/test paradigm to get real 
 # prediction metrics. 
