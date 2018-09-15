@@ -34,11 +34,12 @@ y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
 regression.fit(X=X, y=y)
 print("Coefficient on the regression: {}".format(regression.coef_))
-predictions = regression.predict(np.array([[-10], [-0.1], [0], [7.5]]))
-print("Predictions on this regression: {}".format(predictions))
-r2 = r2_score([[-10], [-0.1], [0], [7.5]], predictions)
-print("r2: {}".format(r2))
 
+
+predictions = regression.predict(X)
+print("Predictions on this regression: {}".format(predictions))
+r2 = r2_score(y, predictions)
+print("r2: {}".format(r2))
 # The method used in the diabetes example is handy to have around.
 # I will soon be modifying this to the ML train/test paradigm to get real 
 # prediction metrics. 
