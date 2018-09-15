@@ -30,6 +30,9 @@ This is an early-stage demo project to showcase my autodidactic process and my a
 
 For [more project background](#background) and [other projects I want to showcase](#rest-of-showcase), please see below.
 
+## Setup
+
+To run the analysis code in Python, you'll likely want to do the standard routine of `pip install -r requirements.txt`. There are probably some requirements I've missed for the AWS automation for now. 
 
 ## Currently working on...
 
