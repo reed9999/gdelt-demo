@@ -15,46 +15,71 @@ from sklearn.metrics import r2_score
 THIS_FILE_DIR = os.path.dirname(__file__)
 
 def get_event_column_names():
-      column_names = None
-      COLUMN_NAMES_FILE = os.path.normpath(
-            os.path.join(THIS_FILE_DIR, "..", "data-related", 
-            "events-column-names.csv")
-      )
-      with open(COLUMN_NAMES_FILE, 'r') as f:
-            column_names = str(f.readline()).split('\t')
-      return column_names
+    COLUMN_NAMES_FILE = os.path.normpath(
+        os.path.join(THIS_FILE_DIR, "..", "data-related",
+                     "events-column-names.csv")
+    )
+    with open(COLUMN_NAMES_FILE, 'r') as f:
+        column_names = str(f.readline()).split('\t')
+    return column_names
 
 def get_events():
-      filenames = ["/home/philip/aws/data/mini/1982-micro.csv"]
-      events_data = None
-      for filename in filenames:
-            if not events_data:
-                  events_data = pd.read_csv(filename, delimiter="\t", names=
-                        get_event_column_names(),index_col=['globaleventid'])
-            else:
-                  pass
-      return events_data
+    filenames = [
+        # "/home/philip/aws/data/mini/1982-micro.csv",
+        "/home/philip/aws/data/original/1982.csv",
+        "/home/philip/aws/data/original/1987.csv",
+        "/home/philip/aws/data/original/20160728.export.csv",
+        "/home/philip/aws/data/original/20160729.export.csv",
+        "/home/philip/aws/data/original/20160730.export.csv",
+        "/home/philip/aws/data/original/20160731.export.csv",
+    ]
+    events_data = pd.DataFrame(columns=get_event_column_names())
+    for filename in filenames:
+        new_df = pd.read_csv(filename, delimiter="\t", names=
+        get_event_column_names(),index_col=['globaleventid'])
+        try:
+            events_data = pd.concat([events_data, new_df], sort=False)
+        except TypeError:
+            #Version compatibility. I'm not sure what Pandas jupyter
+            # is running but it's older
+            events_data = pd.concat([events_data, new_df],)
+
+    count_null = events_data.isna().sum().sum()
+    count_goldstein_null = events_data.goldsteinscale.isna().sum()
+    print("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
+        count_goldstein_null, count_null
+    ))
+    events_data = events_data.dropna(subset=['fractiondate','goldsteinscale'])
+    return events_data
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
-      
-      def go(self, verbose=False):
-            events_data = get_events()
-            X = np.reshape(np.array(events_data.goldsteinscale), (events_data.shape[0], -1))
-            y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
-            regression = self
-            self.fit(X=X, y=y)
-            print("Coefficient on the regression: {}".format(regression.coef_))
+    def go(self):
+        events_data = get_events()
+        self._X = np.reshape(np.array(events_data[[
+            'fractiondate', 'goldsteinscale'
+        ]]), (events_data.shape[0], -1))
+        self._y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
 
-            predictions = regression.predict(X)
-            if verbose:
-                  print("Predictions on this regression: {}".format(predictions))
-            r2 = r2_score(y, predictions)
-            print("r2: {}".format(r2))
+        self.fit(X=self._X, y=self._y)
+
+        self._predictions = self.predict(self._X)
+        self._r2 = r2_score(self._y, self._predictions)
+
+    def print_output(self, verbose=False):
+        print("Coefficients on the regression: {}".format(self.coef_))
+        if (verbose):
+            print("Predictions on the regression: {}".format(self._predictions))
+        print("r2: {}".format(self._r2))
+
+
 
 GARegression = GoldsteinscaleAvgtoneRegression
 if __name__ == "__main__":
-      GoldsteinscaleAvgtoneRegression().go()
+    regr = GoldsteinscaleAvgtoneRegression()
+    regr.go()
+    regr.print_output()
+    print ("All finished.")
 # The method used in the diabetes example is handy to have around.
 # I will soon be modifying this to the ML train/test paradigm to get real 
 # prediction metrics. 
@@ -73,8 +98,6 @@ if __name__ == "__main__":
 # print('Variance score: %.2f' % r2_score(diabetes_y_test, diabetes_y_pred))
 
 # # Plot outputs
-# plt.scatter(diabetes_X_test, diabetes_y_test,  color='black')
-# plt.plot(diabetes_X_test, diabetes_y_pred, color='blue', linewidth=3)
 
 # plt.xticks(())
 # plt.yticks(())
