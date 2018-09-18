@@ -9,6 +9,6 @@ sc = SparkContext()
 hiveCtx = HiveContext(sc)
 # FILENAME = "s3://reed9999/data/events/20160101.export.csv"
 FILENAME = "/home/philip/aws/data/mini/1982-micro.csv"
-frame = hiveCtx.read.format("com.databricks.spark.csv").option("delimiter",
-    "\t").load()
-events.take(2)
+events = hiveCtx.read.format("com.databricks.spark.csv").option("delimiter",
+    "\t").load(FILENAME)
+ev2 = events.take(2)
