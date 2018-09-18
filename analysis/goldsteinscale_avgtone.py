@@ -10,9 +10,13 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
 
 THIS_FILE_DIR = os.path.dirname(__file__)
+
+## These top-level functions will probably eventually be refactored somewhere
+# as helpers.
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
@@ -54,22 +58,42 @@ def get_events():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-    def go(self):
-        events_data = get_events()
-        self._X = np.reshape(np.array(events_data[[
+    def go(self, plot=True):
+        self.prepare_data()        
+        self.fit(X=self._X_train, y=self._y_train)
+        self.assess_predictions()
+        if (plot): 
+            self.plot_predictions()
+            print("No plots yet...")
+
+    def plot_predictions(self):
+        pass
+
+    def assess_predictions(self):
+        self._predictions = self.predict(self._X_test)
+        self._msre = mean_squared_error(self._y_test, self._predictions)
+        self._r2 = r2_score(self._y_test, self._predictions)
+
+    def prepare_data(self):
+        self._events_data = get_events()
+        X = np.reshape(np.array(self._events_data[[
             'fractiondate', 'goldsteinscale'
-        ]]), (events_data.shape[0], -1))
-        self._y = np.reshape(np.array(events_data.avgtone), (events_data.shape[0], -1))
+        ]]), (self._events_data.shape[0], -1))
+        # X = np.reshape(np.array(self._events_data[[ 'fractiondate', 'goldsteinscale' ]]), (events_data.shape[0], -1))
+        y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
+        (
+            self._X_train,  
+            self._X_test,  
+            self._y_train,  
+            self._y_test,
+        ) = train_test_split(X, y, test_size=0.33)  
 
-        self.fit(X=self._X, y=self._y)
-
-        self._predictions = self.predict(self._X)
-        self._r2 = r2_score(self._y, self._predictions)
-
+        
     def print_output(self, verbose=False):
         print("Coefficients on the regression: {}".format(self.coef_))
         if (verbose):
             print("Predictions on the regression: {}".format(self._predictions))
+        print("MSRE: {}".format(self._msre))
         print("r2: {}".format(self._r2))
 
 
@@ -80,10 +104,8 @@ if __name__ == "__main__":
     regr.go()
     regr.print_output()
     print ("All finished.")
-# The method used in the diabetes example is handy to have around.
-# I will soon be modifying this to the ML train/test paradigm to get real 
-# prediction metrics. 
-# # Train the model using the training sets
+
+
 # regr.fit(diabetes_X_train, diabetes_y_train)
 
 # # Make predictions using the testing set
