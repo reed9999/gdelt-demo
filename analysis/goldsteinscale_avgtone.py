@@ -18,17 +18,19 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 ## These top-level functions will probably eventually be refactored somewhere
 # as helpers.
-def get_event_column_names_types():
-    COLUMN_NAMES_FILE = os.path.normpath(
+def get_event_column_names_dtypes():
+    COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data-related",
-                     "events-column-names.csv")
+                     "events-column-names-dtypes.csv")
     )
-    with open(COLUMN_NAMES_FILE, 'r') as f:
+    with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
         lines = f.readlines()
-        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1]} 
+        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()} 
             for x in lines]
         # pairs = str(f.readline()).split('\t')
-    return pairs
+    names = [x['name'] for x in pairs]
+    dtypes = {x['name']: x['dtype'] for x in pairs}
+    return names, dtypes
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
@@ -51,8 +53,11 @@ def get_events():
     ]
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
-        new_df = pd.read_csv(filename, delimiter="\t", names=
-        get_event_column_names(),index_col=['globaleventid'])
+        # names, dtypes = get_event_column_names_dtypes()
+        names = get_event_column_names()
+        dtypes = None
+        new_df = pd.read_csv(filename, delimiter="\t", names= names,
+            dtype=dtypes, index_col=['globaleventid'])
         try:
             events_data = pd.concat([events_data, new_df], sort=False)
         except TypeError:
@@ -121,7 +126,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 GARegression = GoldsteinscaleAvgtoneRegression
 if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
-    regr.go()
+    regr.go(plot=False)
     regr.print_output()
     print ("All finished.")
 
