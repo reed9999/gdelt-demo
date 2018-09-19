@@ -8,6 +8,7 @@
 
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
@@ -17,6 +18,17 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 ## These top-level functions will probably eventually be refactored somewhere
 # as helpers.
+def get_event_column_names_types():
+    COLUMN_NAMES_FILE = os.path.normpath(
+        os.path.join(THIS_FILE_DIR, "..", "data-related",
+                     "events-column-names.csv")
+    )
+    with open(COLUMN_NAMES_FILE, 'r') as f:
+        lines = f.readlines()
+        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1]} 
+            for x in lines]
+        # pairs = str(f.readline()).split('\t')
+    return pairs
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
@@ -64,10 +76,17 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         self.assess_predictions()
         if (plot): 
             self.plot_predictions()
-            print("No plots yet...")
 
     def plot_predictions(self):
-        pass
+        #Not really ideal for a multivariate regression
+        # Besides, it might have been ideal to leave these as Pandas DFs for 
+        # as long as possible.
+        x_to_plot = self._X_test[:,1]
+        plt.scatter(x_to_plot, self._y_test,  color='purple')
+        plt.plot(x_to_plot, self._predictions,  color='blue', linewidth=2)
+        plt.xticks(())
+        plt.yticks(())
+        plt.show()       
 
     def assess_predictions(self):
         self._predictions = self.predict(self._X_test)
@@ -76,10 +95,11 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
     def prepare_data(self):
         self._events_data = get_events()
-        X = np.reshape(np.array(self._events_data[[
-            'fractiondate', 'goldsteinscale'
-        ]]), (self._events_data.shape[0], -1))
-        # X = np.reshape(np.array(self._events_data[[ 'fractiondate', 'goldsteinscale' ]]), (events_data.shape[0], -1))
+        # X = np.reshape(np.array(self._events_data[[
+        #     'fractiondate', 'goldsteinscale'
+        # ]]), (self._events_data.shape[0], -1))
+        columns_for_X = self._events_data[[ 'fractiondate', 'goldsteinscale' ]]
+        X = np.reshape(np.array(columns_for_X), (self._events_data.shape[0], -1))
         y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
         (
             self._X_train,  
@@ -105,25 +125,6 @@ if __name__ == "__main__":
     regr.print_output()
     print ("All finished.")
 
-
-# regr.fit(diabetes_X_train, diabetes_y_train)
-
-# # Make predictions using the testing set
-# diabetes_y_pred = regr.predict(diabetes_X_test)
-
-# # The coefficients
-# print('Coefficients: \n', regr.coef_)
-# # The mean squared error
-# print("Mean squared error: %.2f"
-#       % mean_squared_error(diabetes_y_test, diabetes_y_pred))
 # # Explained variance score: 1 is perfect prediction
 # print('Variance score: %.2f' % r2_score(diabetes_y_test, diabetes_y_pred))
-
-# # Plot outputs
-
-# plt.xticks(())
-# plt.yticks(())
-
-# plt.show()
-
 
