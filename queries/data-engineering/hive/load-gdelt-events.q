@@ -1,4 +1,5 @@
 -- DRY -- only the external source differs from the load-mini version.
+-- (Fixes to featureid fields: Temporarily untested!)
 DROP TABLE IF EXISTS gdelt_events;
 CREATE EXTERNAL TABLE gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
@@ -11,11 +12,11 @@ CREATE EXTERNAL TABLE gdelt_events (
   `isrootevent` BOOLEAN,`eventcode` string,`eventbasecode` string,`eventrootcode` string,
   `quadclass` INT,`goldsteinscale` FLOAT,`nummentions` INT,`numsources` INT,`numarticles` INT,`avgtone` FLOAT,
   `actor1geo_type` INT,`actor1geo_fullname` string,`actor1geo_countrycode` string,`actor1geo_adm1code` string,
-  `actor1geo_lat` FLOAT,`actor1geo_long` FLOAT,`actor1geo_featureid` INT,
+  `actor1geo_lat` FLOAT,`actor1geo_long` FLOAT,`actor1geo_featureid` string,
   `actor2geo_type` INT,`actor2geo_fullname` string,`actor2geo_countrycode` string,`actor2geo_adm1code` string,
-  `actor2geo_lat` FLOAT,`actor2geo_long` FLOAT,`actor2geo_featureid` INT,
+  `actor2geo_lat` FLOAT,`actor2geo_long` FLOAT,`actor2geo_featureid` string,
   `actiongeo_type` INT,`actiongeo_fullname` string,`actiongeo_countrycode` string,`actiongeo_adm1code` string,
-  `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
+  `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` string,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
     WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';

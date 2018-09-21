@@ -39,14 +39,14 @@ actor1geo_countrycode	object
 actor1geo_adm1code	object
 actor1geo_lat	float64
 actor1geo_long	float64
-actor1geo_featureid	float64
+actor1geo_featureid	object
 actor2geo_type	float64
 actor2geo_fullname	object
 actor2geo_countrycode	object
 actor2geo_adm1code	object
 actor2geo_lat	float64
 actor2geo_long	float64
-actor2geo_featureid	float64
+actor2geo_featureid	object
 actiongeo_type	float64
 actiongeo_fullname	object
 actiongeo_countrycode	object
