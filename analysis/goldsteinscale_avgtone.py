@@ -51,6 +51,8 @@ def get_events_local_medium():
         "/home/philip/aws/data/original/20160730.export.csv",
         "/home/philip/aws/data/original/20160731.export.csv",
     ]
+    #Just troubleshooting, but I do need to get rid of hardcoded filename/path
+    filenames = ["/home/philip/demo/data-related/sample-data/test.csv",]
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
         names, dtypes = get_event_column_names_dtypes()
