@@ -41,7 +41,7 @@ def get_event_column_names():
         column_names = str(f.readline()).split('\t')
     return column_names
 
-def get_events():
+def get_events_local_medium():
     filenames = [
         # "/home/philip/aws/data/mini/1982-micro.csv",
         "/home/philip/aws/data/original/1982.csv",
@@ -53,18 +53,29 @@ def get_events():
     ]
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
-        # names, dtypes = get_event_column_names_dtypes()
-        names = get_event_column_names()
+        names, dtypes = get_event_column_names_dtypes()
+        try:
+            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+                                 dtype=dtypes, index_col=['globaleventid'])
+        except Exception as e:
+            # raise e
+            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+                                 dtype=None, index_col=['globaleventid'])
+
         dtypes = None
-        new_df = pd.read_csv(filename, delimiter="\t", names= names,
-            dtype=dtypes, index_col=['globaleventid'])
         try:
             events_data = pd.concat([events_data, new_df], sort=False)
         except TypeError:
-            #Version compatibility. I'm not sure what Pandas jupyter
+            # Version compatibility. I'm not sure what Pandas jupyter
             # is running but it's older
-            events_data = pd.concat([events_data, new_df],)
+            events_data = pd.concat([events_data, new_df], )
+    return events_data
 
+def get_events_sample_tiny():
+    pass
+
+def get_events():
+    events_data = get_events_local_medium()
     count_null = events_data.isna().sum().sum()
     count_goldstein_null = events_data.goldsteinscale.isna().sum()
     print("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
@@ -100,9 +111,6 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
     def prepare_data(self):
         self._events_data = get_events()
-        # X = np.reshape(np.array(self._events_data[[
-        #     'fractiondate', 'goldsteinscale'
-        # ]]), (self._events_data.shape[0], -1))
         columns_for_X = self._events_data[[ 'fractiondate', 'goldsteinscale' ]]
         X = np.reshape(np.array(columns_for_X), (self._events_data.shape[0], -1))
         y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
@@ -128,7 +136,6 @@ if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
     regr.go(plot=False)
     regr.print_output()
-    print ("All finished.")
 
 # # Explained variance score: 1 is perfect prediction
 # print('Variance score: %.2f' % r2_score(diabetes_y_test, diabetes_y_pred))
