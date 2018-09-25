@@ -23,7 +23,8 @@ SELECT
   actor1geo_countrycode, actor1geo_fullname,
   actor2geo_countrycode, actor2geo_fullname,
   actiongeo_countrycode, actiongeo_fullname,
-  eventcode, goldsteinscale, avgtone
+  eventcode, goldsteinscale, avgtone, 
+  sourceurl -- to give us an idea of the story, but all NULL.
 FROM gdelt.events
 WHERE
   actor1geo_countrycode = "UK" AND
@@ -50,20 +51,25 @@ WHERE
   actor2geo_countrycode = "LA";
 
 
--- and what does a really stable dyad look like?
--- precursor to the Israel-Lebanon war, oddly enough, but seems that in Jan 1982
--- there was quite a bit of military deescalation.
+-- and what does a really positive dyad look like?
+-- I have no idea why Guinea-Ukraine would be, but apparently there was
+-- one pleasant visit that generated three rows. 
+-- (TODO: What does this mean?)
 SELECT
+  day, monthyear,
   actor1code, actor1name, actor1ethniccode,
   actor2code, actor2name, actor2ethniccode,
   actor1geo_countrycode, actor1geo_fullname,
   actor2geo_countrycode, actor2geo_fullname,
   actiongeo_countrycode, actiongeo_fullname,
-  eventcode, goldsteinscale, avgtone
-FROM gdelt.events
+  eventcode, co.description,
+  goldsteinscale, avgtone, 
+  sourceurl
+FROM gdelt.events AS ev LEFT JOIN gdelt.eventcodes co 
+  ON ev.eventcode = co.code
 WHERE
-  actor1geo_countrycode = "IS" AND
-  actor2geo_countrycode = "LE";
+  actor1geo_countrycode = "GV" AND
+  actor2geo_countrycode = "UP";
 
 
 -- TODO Let's create a table of dyads/goldstein by year. 
