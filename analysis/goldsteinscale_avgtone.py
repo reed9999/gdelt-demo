@@ -6,6 +6,8 @@
 # I haven't yet done this as a training/testing setup (in other words, more 
 # like how a social scientist uses regression) but will be a good step soon.
 
+import glob
+import logging
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -43,25 +45,18 @@ def get_event_column_names():
     return column_names
 
 def get_events_local_medium():
-    filenames = [
-        # "/home/philip/aws/data/mini/1982-micro.csv",
-        "/home/philip/aws/data/original/1982.csv",
-        "/home/philip/aws/data/original/1987.csv",
-        "/home/philip/aws/data/original/20160728.export.csv",
-        "/home/philip/aws/data/original/20160729.export.csv",
-        "/home/philip/aws/data/original/20160730.export.csv",
-        "/home/philip/aws/data/original/20160731.export.csv",
-    ]
-    #Just troubleshooting, but I do need to get rid of hardcoded filename/path
-    # filenames = ["/home/philip/demo/data-related/sample-data/test.csv",]
+    filenames = glob.glob("/home/philip/aws/data/original/????.csv")
+    filenames += glob.glob("/home/philip/aws/data/original/????????.export.csv")
+    # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
         names, dtypes = get_event_column_names_dtypes()
         try:
             new_df = pd.read_csv(filename, delimiter="\t", names=names,
                                  dtype=dtypes, index_col=['globaleventid'])
-        except Exception as e:
-            # raise e
+        except Exception:
+            logging.info("""Fell through to non-dtype (i.e. slow) handling 
+                on filename: {}""".format(filename))
             new_df = pd.read_csv(filename, delimiter="\t", names=names,
                                  dtype=None, index_col=['globaleventid'])
 
@@ -81,7 +76,7 @@ def get_events():
     events_data = get_events_local_medium()
     count_null = events_data.isna().sum().sum()
     count_goldstein_null = events_data.goldsteinscale.isna().sum()
-    print("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
+    logging.warn("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
         count_goldstein_null, count_null
     ))
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
@@ -129,7 +124,6 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         print("Coefficients on the regression:\n")
         for i in range(0, 2):
             print("    {}: {}".format(INDEPENDENT_COLUMNS[i], self.coef_[0][i]))
-            
 
         if (verbose):
             print("Predictions on the regression: {}".format(self._predictions))
