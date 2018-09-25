@@ -37,39 +37,35 @@ I also did a good bit of qualitative research for my dissertation. I'm a big bel
 Updated 2018-09-09. Some of these overlap with the "next steps" section below, 
 but better to track everything that comes to mind rather than worry too much about defining each item.
 
-1. Get my first attempts at Spark SQL to work well.
-    1. Column names
-1. Finish Karau et al.'s *Learning Spark* and integrate in here as helpful.
-    1. Convert existing QL.
-    2. Do more interesting queries.
-    3. Use the fruits of those queries to do more interesting analysis if appropriate. 
+1. Add some classification demos.
+    1. Extract appropriate features. I'm thinking something like: Find external GDP data. Extract features like number of connections.  
+1. Polish up my regression examples
+    1. Find something more meaningful to plot and include the 
+
+1. I moved Spark learning down my list a bit to focus on demonstrating "real data science" competencies. For now I'm running on my own arbitrary subset of the data, but I want this to run on Spark on AWS. Troubleshoot why my previous attempts at Spark on AWS EMR didn't seem to work.
 1. Continuing to drive repetitive tasks with Python3 and boto3 rather than bash and CLI. Actually each is better for different things, but Python gives me more intuitive control over looping (I don't really love bash syntax) and supports my broader pedagogical goals. See `automation` directory.
-1. Developing more interesting queries (and soon regressions) to get closer to answering RQs. For example I was exploring the Rosenstein score as a proxy for the positive or negative nature of each event, but `AvgTone` needs to come into play.   
+1. Developing other interesting regressions to get closer to answering RQs. For example I was exploring the Rosenstein score as a proxy for the positive or negative nature of each event, but `AvgTone` needs to come into play.   
 
-## Accomplished so far
-[Perhaps this can be merged with the skills used, which I will move out of the ipynb into the main README.]
-
-I've created several toy examples which can form the basis of my more serious work here. See `queries/hive` directory (to be converted to Spark SQL):
-
-* `load-gdelt-events.q` is just a hacked example to create and populate our gdelt_events table.
-* `first-demo-shorter.q` and `demo-*.q` from 003 to 010 are just simple queries to get familiar with this table.6
-
-I have also been working through the Karau book, up to chapter 4 but also jumping to 9 on Spark SQL. 
 
 ## Next steps 
 Updated 2018-09-09. Some of these overlap with each other, and also with the "working on" section above, 
 but better not to lose track of them.
 
 1. Build more analytical queries to at least the mid-range level--more meaningful than what I have now, and starting to build up toward my research questions, even if not quite 'production-quality' (i.e. my final RQs)
-1. Better job of showcasing -- Web site or similar
 1. Learn more about GDELT itself.
     1. Learn more about other ways people have used GDELT:
         * [linwoodc3/gdeltPyR](https://github.com/linwoodc3/gdeltPyR)
         * Examples at [AWS GDELT page](https://registry.opendata.aws/gdelt/)
     1. GDELT's setup on Google Big Query could be helpful here (if a tangent from my AWS tutelage). See [this explanation](https://www.gdeltproject.org/data.html).
+1. Clean up the GDELT data. See explore-dyads-by-avgtone.sql: ITALIAN/ITALY, ESP miscoded as being in IT, etc.
 1. Read everything I can find about data science on AWS -- SageMaker, Athena, Redshift. All buzzwords I barely understand.
 1. Build more than just queries--regression, other data science techiques, etc.
 1. Build "something more analytical" into a full suite showing data science understanding. (In other words, the presentation.)
+1. Better job of showcasing -- Web site or similar
+1. Finish Karau et al.'s *Learning Spark* and integrate in here as helpful. I have worked up to chapter 4 but also jumped to 9 on Spark SQL. 
+    1. Convert existing QL.
+    2. Do more interesting queries.
+    3. Use the fruits of those queries to do more interesting analysis if appropriate. 
 1. Do more investigation on whether I can do my EMR creation in boto3. In particular, how do I choose the spot rate?
     1. Also refactor a lot of this stuff. Look for a third-party open-source wrapper. If it doesn't exist, just extract interesting params to a YAML file or similar.
 . 

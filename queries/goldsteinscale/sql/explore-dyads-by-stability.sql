@@ -13,10 +13,7 @@ GROUP BY
   actor2geo_countrycode
 ORDER BY avg_goldsteinscale DESC, actor1geo_countrycode, actor2geo_countrycode;
 
--- If the lookup tables are loaded, here's the more user friendly way: 
-
-
-
+-- If the lookup tables are loaded, soon I'd like to offer more user friendly output.  
 
 -- So what does a really unstable dyad look like?
 SELECT
