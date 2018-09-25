@@ -15,6 +15,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
 THIS_FILE_DIR = os.path.dirname(__file__)
+INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 
 ## These top-level functions will probably eventually be refactored somewhere
 # as helpers.
@@ -83,7 +84,7 @@ def get_events():
     print("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
         count_goldstein_null, count_null
     ))
-    events_data = events_data.dropna(subset=['fractiondate','goldsteinscale'])
+    events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
@@ -125,7 +126,11 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
         
     def print_output(self, verbose=False):
-        print("Coefficients on the regression: {}".format(self.coef_))
+        print("Coefficients on the regression:\n")
+        for i in range(0, 2):
+            print("    {}: {}".format(INDEPENDENT_COLUMNS[i], self.coef_[0][i]))
+            
+
         if (verbose):
             print("Predictions on the regression: {}".format(self._predictions))
         print("MSRE: {}".format(self._msre))
