@@ -41,3 +41,13 @@ for dir in dirs_to_sync:
     s3_uri = "s3://{bucket}/{destination}".format(bucket=S3_BUCKET,
         destination = dir)
     aws_cli(('s3', 'sync', local_dir, s3_uri))
+
+
+### DRY abomination ahead
+# Let's do the same for the newer favored bucket
+S3_BUCKET = 'reed9999'
+for dir in dirs_to_sync:
+    local_dir = os.path.join(BASE_DIR, dir)
+    s3_uri = "s3://{bucket}/{destination}".format(bucket=S3_BUCKET,
+        destination = dir)
+    aws_cli(('s3', 'sync', local_dir, s3_uri))
