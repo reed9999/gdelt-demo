@@ -36,8 +36,7 @@ I've created several toy examples which can form the basis of my more serious wo
 * `load-gdelt-events.q` is just a hacked example to create and populate our gdelt_events table.
 * `first-demo-shorter.q` and `demo-*.q` from 003 to 010 are just simple queries to get familiar with this table.6
 
-I have also been working through the Karau book, up to chapter 4 but also jumping to 9 on Spark SQL. 
-Karau et al.'s *Learning Spark*
+
 
 <!--borrowed shamelessly from https://www.w3schools.com/css/css_border.asp-->
 <!--but GitHub doesn't deal well with this sort of markup. -->

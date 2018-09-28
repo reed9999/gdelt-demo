@@ -2,12 +2,19 @@
 # This isn't much of an enhancement over _002, but it tries to write output.
 # From command line spark-submit it at least creates the output file, but from
 # an EMR step it just runs for over an hour. I'm trying to learn how to 
-# troubleshoot that to see if it's stuck.  
+# troubleshoot that to see if it's stuck.     
 
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext, Row
 
-sc = SparkContext()
+try:
+    sc = SparkContext()
+except :
+    print("""Could not create new spark context. Hopefully this is the common error:
+        'Cannot run multiple SparkContexts at once'""")
+    raise
+
+
 hiveCtx = HiveContext(sc)
 if (exists("/home/philip")):
     FILENAME = "/home/philip/aws/data/mini/1982-micro.csv"

@@ -37,8 +37,13 @@ def download_dir(client, resource, dist,
                     resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
 
 if IS_LOCAL:
-    download_dir(client, resource, 
-        dist='events/', 
-        bucket='gdelt-open-data',
-        pattern='1985\.')
+    for patt in [
+        '19[88][47]\.', 
+        '2004\.', 
+        '200[6-9]08\.', 
+        '200[0-3]02\.', 
+        '200[34]0[79]27\.export', 
+        ]:
+        download_dir(client, resource, dist='events/', 
+            bucket='gdelt-open-data', pattern=patt)
     print ("Downloaded")
