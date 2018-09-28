@@ -4,4 +4,6 @@ matplotlib
 sklearn
 boto3
 scipy
+boto3
+pyspark
 #Also python3-tk but that's at apt level, not pip level.
