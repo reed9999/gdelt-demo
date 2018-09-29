@@ -18,6 +18,7 @@ from sklearn.model_selection import train_test_split
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
+LOCAL_DATA_DIR = "/home/philip/aws/data/original/events"
 
 ## These top-level functions will probably eventually be refactored somewhere
 # as helpers.
@@ -45,8 +46,8 @@ def get_event_column_names():
     return column_names
 
 def get_events_local_medium():
-    filenames = glob.glob("/home/philip/aws/data/original/????.csv")
-    filenames += glob.glob("/home/philip/aws/data/original/????????.export.csv")
+    filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
+    filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
@@ -84,12 +85,22 @@ def get_events():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
+    def __init__(self):
+        self._events_data = None
+        super()
+
     def go(self, plot=True):
-        self.prepare_data()        
+        if self._events_data is None:
+            self.prepare_data()
         self.fit(X=self._X_train, y=self._y_train)
         self.assess_predictions()
         if (plot): 
             self.plot_predictions()
+
+    def report_descriptives(self):
+        if self._events_data is None:
+            self.prepare_data()
+        self._events_data.describe()
 
     def plot_predictions(self):
         #Not really ideal for a multivariate regression
@@ -113,9 +124,9 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         X = np.reshape(np.array(columns_for_X), (self._events_data.shape[0], -1))
         y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
         (
-            self._X_train,  
-            self._X_test,  
-            self._y_train,  
+            self._X_train,
+            self._X_test,
+            self._y_train,
             self._y_test,
         ) = train_test_split(X, y, test_size=0.33)  
 
@@ -135,6 +146,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 GARegression = GoldsteinscaleAvgtoneRegression
 if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
+    regr.report_descriptives()
     regr.go(plot=False)
     regr.print_output()
 

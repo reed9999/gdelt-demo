@@ -34,16 +34,18 @@ def download_dir(client, resource, dist,
                 if not os.path.exists(os.path.dirname(local + os.sep + file.get('Key'))):
                      os.makedirs(os.path.dirname(local + os.sep + file.get('Key')))
                 if re.search(pattern, file.get('Key')):
+                    print ("Now downloading file: {}".format(file.get('Key')))
                     resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
 
 if IS_LOCAL:
     for patt in [
-        '19[88][47]\.', 
-        '2004\.', 
+        # '19[88][47]\.', 
+        # '2004\.', 
         '200[6-9]08\.', 
         '200[0-3]02\.', 
         '200[34]0[79]27\.export', 
         ]:
+        print ("Now downloading according to pattern {}".format(patt))
         download_dir(client, resource, dist='events/', 
             bucket='gdelt-open-data', pattern=patt)
     print ("Downloaded")
