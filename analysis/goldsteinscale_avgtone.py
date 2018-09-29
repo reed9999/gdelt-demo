@@ -85,10 +85,7 @@ def get_events():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-    # This was causing failure so should be reintroduced carefully.
-    # def __init__(self):
-    #     self._events_data = None
-    #     super()
+    events_data = None
 
     def go(self, plot=True):
         # if self._events_data is None:
