@@ -85,21 +85,22 @@ def get_events():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-    def __init__(self):
-        self._events_data = None
-        super()
+    # This was causing failure so should be reintroduced carefully.
+    # def __init__(self):
+    #     self._events_data = None
+    #     super()
 
     def go(self, plot=True):
-        if self._events_data is None:
-            self.prepare_data()
+        # if self._events_data is None:
+        #     self.prepare_data()
         self.fit(X=self._X_train, y=self._y_train)
         self.assess_predictions()
         if (plot): 
             self.plot_predictions()
 
     def report_descriptives(self):
-        if self._events_data is None:
-            self.prepare_data()
+        # if self._events_data is None:
+        #     self.prepare_data()
         self._events_data.describe()
 
     def plot_predictions(self):
@@ -146,10 +147,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 GARegression = GoldsteinscaleAvgtoneRegression
 if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
+    regr.prepare_data()
     regr.report_descriptives()
     regr.go(plot=False)
     regr.print_output()
-
-# # Explained variance score: 1 is perfect prediction
-# print('Variance score: %.2f' % r2_score(diabetes_y_test, diabetes_y_pred))
-
