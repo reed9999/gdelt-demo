@@ -4,6 +4,10 @@ matplotlib
 sklearn
 boto3
 scipy
-boto3
 pyspark
+
+#AWS automation -- I had as a separate virtualenv but that's unwieldy
+boto3
+awscli
+
 #Also python3-tk but that's at apt level, not pip level.
