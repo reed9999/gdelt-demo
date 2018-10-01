@@ -24,11 +24,14 @@ I'm working on getting it to run on a small subset of GDELT data that this repo 
 
 * **Hive QL and SQL**: Exploratory queries for now. See [queries/exploration](https://github.com/reed9999/gdelt-demo/tree/master/queries/exploration). The SQL ones should run against a local MySQL. Many of the Hive ones will run against MySQL with minimal modification.
   
-* **Spark** (via PySpark): See [queries/spark-sql](https://github.com/reed9999/gdelt-demo/tree/master/queries/spark-sql).
+* **Spark** (via PySpark): See [queries/spark_sql](https://github.com/reed9999/gdelt-demo/tree/master/queries/spark-sql). 
 
-* **AWS setup** (S3, EMR cluster creation)
+* **AWS setup** (S3, EMR cluster creation): These are some data engineering skills to complement the purely data science skills.
   * **via CLI**: See [automation/scripts](https://github.com/reed9999/gdelt-demo/tree/master/automation/scripts).
   * **via boto3**: See [automation](https://github.com/reed9999/gdelt-demo/tree/master/automation).
+  * **Hadoop and Spark on Elastic MapReduce**: Hadoop has worked fine with HiveQL, but 
+  so far, my Spark apps hang when run as steps. Learning what's going on here will be helpful 
+  to my overall understanding.
 
 ### Other accomplishments
 I've created several toy examples which can form the basis of my more serious work here. See `queries/hive` directory (to be converted to Spark SQL):

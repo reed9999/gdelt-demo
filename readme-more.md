@@ -16,7 +16,9 @@ I want to keep [the main README.md](https://github.com/reed9999/gdelt-demo/blob/
 This GDELT project is the latest one I'm building on here, but some of my previous work will also be of interest. See the respective README.md files for more:
 
 
-* **[Thumbs up for Privacy?](https://github.com/reed9999/thumbs-up-for-privacy)** (R, regressions) [This is my first-authored paper](https://www.sciencedirect.com/science/article/pii/S0049089X16302368) using a million row dataset. This work was published as "Thumbs Up for Privacy?" in _Social Science Research_, by Reed, Spiro, and Butts. About 90% of the analysis, the prose, and the R code are my original work.
+<!--* **[Thumbs up for Privacy?](https://github.com/reed9999/thumbs-up-for-privacy)** (R, regressions) [This is my first-authored paper](https://www.sciencedirect.com/science/article/pii/S0049089X16302368) using a million row dataset. This work was published as "Thumbs Up for Privacy?" in _Social Science Research_, by Reed, Spiro, and Butts. About 90% of the analysis, the prose, and the R code are my original work. -->
+
+* **Thumbs up for Privacy?** (R, regressions) [This is my first-authored paper](https://www.sciencedirect.com/science/article/pii/S0049089X16302368) using a million row dataset. This work was published as "Thumbs Up for Privacy?" in _Social Science Research_, by Reed, Spiro, and Butts. About 90% of the analysis, the prose, and the R code are my original work. I will be publishing my overhaul to the R source code.
 
 * **[Neural Networks and Deep Learning](https://github.com/reed9999/neural-networks-and-deep-learning)** (exploratory, Python, neural networks) I hacked around on Nielsen's eBook code. It shows my curiosity about one of the ''mysteries'' about ML to my social-science-educated brain: Why can't we improve predictions with a little bit of a theoretical nudge?
 
