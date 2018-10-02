@@ -85,7 +85,7 @@ def get_events():
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
-    events_data = None
+    _events_data = None
 
     def go(self, plot=True):
         # if self._events_data is None:
@@ -98,7 +98,8 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
     def report_descriptives(self):
         # if self._events_data is None:
         #     self.prepare_data()
-        self._events_data.describe()
+        description = self._events_data.describe()
+        print(description)
 
     def plot_predictions(self):
         #Not really ideal for a multivariate regression
@@ -127,7 +128,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
             self._y_train,
             self._y_test,
         ) = train_test_split(X, y, test_size=0.33)  
-
+        assert(self._events_data is not None)
         
     def print_output(self, verbose=False):
         print("Coefficients on the regression:\n")
