@@ -21,30 +21,32 @@ eventbasecode,  eventrootcode, goldsteinscale
 -- Now for the second order table, extracting some features that might
 -- characterize individual dyads
 
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
--- NOT YET WORKING 
--- counts for USA are nowhere near what they should be (38, 45 respectively)
--- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
--- DROP TABLE IF EXISTS dyad_features;
-
 CREATE TABLE IF NOT EXISTS dyad_features AS
 SELECT a.actor1code, a.actor2code, 
 	count(*) as count_aoeventcodes, sum(a.count_events) as sum_events
 FROM dyad_events_by_year AS a
 GROUP BY a.actor1code, actor2code;
 
+-- And the third order table, which has a second query.
+-- There may well be a more elegant way to do this with a big nested SELECT
 
-DROP TABLE IF EXISTS actor_features;
+
+DROP TABLE IF EXISTS country_features;
 
 CREATE TABLE IF NOT EXISTS country_features AS
-SELECT c.country, 
-	count(df1.actor2code) as actor1_relationships, 
-	count(df2.actor1code) AS actor2_relationships
-FROM countries c 
-LEFT JOIN dyad_features AS df1 ON c.code = df1.actor1code
-LEFT JOIN dyad_features as df2 ON c.code = df2.actor2code
-GROUP BY country;
+	SELECT c.country, c.code, 
+		count(df1.actor2code) as actor1_relationships, 
+		99999 as actor2_relationships
+	FROM countries c 
+	LEFT JOIN dyad_features AS df1 ON c.code = df1.actor1code
+	GROUP BY c.country, c.code;
 
-select count(*) FROM country_features;
-select * FROM country_features;
+UPDATE country_features
+SET actor2_relationships = (
+	SELECT count(*) 
+    FROM countries c 
+	INNER JOIN dyad_features AS df2 ON c.code = df2.actor2code
+    WHERE df2.actor2code = country_features.code
+)    ;
+select * FROM country_features WHERE code = 'USA';
+select * FROM country_features WHERE code = 'ESP';
