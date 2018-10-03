@@ -138,6 +138,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         assert(self._events_data is not None)
         
     def print_output(self, verbose=False):
+        print("Dependent variable is avgtone (average tone of documents)\n")
         print("Coefficients on the regression:\n")
         for i in range(0, 2):
             print("    {}: {}".format(INDEPENDENT_COLUMNS[i], self.coef_[0][i]))
