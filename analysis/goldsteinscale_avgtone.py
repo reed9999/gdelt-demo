@@ -44,11 +44,14 @@ def get_event_column_names():
     with open(COLUMN_NAMES_FILE, 'r') as f:
         column_names = str(f.readline()).split('\t')
     return column_names
-
+# This whole function is to load the medium-sized local DB. REFACTOR?
 def get_events_local_medium():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
+    # TODO: I don't understand why I'm loading the column names once then a
+    # tuple of names, dtypes the second time. Why not just the latter? REFACTOR
+
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
         names, dtypes = get_event_column_names_dtypes()
@@ -70,11 +73,43 @@ def get_events_local_medium():
             events_data = pd.concat([events_data, new_df], )
     return events_data
 
+#TODO REFACTOR!!!!
+# Weirdly I thought I already had the functionality to use the sample db.
+# So instead of a pass I've just replicated the medium version for a few
+# moments
+
 def get_events_sample_tiny():
-    pass
+    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data-related",
+                                 "sample-data")
+
+    filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
+    # TODO: I don't understand why I'm loading the column names once then a
+    # tuple of names, dtypes the second time. Why not just the latter? REFACTOR
+
+    events_data = pd.DataFrame(columns=get_event_column_names())
+    for filename in filenames:
+        names, dtypes = get_event_column_names_dtypes()
+        try:
+            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+                                 dtype=dtypes, index_col=['globaleventid'])
+        except Exception:
+            logging.info("""Fell through to non-dtype (i.e. slow) handling 
+                on filename: {}""".format(filename))
+            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+                                 dtype=None, index_col=['globaleventid'])
+
+        dtypes = None
+        try:
+            events_data = pd.concat([events_data, new_df], sort=False)
+        except TypeError:
+            # Version compatibility. I'm not sure what Pandas jupyter
+            # is running but it's older
+            events_data = pd.concat([events_data, new_df], )
+    return events_data
 
 def get_events():
-    events_data = get_events_local_medium()
+    # events_data = get_events_local_medium()
+    events_data = get_events_sample_tiny()
     count_null = events_data.isna().sum().sum()
     count_goldstein_null = events_data.goldsteinscale.isna().sum()
     count_avgtone_null = events_data.avgtone.isna().sum()
@@ -93,7 +128,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
     _events_data = None
 
-    def go(self, plot=True):
+    def go(self, plot=False ):
         # if self._events_data is None:
         #     self.prepare_data()
         self.fit(X=self._X_train, y=self._y_train)
@@ -105,8 +140,9 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         # if self._events_data is None:
         #     self.prepare_data()
         description = self._events_data.describe(include='all')
-        print(description[['goldsteinscale', 'avgtone']])
-        print(description.ix[['mean', 'std']])
+        print(description[['goldsteinscale', 'avgtone']].__repr__)
+        for column in ['nummentions']:
+            print(description.ix[['mean', 'std']])
 
     def plot_predictions(self):
         #Not really ideal for a multivariate regression
