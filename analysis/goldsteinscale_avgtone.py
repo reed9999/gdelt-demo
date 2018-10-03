@@ -77,9 +77,15 @@ def get_events():
     events_data = get_events_local_medium()
     count_null = events_data.isna().sum().sum()
     count_goldstein_null = events_data.goldsteinscale.isna().sum()
-    logging.warn("Warning (unofficial): {} NA Goldstein of {} total nulls".format(
-        count_goldstein_null, count_null
-    ))
+    count_avgtone_null = events_data.avgtone.isna().sum()
+    if count_goldstein_null > 0:
+        logging.warning("{} rows have NA in goldsteinscale out of {} total nulls".format(
+            count_goldstein_null, count_null
+        ))
+    if count_avgtone_null > 0:
+        logging.warning("{} rows have NA in avgtone out of {} total nulls".format(
+            count_avgtone_null, count_null
+        ))
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
@@ -98,8 +104,9 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
     def report_descriptives(self):
         # if self._events_data is None:
         #     self.prepare_data()
-        description = self._events_data.describe()
-        print(description)
+        description = self._events_data.describe(include='all')
+        print(description[['goldsteinscale', 'avgtone']])
+        print(description.ix[['mean', 'std']])
 
     def plot_predictions(self):
         #Not really ideal for a multivariate regression
@@ -147,5 +154,5 @@ if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
     regr.prepare_data()
     regr.report_descriptives()
-    regr.go(plot=False)
-    regr.print_output()
+    # regr.go(plot=False)
+    # regr.print_output()
