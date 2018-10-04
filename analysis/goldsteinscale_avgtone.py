@@ -49,9 +49,14 @@ def get_events_local_medium():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
+    assert len(filenames) > 0, "There should be at least one data file."
     # TODO: I don't understand why I'm loading the column names once then a
     # tuple of names, dtypes the second time. Why not just the latter? REFACTOR
 
+    return get_events_common(filenames)
+
+
+def get_events_common(filenames):
     events_data = pd.DataFrame(columns=get_event_column_names())
     for filename in filenames:
         names, dtypes = get_event_column_names_dtypes()
@@ -72,57 +77,45 @@ def get_events_local_medium():
             # is running but it's older
             events_data = pd.concat([events_data, new_df], )
     return events_data
+
 
 #TODO REFACTOR!!!!
 # Weirdly I thought I already had the functionality to use the sample db.
 # So instead of a pass I've just replicated the medium version for a few
 # moments
-
 def get_events_sample_tiny():
     TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data-related",
                                  "sample-data")
 
     filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
-    # TODO: I don't understand why I'm loading the column names once then a
-    # tuple of names, dtypes the second time. Why not just the latter? REFACTOR
+    return get_events_common(filenames)
 
-    events_data = pd.DataFrame(columns=get_event_column_names())
-    for filename in filenames:
-        names, dtypes = get_event_column_names_dtypes()
-        try:
-            new_df = pd.read_csv(filename, delimiter="\t", names=names,
-                                 dtype=dtypes, index_col=['globaleventid'])
-        except Exception:
-            logging.info("""Fell through to non-dtype (i.e. slow) handling 
-                on filename: {}""".format(filename))
-            new_df = pd.read_csv(filename, delimiter="\t", names=names,
-                                 dtype=None, index_col=['globaleventid'])
-
-        dtypes = None
-        try:
-            events_data = pd.concat([events_data, new_df], sort=False)
-        except TypeError:
-            # Version compatibility. I'm not sure what Pandas jupyter
-            # is running but it's older
-            events_data = pd.concat([events_data, new_df], )
-    return events_data
 
 def get_events():
-    # events_data = get_events_local_medium()
-    events_data = get_events_sample_tiny()
+    try:
+        events_data = get_events_local_medium()
+    except AssertionError as e:
+        events_data = get_events_sample_tiny()
+    report_on_nulls(events_data)
+    events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
+    return events_data
+
+
+def report_on_nulls(events_data):
     count_null = events_data.isna().sum().sum()
     count_goldstein_null = events_data.goldsteinscale.isna().sum()
     count_avgtone_null = events_data.avgtone.isna().sum()
     if count_goldstein_null > 0:
-        logging.warning("{} rows have NA in goldsteinscale out of {} total nulls".format(
-            count_goldstein_null, count_null
-        ))
+        logging.warning(
+            "{} rows have NA in goldsteinscale out of {} total nulls".format(
+                count_goldstein_null, count_null
+            ))
     if count_avgtone_null > 0:
-        logging.warning("{} rows have NA in avgtone out of {} total nulls".format(
-            count_avgtone_null, count_null
-        ))
-    events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
-    return events_data
+        logging.warning(
+            "{} rows have NA in avgtone out of {} total nulls".format(
+                count_avgtone_null, count_null
+            ))
+
 
 class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
@@ -153,7 +146,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         plt.plot(x_to_plot, self._predictions,  color='blue', linewidth=2)
         plt.xticks(())
         plt.yticks(())
-        plt.show()       
+        plt.show()
 
     def assess_predictions(self):
         self._predictions = self.predict(self._X_test)
