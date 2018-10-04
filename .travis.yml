@@ -19,7 +19,9 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-  - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
+#  - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
+  # Try this instead from https://stackoverflow.com/q/38129388
+  - conda create -n test-environment --clone root python=$TRAVIS_PYTHON_VERSION -f environment.yml
   - source activate test-environment
 
 script:
