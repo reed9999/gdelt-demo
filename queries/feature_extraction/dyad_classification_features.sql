@@ -3,7 +3,16 @@
 -- demos
 
 USE gdelt;
--- DROP TABLE IF EXISTS dyad_events_by_year;
+
+-- Comment as appropriate to save execution time if some tables are already in place.
+DROP TABLE IF EXISTS dyad_events_by_year;
+DROP TABLE IF EXISTS dyad_features;
+DROP TABLE IF EXISTS country_features;
+
+--------------------------------------------------------------------------------
+-- Extraction #1: How many occurrences by year, eventtype, and dyad?
+-- Obviously year boundaries are arbitrary and we can do some more intense time series stuff later 
+-- as desired
 
 CREATE TABLE IF NOT EXISTS dyad_events_by_year AS
 SELECT year, actor1code, actor2code, eventcode, 
@@ -31,7 +40,6 @@ GROUP BY a.actor1code, actor2code;
 -- There may well be a more elegant way to do this with a big nested SELECT
 
 
-DROP TABLE IF EXISTS country_features;
 
 CREATE TABLE IF NOT EXISTS country_features AS
 	SELECT c.country, c.code, 
