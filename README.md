@@ -2,18 +2,27 @@
 
 
 <!--div class="w3-container w3-pale-blue w3-leftbar w3-border-blue reed9999-note">-->
-For the main showcase, <a href="https://github.com/reed9999/gdelt-demo/blob/master/Start-here.ipynb">start here</a>. If you have Jupyter Notebook installed, run `jupyter notebook` and then via the Web GUI access `Start-here.ipynb`. 
+For the main showcase, [start 
+here](https://github.com/reed9999/gdelt-demo/blob/master/Start-here.ipynb). 
+If you have Jupyter Notebook installed (automatic if you follow the pip3 
+instructions below), run `jupyter notebook Start-here.ipynb` or simply
+`jupyter notebook` and navigate in the Web GUI. 
 <!--/div-->
 
 Demonstration project--Learning to do interesting stuff with AWS and the GDELT dataset
 
-This is an early-stage demo project to showcase my autodidactic process and my acquired skills. Broadly speaking the goal is to get better at ''doing data science'' (whatever that ends up meaning to me) while enhancing skills in Spark, AWS, Hadoop, and Python along the way.
+This is an early-stage demo project to showcase my autodidactic process and my
+acquired skills. Broadly speaking the goal is to continuing building on my 
+competency in Python including data science libraries, regression analysis, 
+and other data science fundamentals while building skills in Spark, AWS and 
+exploring real world questions with DS methodologies that I'd like to continue
+enhancing.
 
 For [other projects I want to showcase](https://github.com/reed9999/gdelt-demo/blob/master/readme-more.md#rest-of-showcase), a task list for this project, and other info, see readme-more.md.
-
+ 
 ## Setup
-To run the analysis code in Python, you'll likely want to do the standard routine of `pip install -r requirements.txt`. 
-I'm working on getting it to run on a small subset of GDELT data that this repo has installed in db-related/sample-db.
+Most of this code is Python 3 (3.5 or 3.6). To run the analysis code in Python,
+you'll likely want to do the standard routine of `pip3 install -r requirements.txt`. 
 
 ## Accomplishments
 ### Skills demonstrated

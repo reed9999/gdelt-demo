@@ -10,27 +10,9 @@ install:
 
   - sudo apt-get update
   - sudo apt-get -y install ipython ipython-notebook
-  - pip3 install jupyter
-  # We do this conditionally because it saves us some downloading if the
-  # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
-
-  # The original created a conda virtualenv, but I couldn't adapt the syntax
-  # properly. For my purposes, the following should be fine. -Philip
+  - pip3 install -r requirements.txt
 script:
   # If executing the Jupyter notebook conversion doesn't error, then the
-  # user should be able to progress through the notebook without error -Philip
-  - pip3 install -r requirements.txt
+  # user should be able to progress through the notebook without error
   - jupyter-nbconvert --execute --to html Start-here.ipynb --ExecutePreprocessor.timeout=300
 
