@@ -50,28 +50,33 @@ def get_events_local_medium():
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     assert len(filenames) > 0, "There should be at least one data file."
-    # TODO: I don't understand why I'm loading the column names once then a
-    # tuple of names, dtypes the second time. Why not just the latter? REFACTOR
 
     return get_events_common(filenames)
 
-
 def get_events_common(filenames):
-    events_data = pd.DataFrame(columns=get_event_column_names())
+
+    column_names, dtypes = get_event_column_names_dtypes()
+    events_data = pd.DataFrame(columns=column_names, dtype=None)
+    # This didn't work later in the execution but maybe with the empty
+    # DataFrame
+    events_data['nummentions'] = pd.to_numeric(events_data['nummentions'])
+    events_data['numsources'] = pd.to_numeric(events_data['numsources'])
+    events_data['numarticles'] = pd.to_numeric(events_data['numarticles'])
+
+
     for filename in filenames:
-        names, dtypes = get_event_column_names_dtypes()
         try:
-            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
                                  dtype=dtypes, index_col=['globaleventid'])
         except Exception:
             logging.info("""Fell through to non-dtype (i.e. slow) handling 
                 on filename: {}""".format(filename))
-            new_df = pd.read_csv(filename, delimiter="\t", names=names,
+            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
                                  dtype=None, index_col=['globaleventid'])
 
-        dtypes = None
+        # dtypes = None #What was this for? dtypes used to be set within the loop
         try:
-            events_data = pd.concat([events_data, new_df], sort=False)
+            events_data = pd.concat([new_df, events_data], sort=False)
         except TypeError:
             # Version compatibility. I'm not sure what Pandas jupyter
             # is running but it's older
@@ -90,6 +95,21 @@ def get_events_sample_tiny():
     filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
     return get_events_common(filenames)
 
+def _temp_diagnostic(events):
+    desc = events.describe(include="all")
+    col = desc['nummentions']
+    print(col)
+    #This probably has no mean in it, and that's what's troubling me
+
+    alltypes = events.dtypes
+    thiscoltype = alltypes['nummentions']
+    print(thiscoltype)
+
+    realcol = events['nummentions']
+    col_dtype = realcol.dtype
+    col_mean = realcol.mean()
+    colnulls = realcol.isna().sum()
+    print ("{}{}{}".format(col_dtype, col_mean, colnulls))
 
 def get_events():
     try:
@@ -97,6 +117,8 @@ def get_events():
     except AssertionError as e:
         events_data = get_events_sample_tiny()
     report_on_nulls(events_data)
+    # _temp_diagnostic(events_data)
+
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
@@ -133,9 +155,9 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         # if self._events_data is None:
         #     self.prepare_data()
         description = self._events_data.describe(include='all')
-        print(description[['goldsteinscale', 'avgtone']].__repr__)
+        print(description[['goldsteinscale', 'avgtone']].__repr__())
         for column in ['nummentions']:
-            print(description.ix[['mean', 'std']])
+            print(description.loc[['mean', 'std']][column].__repr__())
 
     def plot_predictions(self):
         #Not really ideal for a multivariate regression
