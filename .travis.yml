@@ -9,7 +9,8 @@ install:
   # Jupyter installed; otherwise, even miniconda may be overkill. -Philip
 
   - sudo apt-get update
-  - sudo apt-get install ipython-notebook
+  - sudo apt-get -y install ipython ipython-notebook
+  - pip3 install jupyter
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
