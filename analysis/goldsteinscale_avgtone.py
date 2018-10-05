@@ -44,7 +44,7 @@ def get_event_column_names():
     with open(COLUMN_NAMES_FILE, 'r') as f:
         column_names = str(f.readline()).split('\t')
     return column_names
-# This whole function is to load the medium-sized local DB. REFACTOR?
+
 def get_events_local_medium():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
@@ -53,17 +53,24 @@ def get_events_local_medium():
 
     return get_events_common(filenames)
 
+def get_events_sample_tiny():
+    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data-related",
+                                 "sample-data")
+
+    filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
+    return get_events_common(filenames)
+
 def get_events_common(filenames):
 
     column_names, dtypes = get_event_column_names_dtypes()
     events_data = pd.DataFrame(columns=column_names, dtype=None)
     # This didn't work later in the execution but maybe with the empty
     # DataFrame
-    events_data['nummentions'] = pd.to_numeric(events_data['nummentions'])
-    events_data['numsources'] = pd.to_numeric(events_data['numsources'])
-    events_data['numarticles'] = pd.to_numeric(events_data['numarticles'])
+    for column in ['nummentions', 'numsources', 'numarticles']:
+        events_data[column] = pd.to_numeric(events_data[column])
 
-
+    #1987.csv is idiosyncratically throwing a warning here. It's worth learning
+    # what's going on, but for now just take it out of the dataset.
     for filename in filenames:
         try:
             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
@@ -74,7 +81,6 @@ def get_events_common(filenames):
             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
                                  dtype=None, index_col=['globaleventid'])
 
-        # dtypes = None #What was this for? dtypes used to be set within the loop
         try:
             events_data = pd.concat([new_df, events_data], sort=False)
         except TypeError:
@@ -84,32 +90,6 @@ def get_events_common(filenames):
     return events_data
 
 
-#TODO REFACTOR!!!!
-# Weirdly I thought I already had the functionality to use the sample db.
-# So instead of a pass I've just replicated the medium version for a few
-# moments
-def get_events_sample_tiny():
-    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data-related",
-                                 "sample-data")
-
-    filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
-    return get_events_common(filenames)
-
-def _temp_diagnostic(events):
-    desc = events.describe(include="all")
-    col = desc['nummentions']
-    print(col)
-    #This probably has no mean in it, and that's what's troubling me
-
-    alltypes = events.dtypes
-    thiscoltype = alltypes['nummentions']
-    print(thiscoltype)
-
-    realcol = events['nummentions']
-    col_dtype = realcol.dtype
-    col_mean = realcol.mean()
-    colnulls = realcol.isna().sum()
-    print ("{}{}{}".format(col_dtype, col_mean, colnulls))
 
 def get_events():
     try:
@@ -117,8 +97,6 @@ def get_events():
     except AssertionError as e:
         events_data = get_events_sample_tiny()
     report_on_nulls(events_data)
-    # _temp_diagnostic(events_data)
-
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
@@ -156,7 +134,8 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         #     self.prepare_data()
         description = self._events_data.describe(include='all')
         print(description[['goldsteinscale', 'avgtone']].__repr__())
-        for column in ['nummentions']:
+        for column in ['nummentions', 'numsources', 'numarticles']:
+            print("\nFor column {}:".format(column))
             print(description.loc[['mean', 'std']][column].__repr__())
 
     def plot_predictions(self):
@@ -189,8 +168,9 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         assert(self._events_data is not None)
         
     def print_output(self, verbose=False):
-        print("Dependent variable is avgtone (average tone of documents)\n")
-        print("Coefficients on the regression:\n")
+        print("\n*** REGRESSION RESULTS ***")
+        print("Dependent variable is avgtone (average tone of documents)")
+        print("Coefficients on the regression:")
         for i in range(0, 2):
             print("    {}: {}".format(INDEPENDENT_COLUMNS[i], self.coef_[0][i]))
 
@@ -206,5 +186,5 @@ if __name__ == "__main__":
     regr = GoldsteinscaleAvgtoneRegression()
     regr.prepare_data()
     regr.report_descriptives()
-    # regr.go(plot=False)
-    # regr.print_output()
+    regr.go(plot=False)
+    regr.print_output()
