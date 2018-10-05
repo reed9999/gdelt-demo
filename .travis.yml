@@ -1,8 +1,13 @@
-# Taken from https://github.com/ghego/travis_anaconda_jupyter
+# Partially taken from https://github.com/ghego/travis_anaconda_jupyter
 language: python
 python:
+  - "3.6"
+  - "3.4"
   - "3.5"
 install:
+  # I don't know how much of this is really necessary. We certainly need
+  # Jupyter installed; otherwise, even miniconda may be overkill. -Philip
+
   - sudo apt-get update
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
@@ -19,12 +24,9 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
-#  - conda env create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
-  # Try this instead from https://stackoverflow.com/q/38129388
-  - allow_failures:
-    - conda create -n test-environment --clone root #python=$TRAVIS_PYTHON_VERSION -f environment.yml
-    - conda create -n test-environment python=$TRAVIS_PYTHON_VERSION -f environment.yml
-    - source activate test-environment
-
+  # The original created a conda virtualenv, but I couldn't adapt the syntax
+  # properly. For my purposes, the following should be fine. -Philip
 script:
-  - py.test
+  # If executing the Jupyter notebook conversion doesn't error, then the
+  # user should be able to progress through the notebook without error -Philip
+  - jupyter-nbconvert --execute --stdout Start-here.ipynb
