@@ -12,5 +12,5 @@ install:
   - sudo apt-get -y install ipython ipython-notebook
   - pip3 install -r requirements.txt
 script:
-  - test-ipynb.sh
+  - ./test-ipynb.sh
 
