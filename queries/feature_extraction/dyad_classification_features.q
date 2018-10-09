@@ -9,27 +9,20 @@ WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t')
 LOCATION 's3://reed9999/data/gdelt/eventcodes/';
 
 
--- So far it only works to here.
+-- So far only verified (on AWS EMR) to here.
+--------------------------------------------------------------------------------
+-- Extraction #1: 
+-- Extract each kind of event for each dyad by year.
+-- I stopped this before it could run its course but seems to start up OK on EMR
 
+CREATE TABLE dyad_events_by_year AS
+SELECT year, actor1code, actor2code, eventcode, 
+eventbasecode,  eventrootcode, goldsteinscale, count(e.year) as count_events
+FROM gdelt_events e  LEFT JOIN gdelt_event_codes ec
+  ON ec.code = e.eventcode
+GROUP BY year, actor1code, actor2code, eventcode,
+eventbasecode,  eventrootcode, goldsteinscale;
 
-
--- CREATE EXTERNAL TABLE gdelt_event_codes (
---   `code` STRING, `description` STRING
--- ) ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
--- WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION 's3://reed9999/gdelt/eventcodes.txt';
-
-
-
-
--- CREATE EXTERNAL TABLE dyad_events_by_year AS
--- SELECT year, actor1code, actor2code, eventcode, 
--- eventbasecode,  eventrootcode, goldsteinscale, count(events.year) as count_events
--- FROM gdelt_events events LEFT JOIN eventcodes
---   ON eventcodes.code = events.eventcode
--- GROUP BY year, actor1code, actor2code, eventcode,
--- eventbasecode,  eventrootcode, goldsteinscale
--- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
--- WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
 -- 
 -- --------------------------------------------------------------------------------
 -- -- Extraction #2: 
