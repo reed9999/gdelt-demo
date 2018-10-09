@@ -3,6 +3,7 @@
 # Python equivalent to scripts/sync-to-s3.sh
 # Truthfully I'm not sure this adds that much value other than learning
 # the Pythonic way to do it.
+# But I believe sync isn't available in boto3
 # Framework of this file is from https://github.com/boto/boto3/issues/358
 ##############################################################################
 
