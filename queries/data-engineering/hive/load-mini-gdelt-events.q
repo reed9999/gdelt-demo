@@ -3,7 +3,7 @@
 
 -- This is "mini" but it's also now more flexible'
 
-SET s3path='s3://reed9999/data/_small';
+SET s3path='s3://reed9999/data/_small/';
 
 DROP TABLE IF EXISTS gdelt_events;
 CREATE EXTERNAL TABLE gdelt_events (
