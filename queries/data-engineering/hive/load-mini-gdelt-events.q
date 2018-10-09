@@ -1,9 +1,10 @@
 -- Continuing my adaptation of this script:
 -- http://blog.julien.org/2017/03/exploring-gdelt-data-set-with-amazon.html
 
--- mini means a tiny subset of the data I put out there to learn what I'm doing
--- mini does not mean the somewhat larger
--- DRY violation (but this version is largely for exploration)
+-- This is "mini" but it's also now more flexible'
+
+SET s3path='s3://reed9999/data/_small';
+
 DROP TABLE IF EXISTS gdelt_events;
 CREATE EXTERNAL TABLE gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
@@ -23,7 +24,7 @@ CREATE EXTERNAL TABLE gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION 's3://philip-hadoop-bucket/first-demo-query/input/';
+  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION ${hiveconf:s3path};
 -- Note also:
 -- first-demo-query.q had the query ending:
 -- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
