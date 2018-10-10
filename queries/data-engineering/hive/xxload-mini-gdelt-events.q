@@ -3,7 +3,7 @@
 
 -- This is "mini" but it's also now more flexible'
 
-SET s3path='s3://reed9999/data/subset/small";
+SET s3path2='s3://reed9999/data/subset/small";
 
 DROP TABLE IF EXISTS gdelt_events;
 CREATE EXTERNAL TABLE gdelt_events (
@@ -24,9 +24,7 @@ CREATE EXTERNAL TABLE gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') LOCATION ${hiveconf:s3path};
--- Note also:
--- first-demo-query.q had the query ending:
--- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
---   WITH SERDEPROPERTIES ('serialization.format' = '	','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
--- This works for the ENTIRE GDELT dataset, not for development/testing
+  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') LOCATION ${hiveconf:s3path2};
+
+
+SELECT * FROM gdelt_events LIMIT 15;
