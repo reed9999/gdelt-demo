@@ -24,7 +24,7 @@ CREATE EXTERNAL TABLE gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` INT,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION ${hiveconf:s3path};
+  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') LOCATION ${hiveconf:s3path};
 -- Note also:
 -- first-demo-query.q had the query ending:
 -- ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
