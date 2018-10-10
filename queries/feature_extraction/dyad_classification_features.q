@@ -10,6 +10,8 @@ ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
 WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') 
 LOCATION 's3://reed9999/data/eventcodes/';
 
+-- NOTE: It's only run successfully on AWS EMR up to here (because I forgot 
+-- the next DROP TABLE so tried to create a duplicate.)
 --------------------------------------------------------------------------------
 -- Extraction #1: 
 -- Extract each kind of event for each dyad by year.
