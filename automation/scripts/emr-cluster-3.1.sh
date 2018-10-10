@@ -1,13 +1,14 @@
 ## Script to create a cluster that's very much like the one I called 3.1 on 2018-10-09
 # As it gets more parametrized my naming convention may change. 
+# And we should prompt for the name so that I don't keep accidentally reusing names like 
+# "3.2 (replica of 3.1) Fixed missing DROP TABLE"
 
-# There is still the unresolved problem that this isn't designating  a key to 
-# connect so I can't access SSH
-
+echo "What is the name of the new cluster?"
+read CLUSTER_NAME
 aws emr create-cluster \
 --applications Name=Ganglia Name=Hadoop Name=Hive Name=Hue Name=Mahout Name=Pig Name=Tez \
 --tags 'WhatsNew=Parameters for smaller DB' 'Hadoop=1' 'CliAutomation=1' \
---ec2-attributes InstanceProfile=EMR_EC2_DefaultRole \
+--ec2-attributes KeyName=MainKeyPair,InstanceProfile=EMR_EC2_DefaultRole \
 --release-label emr-5.16.0 --log-uri 's3n://philip-hadoop-bucket/__archive/' \
 --bootstrap-actions Path="s3://reed9999/automation/scripts/emr-bootstrap.sh" \
 --steps '[
@@ -16,5 +17,5 @@ aws emr create-cluster \
 --instance-groups '[{"InstanceCount":1,"BidPrice":"OnDemandPrice","InstanceGroupType":"CORE","InstanceType":"m1.large","Name":"Core Instance Group"},
   {"InstanceCount":1,"BidPrice":"OnDemandPrice","InstanceGroupType":"MASTER","InstanceType":"m1.large","Name":"Master Instance Group"}]' \
 --ebs-root-volume-size 10 --service-role EMR_DefaultRole \
---enable-debugging --name '3.2 (replica of 3.1) Fixed missing DROP TABLE ' \
+--enable-debugging --name "$CLUSTER_NAME" \
 --scale-down-behavior TERMINATE_AT_TASK_COMPLETION --region us-west-2
