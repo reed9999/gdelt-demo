@@ -1,7 +1,8 @@
+#!/usr/bin/python3
 ####
-# Since 003 didn't enhance much, I'm continuing to work as 003 locally.
-# Weirdly I can't figure out how I was running Pyspark stuff locally. I don't 
-# seem to have pyspark libs installed in any virtualenvs. Time to fix that. 
+# Just a utility script to download selected files.
+# Because I can't keep 100s of Gb locally, I kept stopping these short so it's 
+# an imperfect guide to what I have locally.
 
 import os
 from os.path import exists
@@ -38,12 +39,18 @@ def download_dir(client, resource, dist,
                     resource.meta.client.download_file(bucket, file.get('Key'), local + os.sep + file.get('Key'))
 
 if IS_LOCAL:
+    already = [
+        '198[2457]\.', 
+        '200[6-9]08\.',         
+    ]
     for patt in [
-        # '19[88][47]\.', 
-        # '2004\.', 
-        '200[6-9]08\.', 
-        '200[0-3]02\.', 
-        '200[34]0[79]27\.export', 
+        # '197.\.', 
+        # '198[^2457]\.', 
+        # '200[6-9]08\.', 
+        # '200[0-3]02\.', 
+        # '200[34]0[79]27\.export', 
+        '20060.\.', 
+        '2015010.\.', 
         ]:
         print ("Now downloading according to pattern {}".format(patt))
         download_dir(client, resource, dist='events/', 
