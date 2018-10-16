@@ -5,9 +5,9 @@
 USE gdelt;
 
 -- Comment as appropriate to save execution time if some tables are already in place.
--- DROP TABLE IF EXISTS dyad_events_by_year;
--- DROP TABLE IF EXISTS dyad_features;
--- DROP TABLE IF EXISTS country_features;
+DROP TABLE IF EXISTS dyad_events_by_year;
+DROP TABLE IF EXISTS dyad_features;
+DROP TABLE IF EXISTS country_features;
 
 --------------------------------------------------------------------------------
 -- Extraction #1: How many occurrences by year, eventtype, and dyad?
@@ -25,7 +25,7 @@ GROUP BY year, actor1code, actor2code, eventcode,
 -- these should be 1-to-1 with eventcode. Not sure if they would degrade performance or not.
 eventbasecode,  eventrootcode, goldsteinscale
 ;
-
+ALTER TABLE dyad_events_by_year MODIFY id smallint(10) AUTO_INCREMENT;
 --------------------------------------------------------------------------------
 -- Extraction #2: 
 -- some features that might characterize individual dyads across all of time. 
