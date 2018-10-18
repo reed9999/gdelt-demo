@@ -17,8 +17,9 @@ echo "USE gdelt;" > "$MYSQL_SCRIPT"
 # echo "ALTER TABLE events MODIFY actor2geo_type VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
 # echo "ALTER TABLE events MODIFY actiongeo_type VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
 # echo "ALTER TABLE events MODIFY actiongeo_featureid VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
-
-for f in `ls /home/philip/Documents/aws-project/gdelt-data/original/events/*.csv`;
+EVENTS_DIR=/home/philip/Documents/aws-project/gdelt-data/trivial
+# EVENTS_DIR=/home/philip/Documents/aws-project/gdelt-data/original/events
+for f in `ls $EVENTS_DIR/*.csv`;
 do
     #Using mysqlimport is too much of a mess because table names have to be the same.
     echo "LOAD DATA INFILE '$f' INTO TABLE events;" >> $MYSQL_SCRIPT

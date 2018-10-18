@@ -9,8 +9,8 @@ USE gdelt;
 
 DROP TABLE IF EXISTS country_features_by_year;
 CREATE TABLE IF NOT EXISTS country_features_by_year AS
-	SELECT c.country, c.code, 
-		count(df1.actor2code) as actor1_relationships, 
+	(SELECT c.country, c.code, 
+		count(df1.actor2code)) as actor1_relationships, 
 	(SELECT count(*) 
 		FROM dyad_events_by_year AS de1 
 		WHERE de1.actor2code = c.code) as actor2_relationships

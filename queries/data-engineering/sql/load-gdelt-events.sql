@@ -64,5 +64,5 @@ CREATE TABLE events (
   `actiongeo_long` FLOAT NULL,
   `actiongeo_featureid` VARCHAR(10) NULL,
   `dateadded` INT NULL,
-  `sourceurl` VARCHAR(256) NULL
+  `sourceurl` VARCHAR(256) DEFAULT('') NULL
 );
