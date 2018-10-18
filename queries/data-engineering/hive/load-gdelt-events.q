@@ -1,5 +1,12 @@
 -- DRY -- only the external source differs from the load-mini version.
 -- (Fixes to featureid fields: Temporarily untested!)
+
+-- Possible values for input: 
+-- "s3://reed9999/data/subset/small/"
+-- "s3://reed9999/data/events/"
+-- 's3://gdelt-open-data/events/'
+SET s3path="${INPUT}";
+
 DROP TABLE IF EXISTS gdelt_events;
 CREATE EXTERNAL TABLE gdelt_events (
   `globaleventid` INT,`day` INT,`monthyear` INT,`year` INT,`fractiondate` FLOAT,
@@ -19,4 +26,5 @@ CREATE EXTERNAL TABLE gdelt_events (
   `actiongeo_lat` FLOAT,`actiongeo_long` FLOAT,`actiongeo_featureid` string,
   `dateadded` INT,`sourceurl` string)
   ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
-    WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '	') LOCATION 's3://gdelt-open-data/events/';
+  WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') 
+  LOCATION ${hiveconf:s3path};
