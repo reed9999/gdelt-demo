@@ -40,21 +40,33 @@ GROUP BY a.actor1code, actor2code;
 DROP TABLE IF EXISTS gdelt_countries; 
 CREATE EXTERNAL TABLE gdelt_countries (`code` string,`country` string) ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe' WITH SERDEPROPERTIES ('serialization.format' = '\t','field.delim' = '\t') LOCATION 's3://reed9999/data/countries/';
 
+
+DROP TABLE IF EXISTS country_features; 
+
+
+
 -- THE SCRIPT ONLY WORKS TO HERE
 -- And the third order table, which has a second query.
 -- This explains a bit about Hive subtleties I need to consider:
 -- https://stackoverflow.com/q/28405367/
+-- FAILED: SemanticException org.apache.hadoop.hive.ql.optimizer.calcite.CalciteSubquerySemanticException: Unsupported SubQuery Expression Invalid subquery. Subquery in SELECT could only be top-level expression
+CREATE TABLE country_features AS
+SELECT c.country, c.code, 
+count(df1.actor2code) as actor1_relationships, 
+(SELECT count(*) 
+FROM dyad_features AS df2 
+WHERE df2.actor2code = c.code) as actor2_relationships
+FROM gdelt_countries c 
+LEFT JOIN dyad_features AS df1 ON c.code = df1.actor1code
+GROUP BY c.country, c.code;
 
--- DROP TABLE IF EXISTS country_features; 
--- CREATE TABLE country_features AS
--- SELECT c.country, c.code, 
--- count(df1.actor2code) as actor1_relationships, 
--- (SELECT count(*) 
--- FROM dyad_features AS df2 
--- WHERE df2.actor2code = c.code) as actor2_relationships
--- FROM gdelt_countries c 
--- LEFT JOIN dyad_features AS df1 ON c.code = df1.actor1code
--- GROUP BY c.country, c.code;
+-- TROUBLESHOOTING
+CREATE TABLE foo AS (SELECT count(*) FROM dyad_features AS df2 WHERE df2.actor2code = 'USA'); --works
+DROP TABLE IF EXISTS foo;
+CREATE TABLE foo AS (SELECT count(*) FROM dyad_features AS df2 WHERE df2.actor2code = c.code)
+FROM gdelt_countries c LEFT JOIN dyad_features;
+; --works
+
 
 INSERT OVERWRITE DIRECTORY '${OUTPUT}/dyad_events_by_year/'
 SELECT * FROM dyad_events_by_year;

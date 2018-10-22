@@ -5,7 +5,7 @@
 -- schema. Search the Web or use my own intuition if needed. 
 
 -- (Fixes to featureid fields: Temporarily untested!)
-DROP TABLE events;
+DROP TABLE IF EXISTS events;
 CREATE TABLE events (
   `globaleventid` INT,
   `day` INT NULL,
@@ -64,5 +64,5 @@ CREATE TABLE events (
   `actiongeo_long` FLOAT NULL,
   `actiongeo_featureid` VARCHAR(10) NULL,
   `dateadded` INT NULL,
-  `sourceurl` VARCHAR(256) DEFAULT('') NULL
+  `sourceurl` VARCHAR(256) DEFAULT '' NULL
 );

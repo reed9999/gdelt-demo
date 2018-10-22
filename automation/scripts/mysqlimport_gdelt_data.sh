@@ -1,30 +1,32 @@
 #!/bin/bash
+
+# I thought: 
+# Using mysqlimport is too much of a mess because table names have to be the same.
+# but it may be worth trying...
+
 # To get this to work, I had to whitelist the relevant directories in AppArmor
-# https://stackoverflow.com/questions/2783313/
-# But it still fails with: 
-# ERROR 1366 (HY000) at line 2: Incorrect integer value: '' for column 
-#    'actor1geo_type' at row 1
-# Reluctantly I'm going to set aside this attempt at automation for the moment.
+# https://stackoverflow.com/q/2783313/
+# It still fails with 
+# ERROR 1261 (01000) at line 2: Row 1 doesn't contain data for all columns
+# See https://stackoverflow.com/q/42966931/
+# None of those solutions works; all that does is to actually add extra tab
+# characters. There's probably some reasonable way to do this with sed but 
+# let's brainstorm something else.
+
 
 MYSQL_SCRIPT="__temp_import.sql"
 echo " The script is $MYSQL_SCRIPT"
 [ -e $MYSQL_SCRIPT ] && rm $MYSQL_SCRIPT
 echo "USE gdelt;" > "$MYSQL_SCRIPT"
 
-#This feels horrible but is needed because the NULLs are in there as ''
-#It's also not needed; why did my table creation (with VARCHARs) not stick?
-# echo "ALTER TABLE events MODIFY actor1geo_type VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
-# echo "ALTER TABLE events MODIFY actor2geo_type VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
-# echo "ALTER TABLE events MODIFY actiongeo_type VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
-# echo "ALTER TABLE events MODIFY actiongeo_featureid VARCHAR(10) NULL;" >> "$MYSQL_SCRIPT"
 EVENTS_DIR=/home/philip/Documents/aws-project/gdelt-data/trivial
 # EVENTS_DIR=/home/philip/Documents/aws-project/gdelt-data/original/events
 for f in `ls $EVENTS_DIR/*.csv`;
 do
-    #Using mysqlimport is too much of a mess because table names have to be the same.
-    echo "LOAD DATA INFILE '$f' INTO TABLE events;" >> $MYSQL_SCRIPT
+    echo "LOAD DATA INFILE '$f' INTO TABLE events FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';" >> $MYSQL_SCRIPT
+    # mysqlimport...
 done;
 
 PROMPT_FOR_PASSWORD="" #or -p
-mysql -uroot $PROMPT_FOR_PASSWORD < $MYSQL_SCRIPT
+# mysql -uroot $PROMPT_FOR_PASSWORD < $MYSQL_SCRIPT
 # rm $MYSQL_SCRIPT
