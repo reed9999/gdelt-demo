@@ -5,7 +5,7 @@
 import os
 # For a more robust script, this could be made directory- and filename-agnostic
 # as with other files in this project.
-DIR = 'sample-data'
+DIR = 'sample_data'
 INPUT = os.path.join(DIR, 'input.csv')
 OUTPUT = os.path.join(DIR, 'output.csv')
 N = 10

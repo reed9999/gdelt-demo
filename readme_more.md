@@ -55,7 +55,7 @@ but better not to lose track of them.
         * [linwoodc3/gdeltPyR](https://github.com/linwoodc3/gdeltPyR)
         * Examples at [AWS GDELT page](https://registry.opendata.aws/gdelt/)
     1. GDELT's setup on Google Big Query could be helpful here (if a tangent from my AWS tutelage). See [this explanation](https://www.gdeltproject.org/data.html).
-1. Clean up the GDELT data. See explore-dyads-by-avgtone.sql: ITALIAN/ITALY, ESP miscoded as being in IT, etc.
+1. Clean up the GDELT data. See explore_dyads_by_avgtone.sql: ITALIAN/ITALY, ESP miscoded as being in IT, etc.
 1. Continuing to drive repetitive tasks with Python3 and boto3 rather than bash and CLI. Actually each is better for different things, but Python gives me more intuitive control over looping (I don't really love bash syntax) and supports my broader pedagogical goals. See `automation` directory.
 1. Developing other interesting regressions to get closer to answering RQs. For example I was exploring the Rosenstein score as a proxy for the positive or negative nature of each event, but `AvgTone` needs to come into play.   
 1. Read everything I can find about data science on AWS -- SageMaker, Athena, Redshift. All buzzwords I barely understand.

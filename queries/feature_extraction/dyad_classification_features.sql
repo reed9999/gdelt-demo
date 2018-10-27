@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS dyad_events_by_year;
 DROP TABLE IF EXISTS dyad_features;
 DROP TABLE IF EXISTS country_features;
 
---------------------------------------------------------------------------------
+-- ------------------------------------------------------------------------------
 -- Extraction #1: How many occurrences by year, eventtype, and dyad?
 -- Obviously year boundaries are arbitrary and we can do some more intense time series stuff later 
 -- as desired
@@ -25,8 +25,8 @@ GROUP BY year, actor1code, actor2code, eventcode,
 -- these should be 1-to-1 with eventcode. Not sure if they would degrade performance or not.
 eventbasecode,  eventrootcode, goldsteinscale
 ;
-ALTER TABLE dyad_events_by_year MODIFY id smallint(10) AUTO_INCREMENT;
---------------------------------------------------------------------------------
+ALTER TABLE dyad_events_by_year ADD COLUMN id smallint(10) AUTO_INCREMENT UNIQUE FIRST;
+-- ------------------------------------------------------------------------------
 -- Extraction #2: 
 -- some features that might characterize individual dyads across all of time. 
 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS country_features AS
 -- Alternatively I could also just load MySQL directly into pandas.
 
 select * FROM dyad_events_by_year
--- 	INTO OUTFILE "/home/philip/aws/demo/data-related/features/dyad_events_by_year.csv"
+-- 	INTO OUTFILE "/home/philip/aws/demo/data_related/features/dyad_events_by_year.csv"
 	INTO OUTFILE "/var/lib/mysql-files/dyad_events_by_year.csv"
 	FIELDS TERMINATED BY "\t"
 	ENCLOSED BY '"'

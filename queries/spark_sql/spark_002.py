@@ -2,7 +2,7 @@
 # This should work on the EMR cluster or locally.
 # It apparently needs to be copied down (in theory, I could just spark-submit 
 # a .py file on S3 I think, but that's not working for me). Thus run: .
-#   aws s3 cp s3://philip-hadoop-bucket/queries/spark-sql/spark-002.py .
+#   aws s3 cp s3://philip-hadoop-bucket/queries/spark_sql/spark-002.py .
 # (bucket and filename on s3 will change soon!)
 
 

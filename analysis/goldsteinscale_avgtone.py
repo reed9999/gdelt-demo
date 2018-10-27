@@ -24,8 +24,8 @@ LOCAL_DATA_DIR = "/home/philip/aws/data/original/events"
 # as helpers.
 def get_event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
-        os.path.join(THIS_FILE_DIR, "..", "data-related",
-                     "events-column-names-dtypes.csv")
+        os.path.join(THIS_FILE_DIR, "..", "data_related",
+                     "events_column_names_dtypes.csv")
     )
     with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
         lines = f.readlines()
@@ -38,8 +38,8 @@ def get_event_column_names_dtypes():
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
-        os.path.join(THIS_FILE_DIR, "..", "data-related",
-                     "events-column-names.csv")
+        os.path.join(THIS_FILE_DIR, "..", "data_related",
+                     "events_column_names.csv")
     )
     with open(COLUMN_NAMES_FILE, 'r') as f:
         column_names = str(f.readline()).split('\t')
@@ -54,8 +54,8 @@ def get_events_local_medium():
     return get_events_common(filenames)
 
 def get_events_sample_tiny():
-    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data-related",
-                                 "sample-data")
+    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
+                                 "sample_data")
 
     filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
     return get_events_common(filenames)

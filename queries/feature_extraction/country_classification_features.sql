@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS country_features_by_year AS
 -- -- Alternatively I could also just load MySQL directly into pandas.
 
 -- select * FROM dyad_events_by_year
--- -- 	INTO OUTFILE "/home/philip/aws/demo/data-related/features/dyad_events_by_year.csv"
+-- -- 	INTO OUTFILE "/home/philip/aws/demo/data_related/features/dyad_events_by_year.csv"
 -- 	INTO OUTFILE "/var/lib/mysql-files/dyad_events_by_year.csv"
 -- 	FIELDS TERMINATED BY "\t"
 -- 	ENCLOSED BY '"'

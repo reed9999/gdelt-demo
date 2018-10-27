@@ -1,5 +1,5 @@
 ###############################################################################
-# First demo script for spark-sql to explore the spark-submit workflow that
+# First demo script for spark_sql to explore the spark-submit workflow that
 # I'll be using in production.
 
 
