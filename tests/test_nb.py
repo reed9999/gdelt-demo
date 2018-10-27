@@ -12,5 +12,5 @@ def _exec_notebook(path):
 
 
 def test():
-    _exec_notebook('Start-here.ipynb')
+    _exec_notebook('Start_here.ipynb')
 
