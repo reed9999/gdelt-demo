@@ -20,6 +20,12 @@ import inspect
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 
+# For the moment this class name is a mild misnomer. It's really a manager of
+# different classification tasks.
+# However, I might well refactor it to a class hierarchy using polymporphism
+# so each kind of classification "just works."
+
+
 class GdeltClassificationTask():
     def do_decision_tree(self):
         print("Not yet implemented: {}".format(inspect.stack()[0][3]))
