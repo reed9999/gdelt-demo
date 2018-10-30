@@ -31,13 +31,14 @@ ALTER TABLE dyad_events_by_year ADD COLUMN id smallint(10) AUTO_INCREMENT UNIQUE
 -- some features that might characterize individual dyads across all of time. 
 
 CREATE TABLE IF NOT EXISTS dyad_features AS
-SELECT a.actor1code, a.actor2code, 
-	count(*) as count_aoeventcodes, sum(a.count_events) as sum_events
+SELECT a.actor1code, a.actor2code,
+-- originally I called it count_aoeventcodes but I think that was a typo.
+	count(*) as count_eventcodes, sum(a.count_events) as sum_events
 FROM dyad_events_by_year AS a
-GROUP BY a.actor1code, actor2code;
+GROUP BY a.actor1code, a.actor2code;
 
 -- And the third order table, which has a second query.
--- Earlier I was introducing bugs by doing the three-way join and 
+-- I was trying to nest too much and creating bugs.
 
 CREATE TABLE IF NOT EXISTS country_features AS
 	SELECT c.country, c.code, 
