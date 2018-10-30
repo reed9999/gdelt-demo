@@ -12,8 +12,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from analysis.pandas_gdelt_helper import get_event_column_names_dtypes, \
-    get_events, get_events_local_medium, get_events_sample_tiny
+from analysis.pandas_gdelt_helper import get_events
 
 
 

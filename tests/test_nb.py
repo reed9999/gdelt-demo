@@ -1,4 +1,5 @@
 # Taken from https://github.com/ghego/travis_anaconda_jupyter
+# NOTE: This is not the currently used integration test (e.g. on Travis)!
 import subprocess
 import tempfile
 
@@ -13,4 +14,5 @@ def _exec_notebook(path):
 
 def test():
     _exec_notebook('Start_here.ipynb')
+    _exec_notebook('analysis/classification.ipynb')
 
