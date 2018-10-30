@@ -16,7 +16,16 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
+import inspect
+
 THIS_FILE_DIR = os.path.dirname(__file__)
 
 class GdeltClassificationTask():
-    pass
+    def do_decision_tree(self):
+        print("Not yet implemented: {}".format(inspect.stack()[0][3]))
+
+    def do_svm(self):
+        print("Not yet implemented: {}".format(inspect.stack()[0][3]))
+
+    def do_random_forest(self):
+        print("Not yet implemented: {}".format(inspect.stack()[0][3]))
