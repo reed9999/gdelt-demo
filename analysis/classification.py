@@ -1,11 +1,6 @@
 ################################################################################
-# Let's start with a simple one with a strong intuitive answer. Regression the 
-# tone of the media coverage on the goldsteinscale. What this *should* indicate 
-# is that stability is associated with positive tone. At least that seems most 
-# intuitive.
-# I haven't yet done this as a training/testing setup (in other words, more 
-# like how a social scientist uses regression) but will be a good step soon.
-
+# Class to streamline classification tasks.
+# See the classification.ipynb notebook for more.
 import logging
 import os
 import pandas as pd
