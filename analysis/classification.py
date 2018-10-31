@@ -6,13 +6,12 @@
 # I haven't yet done this as a training/testing setup (in other words, more 
 # like how a social scientist uses regression) but will be a good step soon.
 
-import glob
 import logging
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.svm import LinearSVC
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 

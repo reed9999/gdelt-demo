@@ -4,4 +4,4 @@
 jupyter-nbconvert --execute --to html Start_here.ipynb --ExecutePreprocessor.timeout=300
 jupyter-nbconvert --execute --to html analysis/classification.ipynb --ExecutePreprocessor.timeout=300
 rm Start_here.html
-rm analysis/classification.ipynb
+rm analysis/classification.html
