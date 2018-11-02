@@ -11,6 +11,27 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 LOCAL_DATA_DIR = "/home/philip/aws/data/original/events" #HARDCODED
 
+#HARDCODED for now, but could make sense to externalize them as with events
+# In which case DRY
+def get_country_features_column_dtypes():
+    return {
+        #THIS WAY IT WORKS BUT IS MISALIGNED
+        'name': 'object',
+        # 'actual_name': 'object',
+        'code': 'object',
+        'actor1_relationships': 'object', #'int64',
+        'actor2_relationships': 'int64',
+
+        #ORIGINAL
+        # 'code': 'object',
+        # 'actor1_relationships': 'int64',
+        # 'actor2_relationships': 'int64',
+
+    }
+
+#Misnomer - rename to events column names!
+#It's also really redundant to return this tuple. Not sure what I was
+# thinking. Just return the names as keys to the dict.
 def get_event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
@@ -58,8 +79,6 @@ def get_events_common(filenames):
     for column in ['nummentions', 'numsources', 'numarticles']:
         events_data[column] = pd.to_numeric(events_data[column])
 
-    #1987.csv is idiosyncratically throwing a warning here. It's worth learning
-    # what's going on, but for now just take it out of the dataset.
     for filename in filenames:
         try:
             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
@@ -69,12 +88,11 @@ def get_events_common(filenames):
                 on filename: {}""".format(filename))
             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
                                 dtype=None, index_col=['globaleventid'])
-
         try:
             events_data = pd.concat([new_df, events_data], sort=False)
         except TypeError:
-            # Version compatibility. I'm not sure what Pandas jupyter
-            # is running but it's older
+            logging.info("""Version compatibility. Jupyter runs an older
+                version of pandas.""")
             events_data = pd.concat([events_data, new_df], )
     return events_data
 
@@ -88,6 +106,23 @@ def get_events():
     report_on_nulls(events_data)
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
+
+def get_country_features():
+    dtypes = get_country_features_column_dtypes()
+    column_names = dtypes.keys()
+    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+                            'country_features.csv')
+    country_features_data = pd.read_csv(filename, delimiter="\t",
+                names=column_names, dtype=dtypes, index_col=['code'])
+    return country_features_data
+    # for column in [...]:
+    #     events_data[column] = pd.to_numeric(events_data[column])
+
+def get_country_external():
+    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
+                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
+    data = pd.read_csv(filename, header=4)
+    return data
 
 
 def report_on_nulls(events_data):
