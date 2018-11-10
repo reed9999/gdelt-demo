@@ -3,6 +3,9 @@
 import subprocess
 import tempfile
 
+raise NotImplementedError("""This code is for reference for now. The 
+    appropriate way to integration test via ipynb is test_ipynb.sh in
+    the root directory.""")
 
 def _exec_notebook(path):
     with tempfile.NamedTemporaryFile(suffix=".ipynb") as fout:

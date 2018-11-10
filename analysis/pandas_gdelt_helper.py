@@ -112,6 +112,11 @@ def get_country_features():
     column_names = dtypes.keys()
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
                             'country_features.csv')
+    # The following fails with the error
+    # backtrace reproduced at the end of the file.
+    # On Travis-CI it appeared to be Python 3.5 only (not 3.6 or 3.4)
+    # but now it fails locally on 3.6 as well; don't know about 3.4
+
     country_features_data = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes, index_col=['code'])
     return country_features_data
@@ -139,3 +144,54 @@ def report_on_nulls(events_data):
             "{} rows have NA in avgtone out of {} total nulls".format(
                 count_avgtone_null, count_null
             ))
+
+
+
+#
+# ~/code/gdelt-demo/analysis/pandas_gdelt_helper.py in get_country_features()
+#     114                             'country_features.csv')
+#     115     country_features_data = pd.read_csv(filename, delimiter="\t",
+# --> 116                 names=column_names, dtype=dtypes, index_col=['code'])
+#     117     return country_features_data
+#     118     # for column in [...]:
+#
+# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in parser_f(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, escapechar, comment, encoding, dialect, tupleize_cols, error_bad_lines, warn_bad_lines, skipfooter, doublequote, delim_whitespace, low_memory, memory_map, float_precision)
+#     676                     skip_blank_lines=skip_blank_lines)
+#     677
+# --> 678         return _read(filepath_or_buffer, kwds)
+#     679
+#     680     parser_f.__name__ = name
+#
+# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in _read(filepath_or_buffer, kwds)
+#     444
+#     445     try:
+# --> 446         data = parser.read(nrows)
+#     447     finally:
+#     448         parser.close()
+#
+# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in read(self, nrows)
+#    1034                 raise ValueError('skipfooter not supported for iteration')
+#    1035
+# -> 1036         ret = self._engine.read(nrows)
+#    1037
+#    1038         # May alter columns / col_dict
+#
+# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in read(self, nrows)
+#    1846     def read(self, nrows=None):
+#    1847         try:
+# -> 1848             data = self._reader.read(nrows)
+#    1849         except StopIteration:
+#    1850             if self._first_chunk:
+#
+# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader.read()
+#
+# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._read_low_memory()
+#
+# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._read_rows()
+#
+# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._convert_column_data()
+#
+# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._convert_tokens()
+#
+# ValueError: invalid literal for int() with base 10: 'BOL'
+# ValueError: invalid literal for int() with base 10: 'BOL'
