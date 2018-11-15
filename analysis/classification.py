@@ -6,9 +6,9 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-# from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
@@ -24,22 +24,40 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 
 class GdeltClassificationTask():
-    def do_iris_demo(self):
-        from sklearn.datasets import load_iris
-        iris = load_iris()
-        return cross_val_score(self._classifier, iris.data, iris.target, cv=10)
+    def do_decision_tree_demo(self):
+        """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+        Still just a sanity check."""
+        balance_data = pd.read_csv(
+            'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
+            sep=',', header=None)
+        print("Dataset Length:: ", len(balance_data))
+        print("Dataset Shape:: ", balance_data.shape)
+        print("Dataset:: ", balance_data.head())
+        X = balance_data.values[:, 1:5]
+        Y = balance_data.values[:, 0]
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=100)
+        clf_gini = self._classifier
+        clf_gini.fit(X_train, y_train)
+        self.do_decision_tree_demo_output()
+        return clf_gini.predict(X_test)
 
+    def do_decision_tree_demo_output(self):
+        one_pred = self._classifier.predict([[4, 4, 3, 3,]])
+        print (one_pred)
+        #And of course there's a whole lot more we can do...
+        return one_pred
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
-        self._classifier = DecisionTreeClassifier(random_state=0)
-        rv = self.do_iris_demo()
+        # self._classifier = DecisionTreeClassifier(random_state=0)
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=100,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_demo()
         assert self._classifier is not None
         assert rv is not None
         for item in rv:
             print(item)
-            assert item >= 0
-            assert item <= 1
+            assert item is not None
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
