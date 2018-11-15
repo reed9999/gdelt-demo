@@ -70,7 +70,14 @@ class GdeltClassificationTask():
 
         from sklearn.datasets import load_iris, make_classification
         iris = load_iris()
-        self._classifier.fit(iris.data, iris.target)
+        X = pd.DataFrame(iris.data)
+        for i in range (0, 100):
+            X.append(X)
+        y = pd.DataFrame(iris.target)
+        for i in range (0, 100):
+            y.append(y)
+        # self._classifier.fit(iris.data, iris.target)
+        self._classifier.fit(X, y)
 
         print (self._classifier.coef_)
         assert len(self._classifier.coef_) > 0
