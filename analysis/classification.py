@@ -24,49 +24,86 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 
 class GdeltClassificationTask():
+    def do_decision_tree_wine_demo(self):
+        """Another useful demo from
+        https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
+        presented here as a sanity check"""
+        from sklearn.tree import DecisionTreeClassifier, export_graphviz
+        from sklearn import tree
+        from sklearn.datasets import load_wine
+        from IPython.display import SVG
+        # from graphviz import Source
+        from IPython.display import display
+        # load dataset
+        data = load_wine()
+
+        # feature matrix
+        X = data.data
+
+        # target vector
+        y = data.target
+
+        # class labels
+        labels = data.feature_names
+
+        # print dataset description
+        print(data.DESCR)
+        estimator = DecisionTreeClassifier()
+        estimator.fit(X, y)
+
+        #graphviz not working yet
+        # graph = Source(tree.export_graphviz(estimator, out_file=None
+        #                                     , feature_names=labels, class_names=['0', '1', '2']
+        #                                     , filled=True))
+        # display(SVG(graph.pipe(format='svg')))
+
     def do_decision_tree_demo(self):
         """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
         Still just a sanity check."""
         balance_data = pd.read_csv(
             'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
             sep=',', header=None)
-        print("Dataset Length:: ", len(balance_data))
-        print("Dataset Shape:: ", balance_data.shape)
-        print("Dataset:: ", balance_data.head())
         X = balance_data.values[:, 1:5]
-        Y = balance_data.values[:, 0]
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=100)
-        clf_gini = self._classifier
-        clf_gini.fit(X_train, y_train)
-        self.do_decision_tree_demo_output()
-        return clf_gini.predict(X_test)
+        y = balance_data.values[:, 0]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        clf = self._classifier
+        clf.fit(X_train, y_train)
+        score = self.do_decision_tree_demo_output(X_test, y_test)
+        return score
 
-    def do_decision_tree_demo_output(self):
+    def do_decision_tree_demo_output(self, X_test, y_test):
+        """Continuing to refactor the demo from
+        http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+        just a bit.
+        """
         one_pred = self._classifier.predict([[4, 4, 3, 3,]])
-        print (one_pred)
-        #And of course there's a whole lot more we can do...
-        return one_pred
+        if one_pred == "R":
+            print("I've been tricked! [4, 4, 3, 3,] means the balance tilts "
+                  "to the left because 4*4 > 3*3 but I predicted right.")
+        another_pred = self._classifier.predict([[2, 2, 1, 1,]])
+        print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
+        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+        return our_score
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
-        # self._classifier = DecisionTreeClassifier(random_state=0)
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=100,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_demo()
-        assert self._classifier is not None
-        assert rv is not None
-        for item in rv:
-            print(item)
-            assert item is not None
+        print ("Gini score is {}\n".format(rv))
+        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=100,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_demo()
+        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
+
+        # self.do_decision_tree_wine_demo()
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
         to the sample iris data.
         However, neither that example nor my iris example work with decision_function, which
-        I found in another sample.
-
-        Conclusion: Blindly pasting in sample code is fine for a sanity check,
-        but now it's time to learn what the params really do!"""
+        I found in another sample. So I want to learn how to use decision_function.
+        """
 
         from sklearn.datasets import load_iris, make_classification
         iris = load_iris()
