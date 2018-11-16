@@ -29,35 +29,27 @@ class GdeltClassificationTask():
         https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
         presented here as a sanity check"""
         from sklearn.tree import DecisionTreeClassifier, export_graphviz
-        from sklearn import tree
         from sklearn.datasets import load_wine
         from IPython.display import SVG
-        # from graphviz import Source
+        from graphviz import Source
         from IPython.display import display
-        # load dataset
+
         data = load_wine()
-
-        # feature matrix
         X = data.data
-
-        # target vector
         y = data.target
-
-        # class labels
         labels = data.feature_names
 
-        # print dataset description
-        print(data.DESCR)
+        # print(data.DESCR) #overkill!
+
         estimator = DecisionTreeClassifier()
         estimator.fit(X, y)
 
-        #graphviz not working yet
-        # graph = Source(tree.export_graphviz(estimator, out_file=None
-        #                                     , feature_names=labels, class_names=['0', '1', '2']
-        #                                     , filled=True))
-        # display(SVG(graph.pipe(format='svg')))
+        graph = Source(export_graphviz(estimator, out_file=None, feature_names=labels,
+                                            class_names=['0', '1', '2'], filled=True))
+        #This only displays the tree within the Jupyter Notebook environment
+        display(SVG(graph.pipe(format='svg')))
 
-    def do_decision_tree_demo(self):
+    def do_decision_tree_simple_demo(self):
         """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
         Still just a sanity check."""
         balance_data = pd.read_csv(
@@ -87,37 +79,32 @@ class GdeltClassificationTask():
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
+        print ("\n\t----- Sanity check 1: simple demo -----")
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=100,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_demo()
+        rv = self.do_decision_tree_simple_demo()
         print ("Gini score is {}\n".format(rv))
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=100,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_demo()
+        rv = self.do_decision_tree_simple_demo()
         print ("Entropy score (i.e. information gain) is {}\n".format(rv))
 
-        # self.do_decision_tree_wine_demo()
+        print ("\n\t----- Sanity check 2: wine demo -----")
+        self.do_decision_tree_wine_demo()
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
-        to the sample iris data.
-        However, neither that example nor my iris example work with decision_function, which
-        I found in another sample. So I want to learn how to use decision_function.
+        My earlier attempt to adapt to the iris data (see above) was bothering me so I decided
+        to go back to this much simpler example.
         """
 
-        from sklearn.datasets import load_iris, make_classification
-        iris = load_iris()
-        X = pd.DataFrame(iris.data)
-        for i in range (0, 100):
-            X.append(X)
-        y = pd.DataFrame(iris.target)
-        for i in range (0, 100):
-            y.append(y)
-        # self._classifier.fit(iris.data, iris.target)
-        self._classifier.fit(X, y)
-
-        print (self._classifier.coef_)
-        assert len(self._classifier.coef_) > 0
+        X = [[0], [1], [2], [3]]
+        Y = [0, 1, 2, 3]
+        self._classifier.fit(X, Y)
+        decision_function = self._classifier.decision_function([[1]])
+        assert decision_function is not None
+        assert decision_function.shape[1] > 0
+        print ("Classifier coef for SVM:\n{}".format(self._classifier.coef_))
 
         # See https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html#sklearn.svm.LinearSVC.decision_function
         # I forget which example I picked up the following code from but clearly I need to
