@@ -56,11 +56,15 @@ class GdeltClassificationTask():
             sep=',', header=None)
         X = balance_data.values[:, 1:5]
         y = balance_data.values[:, 0]
+
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
         clf.fit(X_train, y_train)
-        score = self.do_decision_tree_demo_output(X_test, y_test)
-        return score
+        # score = self.do_decision_tree_demo_output(X_test, y_test)
+        # return score
+
+        self.troubleshoot_my_understanding(X_train, y_train)
+        return None
 
     def do_decision_tree_demo_output(self, X_test, y_test):
         """Continuing to refactor the demo from
@@ -77,14 +81,45 @@ class GdeltClassificationTask():
         print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
         our_score = accuracy_score(y_test, self._classifier.predict(X_test))
 
+        ya_pred = self._classifier.predict([[1, 1, 1, 1,]])
+        print ("What about [1, 1, 1, 1,] (should be B)? I predict {}".format(ya_pred))
+        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+
         feature_names=['L weight', 'L distance', 'R weight', 'R distance']
-        class_names = ['L', 'B', 'R']
         graph = Source(export_graphviz(self._classifier, out_file=None,
-                               feature_names=feature_names, class_names=class_names, filled=True))
+                               feature_names=feature_names, filled=True))
         #This only displays the tree within the Jupyter Notebook environment
         display(SVG(graph.pipe(format='svg')))
 
         return our_score
+
+    def troubleshoot_my_understanding(self, X_train, y_train):
+        print("\n\t----- What am I missing? -----")
+        print("The issue is that several items that say they predicted as 'L' show up as 'B'")
+        print("when I try to follow the graphed tree. What am I missing?")
+
+        simplest_tree = self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
+                      max_depth=1, min_samples_leaf=5)
+        simplest_tree.fit(X_train, y_train)
+        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
+        class_names = ['L', 'B', 'R']   # Actually I think the problem is simply here.
+        # I followed the order in
+        # https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.names
+        # But what if it's wrong?
+        graph = Source(export_graphviz(simplest_tree, out_file=None,
+                               feature_names=feature_names, filled=True))
+        display(SVG(graph.pipe(format='svg')))
+
+        predict_this = [
+            [[1, 1, 1, 1,]],
+            [[3, 3, 3, 3,]],
+            [[4, 4, 3, 3,]],
+            [[2, 2, 1, 1,]],
+            [[1, 1, 5, 5,]],
+        ]
+        for item in predict_this:
+            print ("Now considering {}".format(item))
+            print ("I predict: {}".format(simplest_tree.predict(item)))
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
