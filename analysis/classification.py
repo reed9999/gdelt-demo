@@ -6,12 +6,15 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from graphviz import Source
+from IPython.display import SVG
+from IPython.display import display
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, export_graphviz
 
 import inspect
 
@@ -28,11 +31,7 @@ class GdeltClassificationTask():
         """Another useful demo from
         https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
         presented here as a sanity check"""
-        from sklearn.tree import DecisionTreeClassifier, export_graphviz
         from sklearn.datasets import load_wine
-        from IPython.display import SVG
-        from graphviz import Source
-        from IPython.display import display
 
         data = load_wine()
         X = data.data
@@ -70,27 +69,37 @@ class GdeltClassificationTask():
         """
         one_pred = self._classifier.predict([[4, 4, 3, 3,]])
         if one_pred == "R":
-            print("I've been tricked! [4, 4, 3, 3,] means the balance tilts "
-                  "to the left because 4*4 > 3*3 but I predicted right.")
+            print("""This illustrates an important point about decision trees. [4, 4, 3, 3,] 
+            means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
+            print("""Why? Because this example is a bit of an outlier (high numbers) and the sample
+            has more instances for R than L.""")
         another_pred = self._classifier.predict([[2, 2, 1, 1,]])
         print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
         our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+
+        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
+        class_names = ['L', 'B', 'R']
+        graph = Source(export_graphviz(self._classifier, out_file=None,
+                               feature_names=feature_names, class_names=class_names, filled=True))
+        #This only displays the tree within the Jupyter Notebook environment
+        display(SVG(graph.pipe(format='svg')))
+
         return our_score
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
-        print ("\n\t----- Sanity check 1: simple demo -----")
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=100,
+        print ("\n\t----- Sanity check 1: simple balance demo -----")
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_simple_demo()
         print ("Gini score is {}\n".format(rv))
-        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=100,
+        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_simple_demo()
         print ("Entropy score (i.e. information gain) is {}\n".format(rv))
 
-        print ("\n\t----- Sanity check 2: wine demo -----")
-        self.do_decision_tree_wine_demo()
+        # print ("\n\t----- Sanity check 2: wine demo -----")
+        # self.do_decision_tree_wine_demo()
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
