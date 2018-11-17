@@ -27,26 +27,6 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 
 class GdeltClassificationTask():
-    def do_decision_tree_wine_demo(self):
-        """Another useful demo from
-        https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
-        presented here as a sanity check"""
-        from sklearn.datasets import load_wine
-
-        data = load_wine()
-        X = data.data
-        y = data.target
-        labels = data.feature_names
-
-        # print(data.DESCR) #overkill!
-
-        estimator = DecisionTreeClassifier()
-        estimator.fit(X, y)
-
-        graph = Source(export_graphviz(estimator, out_file=None, feature_names=labels,
-                                            class_names=['0', '1', '2'], filled=True))
-        #This only displays the tree within the Jupyter Notebook environment
-        display(SVG(graph.pipe(format='svg')))
 
     def do_decision_tree_simple_demo(self):
         """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
@@ -60,23 +40,27 @@ class GdeltClassificationTask():
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
         clf.fit(X_train, y_train)
-        # score = self.do_decision_tree_demo_output(X_test, y_test)
-        # return score
-
-        self.troubleshoot_my_understanding(X_train, y_train)
-        return None
+        score = self.do_decision_tree_demo_output(X_test, y_test)
+        return score
 
     def do_decision_tree_demo_output(self, X_test, y_test):
         """Continuing to refactor the demo from
         http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
         just a bit.
         """
-        one_pred = self._classifier.predict([[4, 4, 3, 3,]])
+        what_to_predict = [[4, 4, 3, 3,]]
+        one_pred = self._classifier.predict(what_to_predict)
+        print ("Value {} - prediction {}".format(what_to_predict, one_pred))
         if one_pred == "R":
-            print("""This illustrates an important point about decision trees. [4, 4, 3, 3,] 
-            means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
-            print("""Why? Because this example is a bit of an outlier (high numbers) and the sample
-            has more instances for R than L.""")
+            print(
+                """This illustrates an important point about decision trees. [4, 4, 3, 3,] 
+                means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
+            print(
+                """Why? Because this example is a bit of an outlier (high numbers) and for whatever reason 
+                the tree starts out evaluating R. Most of the time a high R weight and R distance would of
+                course be predictive of R. Note the much higher gini in the extreme lower right node though
+                even though it is still R, which is incorrect in this example.""")
+
         another_pred = self._classifier.predict([[2, 2, 1, 1,]])
         print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
         our_score = accuracy_score(y_test, self._classifier.predict(X_test))
@@ -86,40 +70,15 @@ class GdeltClassificationTask():
         our_score = accuracy_score(y_test, self._classifier.predict(X_test))
 
         feature_names=['L weight', 'L distance', 'R weight', 'R distance']
-        graph = Source(export_graphviz(self._classifier, out_file=None,
+        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
+        # them too.
+        class_names=['B', 'L', 'R']
+        graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
                                feature_names=feature_names, filled=True))
         #This only displays the tree within the Jupyter Notebook environment
         display(SVG(graph.pipe(format='svg')))
 
         return our_score
-
-    def troubleshoot_my_understanding(self, X_train, y_train):
-        print("\n\t----- What am I missing? -----")
-        print("The issue is that several items that say they predicted as 'L' show up as 'B'")
-        print("when I try to follow the graphed tree. What am I missing?")
-
-        simplest_tree = self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
-                      max_depth=1, min_samples_leaf=5)
-        simplest_tree.fit(X_train, y_train)
-        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
-        class_names = ['L', 'B', 'R']   # Actually I think the problem is simply here.
-        # I followed the order in
-        # https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.names
-        # But what if it's wrong?
-        graph = Source(export_graphviz(simplest_tree, out_file=None,
-                               feature_names=feature_names, filled=True))
-        display(SVG(graph.pipe(format='svg')))
-
-        predict_this = [
-            [[1, 1, 1, 1,]],
-            [[3, 3, 3, 3,]],
-            [[4, 4, 3, 3,]],
-            [[2, 2, 1, 1,]],
-            [[1, 1, 5, 5,]],
-        ]
-        for item in predict_this:
-            print ("Now considering {}".format(item))
-            print ("I predict: {}".format(simplest_tree.predict(item)))
 
     def do_decision_tree(self):
         print ("\n*****    DECISION TREE    *****")
@@ -133,8 +92,6 @@ class GdeltClassificationTask():
         rv = self.do_decision_tree_simple_demo()
         print ("Entropy score (i.e. information gain) is {}\n".format(rv))
 
-        # print ("\n\t----- Sanity check 2: wine demo -----")
-        # self.do_decision_tree_wine_demo()
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
@@ -202,6 +159,29 @@ class GdeltClassificationTask():
     def do_knn(self):
         self._classifier = KNeighborsClassifier(n_neighbors=3)
         self.do_knn_sample()
+
+    #OBSOLETE -- I'll remove when I no longer need it for reference
+    def do_decision_tree_wine_demo(self):
+        """Another useful demo from
+        https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
+        presented here as a sanity check"""
+        from sklearn.datasets import load_wine
+
+        data = load_wine()
+        X = data.data
+        y = data.target
+        labels = data.feature_names
+
+        # print(data.DESCR) #overkill!
+
+        estimator = DecisionTreeClassifier()
+        estimator.fit(X, y)
+
+        graph = Source(export_graphviz(estimator, out_file=None, feature_names=labels,
+                                       class_names=['0', '1', '2'], filled=True))
+        # This only displays the tree within the Jupyter Notebook environment
+        display(SVG(graph.pipe(format='svg')))
+
 
 if __name__ == "__main__":
     task = GdeltClassificationTask()
