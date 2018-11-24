@@ -12,7 +12,7 @@ INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 LOCAL_DATA_DIR = "/home/philip/aws/data/original/events" #HARDCODED
 
 #HARDCODED for now, but could make sense to externalize them as with events
-# In which case DRY
+# In which case watch out for DRY and REFACTOR as needed.
 def get_country_features_column_dtypes():
     return {
         #THIS WAY IT WORKS BUT IS MISALIGNED

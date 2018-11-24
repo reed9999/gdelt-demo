@@ -110,6 +110,17 @@ def get_events():
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
+def get_external_country_data():
+    # dtypes = get_external_country_data_dtypes()
+    # column_names = dtypes.keys()
+    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
+    dataframe = pd.read_csv(filename, delimiter="\t",
+                                        # names=column_names, dtype=dtypes, index_col=['code'])
+                                        skiprows=4, dtype=None, index_col=['code'])
+    return country_features_data
+
+
 def get_country_features():
     dtypes = get_country_features_column_dtypes()
     column_names = dtypes.keys()
@@ -142,3 +153,7 @@ def report_on_nulls(events_data):
             "{} rows have NA in avgtone out of {} total nulls".format(
                 count_avgtone_null, count_null
             ))
+
+if __name__ == "__main__":
+    #simple test of new functionality
+    data = get_external_country_data()

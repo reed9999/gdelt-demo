@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 ################################################################################
 # Class to streamline classification tasks.
 # See the classification.ipynb notebook for more.
@@ -6,6 +7,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 from graphviz import Source
 from IPython.display import SVG
 from IPython.display import display
@@ -16,7 +18,12 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, export_graphviz
 
-import inspect
+# For reasons I don't yet understand, the project root is added to the search path in PyCharm
+# but not from the command line. For now it's not a big deal to kludge it, but I need to improve
+# my app design. First figure out where the include is coming from (debug and look at sys.path),
+# then look at other good apps to see how I should be structuring this.
+sys.path.insert(1,  os.path.join(os.getcwd()))
+from analysis.pandas_gdelt_helper import get_events, get_country_features
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 
@@ -28,69 +35,13 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 class GdeltClassificationTask():
 
-    def do_decision_tree_simple_demo(self):
-        """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
-        Still just a sanity check."""
-        balance_data = pd.read_csv(
-            'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
-            sep=',', header=None)
-        X = balance_data.values[:, 1:5]
-        y = balance_data.values[:, 0]
+    def load_data(self):
+        self._dataframe = get_country_features()
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
-        clf = self._classifier
-        clf.fit(X_train, y_train)
-        score = self.do_decision_tree_demo_output(X_test, y_test)
-        return score
-
-    def do_decision_tree_demo_output(self, X_test, y_test):
-        """Continuing to refactor the demo from
-        http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
-        just a bit.
-        """
-        what_to_predict = [[4, 4, 3, 3,]]
-        one_pred = self._classifier.predict(what_to_predict)
-        print ("Value {} - prediction {}".format(what_to_predict, one_pred))
-        if one_pred == "R":
-            print(
-                """This illustrates an important point about decision trees. [4, 4, 3, 3,] 
-                means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
-            print(
-                """Why? Because this example is a bit of an outlier (high numbers) and for whatever reason 
-                the tree starts out evaluating R. Most of the time a high R weight and R distance would of
-                course be predictive of R. Note the much higher gini in the extreme lower right node though
-                even though it is still R, which is incorrect in this example.""")
-
-        another_pred = self._classifier.predict([[2, 2, 1, 1,]])
-        print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
-        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
-
-        ya_pred = self._classifier.predict([[1, 1, 1, 1,]])
-        print ("What about [1, 1, 1, 1,] (should be B)? I predict {}".format(ya_pred))
-        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
-
-        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
-        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
-        # them too.
-        class_names=['B', 'L', 'R']
-        graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
-                               feature_names=feature_names, filled=True))
-        #This only displays the tree within the Jupyter Notebook environment
-        display(SVG(graph.pipe(format='svg')))
-
-        return our_score
 
     def do_decision_tree(self):
-        print ("\n*****    DECISION TREE    *****")
-        print ("\n\t----- Sanity check 1: simple balance demo -----")
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_simple_demo()
-        print ("Gini score is {}\n".format(rv))
-        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_simple_demo()
-        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
+        self.load_data()
+        print(self._dataframe.head())
 
 
     def do_svm_sample(self):
@@ -160,32 +111,78 @@ class GdeltClassificationTask():
         self._classifier = KNeighborsClassifier(n_neighbors=3)
         self.do_knn_sample()
 
-    #OBSOLETE -- I'll remove when I no longer need it for reference
-    def do_decision_tree_wine_demo(self):
-        """Another useful demo from
-        https://towardsdatascience.com/interactive-visualization-of-decision-trees-with-jupyter-widgets-ca15dd312084
-        presented here as a sanity check"""
-        from sklearn.datasets import load_wine
+    #####
+    # DECISION TREE DEMOS
+    # These are just part of the sanity check and can be deleted when no longer helpful for reference.
 
-        data = load_wine()
-        X = data.data
-        y = data.target
-        labels = data.feature_names
+    def do_decision_tree_simple_demo(self):
+        """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+        Still just a sanity check."""
+        balance_data = pd.read_csv(
+            'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
+            sep=',', header=None)
+        X = balance_data.values[:, 1:5]
+        y = balance_data.values[:, 0]
 
-        # print(data.DESCR) #overkill!
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        clf = self._classifier
+        clf.fit(X_train, y_train)
+        score = self.do_decision_tree_demo_output(X_test, y_test)
+        return score
 
-        estimator = DecisionTreeClassifier()
-        estimator.fit(X, y)
+    def do_decision_tree_demo_output(self, X_test, y_test):
+        """Continuing to refactor the demo from
+        http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+        just a bit.
+        """
+        what_to_predict = [[4, 4, 3, 3,]]
+        one_pred = self._classifier.predict(what_to_predict)
+        print ("Value {} - prediction {}".format(what_to_predict, one_pred))
+        if one_pred == "R":
+            print(
+                """This illustrates an important point about decision trees. [4, 4, 3, 3,] 
+                means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
+            print(
+                """Why? Because this example is a bit of an outlier (high numbers) and for whatever reason 
+                the tree starts out evaluating R. Most of the time a high R weight and R distance would of
+                course be predictive of R. Note the much higher gini in the extreme lower right node though
+                even though it is still R, which is incorrect in this example.""")
 
-        graph = Source(export_graphviz(estimator, out_file=None, feature_names=labels,
-                                       class_names=['0', '1', '2'], filled=True))
-        # This only displays the tree within the Jupyter Notebook environment
+        another_pred = self._classifier.predict([[2, 2, 1, 1,]])
+        print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
+        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+
+        ya_pred = self._classifier.predict([[1, 1, 1, 1,]])
+        print ("What about [1, 1, 1, 1,] (should be B)? I predict {}".format(ya_pred))
+        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+
+        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
+        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
+        # them too.
+        class_names=['B', 'L', 'R']
+        graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
+                               feature_names=feature_names, filled=True))
+        #This only displays the tree within the Jupyter Notebook environment
         display(SVG(graph.pipe(format='svg')))
 
+        return our_score
+
+    def do_decision_tree_demos(self):
+        print ("\n*****    DECISION TREE    *****")
+
+        print ("\n\t----- Sanity check 1: simple balance demo -----")
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_simple_demo()
+        print ("Gini score is {}\n".format(rv))
+        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_simple_demo()
+        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
 
 if __name__ == "__main__":
     task = GdeltClassificationTask()
     task.do_decision_tree()
-    task.do_svm()
-    task.do_random_forest()
-    task.do_knn()
+    # task.do_svm()
+    # task.do_random_forest()
+    # task.do_knn()
