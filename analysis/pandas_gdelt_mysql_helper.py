@@ -111,14 +111,13 @@ def get_events():
     return events_data
 
 def get_external_country_data():
-    # dtypes = get_external_country_data_dtypes()
-    # column_names = dtypes.keys()
-    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
                             'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
-    dataframe = pd.read_csv(filename, delimiter="\t",
-                                        # names=column_names, dtype=dtypes, index_col=['code'])
-                                        skiprows=4, dtype=None, index_col=['code'])
-    return country_features_data
+    dataframe = pd.read_csv(filename, delimiter=",",
+                            skiprows=4, dtype=None,
+                            index_col='Country Code',
+                            )
+    return dataframe
 
 
 def get_country_features():
@@ -132,11 +131,6 @@ def get_country_features():
     # for column in [...]:
     #     events_data[column] = pd.to_numeric(events_data[column])
 
-def get_country_external():
-    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
-                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
-    data = pd.read_csv(filename, header=4)
-    return data
 
 
 def report_on_nulls(events_data):
@@ -156,4 +150,13 @@ def report_on_nulls(events_data):
 
 if __name__ == "__main__":
     #simple test of new functionality
-    data = get_external_country_data()
+    feat = get_country_features()
+    ext = get_external_country_data()
+    joined = feat.join(ext, how='outer')
+    print(joined.columns)
+    external_nans = joined['2017'].isna()
+    feature_nans = joined['name'].isna()
+    print(joined[external_nans])
+    print(joined[feature_nans])
+    print(joined[external_nans]['name'])
+    print(joined[feature_nans]['Country Name'])
