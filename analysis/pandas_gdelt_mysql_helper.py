@@ -16,8 +16,7 @@ MYSQL_SERVER = ''
 
 #HARDCODED for now, but could make sense to externalize them as with events
 # In which case DRY
-def get_country_features_column_dtypes():
-    return {
+COUNTRY_FEATURES_COLUMN_DTYPES = {
         #THIS WAY IT WORKS BUT IS MISALIGNED
         'name': 'object',
         # 'actual_name': 'object',
@@ -32,9 +31,6 @@ def get_country_features_column_dtypes():
 
     }
 
-#Misnomer - rename to events column names!
-#It's also really redundant to return this tuple. Not sure what I was
-# thinking. Just return the names as keys to the dict.
 def get_event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
@@ -45,9 +41,8 @@ def get_event_column_names_dtypes():
         pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()} 
             for x in lines]
         # pairs = str(f.readline()).split('\t')
-    names = [x['name'] for x in pairs]
     dtypes = {x['name']: x['dtype'] for x in pairs}
-    return names, dtypes
+    return dtypes
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
@@ -74,8 +69,10 @@ def get_events_sample_tiny():
     return get_events_common(filenames)
 
 def get_events_common(filenames):
-
-    column_names, dtypes = get_event_column_names_dtypes()
+    """Common refactored functionality to get the events files whether in the sample data or
+    in my s3 downloads"""
+    dtypes = get_event_column_names_dtypes()
+    column_names = dtypes.keys()
     events_data = pd.DataFrame(columns=column_names, dtype=None)
     # This didn't work later in the execution but maybe with the empty
     # DataFrame
@@ -117,6 +114,7 @@ def get_external_country_data():
                             skiprows=4, dtype=None,
                             index_col='Country Code',
                             )
+    tweak_external_data_country_codes(dataframe)
     return dataframe
 
 
@@ -131,7 +129,42 @@ def get_country_features():
     # for column in [...]:
     #     events_data[column] = pd.to_numeric(events_data[column])
 
+def report_on_country_mismatches():
+    """This utility function made sense to help me discover what tweaks were necessary.
+    To return everything to the original state (in a messy hacky way), remove the tweak call from
+    get_external_country_data()
+    """
+    feat = get_country_features()
+    ext = get_external_country_data()
+    joined = feat.join(ext, how='outer')
+    print(joined.columns)
 
+    external_nans = joined['2017'].isna()
+    feature_nans = joined['name'].isna()
+    print("Here are the countries in GDELT features but not GDP data:\n")
+    print(joined[external_nans]['name'])
+    print("Here are the countries in GDP data but not GDELT features:\n")
+    print(joined[feature_nans]['Country Name'])
+
+def tweak_external_data_country_codes(ext_data):
+    """Turns out there are only two obvious cases where the same country has different codes.
+    Change the code in external data to match feature data (since GDELT codes should probably be
+    the standard here, even if there are imperfections).
+
+    Returns: The input data frame.
+    Side effects: Changes the data frame in place rather than cloning.
+    """
+    TWEAKS = {
+        'ROU': 'ROM',   #Romania
+        'TLS': 'TMP',   #Timor-Leste
+    }
+    #https://stackoverflow.com/a/40428133
+    as_list = ext_data.index.tolist()
+    for ext_code, feature_code in TWEAKS.items():
+        index = as_list.index(ext_code)
+        as_list[index] = feature_code
+    ext_data.index = as_list
+    return ext_data
 
 def report_on_nulls(events_data):
     count_null = events_data.isna().sum().sum()
@@ -150,13 +183,7 @@ def report_on_nulls(events_data):
 
 if __name__ == "__main__":
     #simple test of new functionality
-    feat = get_country_features()
-    ext = get_external_country_data()
-    joined = feat.join(ext, how='outer')
-    print(joined.columns)
-    external_nans = joined['2017'].isna()
-    feature_nans = joined['name'].isna()
-    print(joined[external_nans])
-    print(joined[feature_nans])
-    print(joined[external_nans]['name'])
-    print(joined[feature_nans]['Country Name'])
+    df = get_events_sample_tiny()
+    print(df.shape)
+
+
