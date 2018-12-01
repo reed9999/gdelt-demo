@@ -119,7 +119,7 @@ def get_external_country_data():
 
 
 def get_country_features():
-    dtypes = get_country_features_column_dtypes()
+    dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
     column_names = dtypes.keys()
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
                             'country_features.csv')
@@ -183,7 +183,6 @@ def report_on_nulls(events_data):
 
 if __name__ == "__main__":
     #simple test of new functionality
-    df = get_events_sample_tiny()
-    print(df.shape)
+    report_on_country_mismatches()
 
 
