@@ -14,21 +14,12 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 MYSQL_SERVER = ''
 
-#HARDCODED for now, but could make sense to externalize them as with events
-# In which case DRY
 COUNTRY_FEATURES_COLUMN_DTYPES = {
-        #THIS WAY IT WORKS BUT IS MISALIGNED
+    #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
         'name': 'object',
-        # 'actual_name': 'object',
         'code': 'object',
-        'actor1_relationships': 'object', #'int64',
+        'actor1_relationships': 'int64',
         'actor2_relationships': 'int64',
-
-        #ORIGINAL
-        # 'code': 'object',
-        # 'actor1_relationships': 'int64',
-        # 'actor2_relationships': 'int64',
-
     }
 
 def get_event_column_names_dtypes():
@@ -53,15 +44,14 @@ def get_event_column_names():
         column_names = str(f.readline()).split('\t')
     return column_names
 
-def get_events_local_medium():
+def get_events_from_local_medium_sized():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     assert len(filenames) > 0, "There should be at least one data file."
-
     return get_events_common(filenames)
 
-def get_events_sample_tiny():
+def get_events_from_sample_data():
     TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
                                 "sample_data")
 
@@ -100,9 +90,9 @@ def get_events_common(filenames):
 
 def get_events():
     try:
-        events_data = get_events_local_medium()
+        events_data = get_events_from_local_medium_sized()
     except AssertionError as e:
-        events_data = get_events_sample_tiny()
+        events_data = get_events_from_sample_data()
     report_on_nulls(events_data)
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
@@ -183,6 +173,8 @@ def report_on_nulls(events_data):
 
 if __name__ == "__main__":
     #simple test of new functionality
-    report_on_country_mismatches()
+    feat = get_country_features()
+    print(feat.columns)
+    print(feat.head(10))
 
 
