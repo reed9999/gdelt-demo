@@ -11,27 +11,14 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 LOCAL_DATA_DIR = "/home/philip/aws/data/original/events" #HARDCODED
 
-#HARDCODED for now, but could make sense to externalize them as with events
-# In which case watch out for DRY and REFACTOR as needed.
-def get_country_features_column_dtypes():
-    return {
-        #THIS WAY IT WORKS BUT IS MISALIGNED
+COUNTRY_FEATURES_COLUMN_DTYPES = {
+    #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
         'name': 'object',
-        # 'actual_name': 'object',
         'code': 'object',
-        'actor1_relationships': 'object', #'int64',
+        'actor1_relationships': 'int64',
         'actor2_relationships': 'int64',
-
-        #ORIGINAL
-        # 'code': 'object',
-        # 'actor1_relationships': 'int64',
-        # 'actor2_relationships': 'int64',
-
     }
 
-#Misnomer - rename to events column names!
-#It's also really redundant to return this tuple. Not sure what I was
-# thinking. Just return the names as keys to the dict.
 def get_event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
@@ -39,12 +26,11 @@ def get_event_column_names_dtypes():
     )
     with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
         lines = f.readlines()
-        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()} 
+        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()}
             for x in lines]
         # pairs = str(f.readline()).split('\t')
-    names = [x['name'] for x in pairs]
     dtypes = {x['name']: x['dtype'] for x in pairs}
-    return names, dtypes
+    return dtypes
 
 def get_event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
@@ -55,15 +41,14 @@ def get_event_column_names():
         column_names = str(f.readline()).split('\t')
     return column_names
 
-def get_events_local_medium():
+def get_events_from_local_medium_sized():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     assert len(filenames) > 0, "There should be at least one data file."
-
     return get_events_common(filenames)
 
-def get_events_sample_tiny():
+def get_events_from_sample_data():
     TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
                                 "sample_data")
 
@@ -71,8 +56,10 @@ def get_events_sample_tiny():
     return get_events_common(filenames)
 
 def get_events_common(filenames):
-
-    column_names, dtypes = get_event_column_names_dtypes()
+    """Common refactored functionality to get the events files whether in the sample data or
+    in my s3 downloads"""
+    dtypes = get_event_column_names_dtypes()
+    column_names = dtypes.keys()
     events_data = pd.DataFrame(columns=column_names, dtype=None)
     # This didn't work later in the execution but maybe with the empty
     # DataFrame
@@ -96,39 +83,73 @@ def get_events_common(filenames):
             events_data = pd.concat([events_data, new_df], )
     return events_data
 
-
-
 def get_events():
     try:
-        events_data = get_events_local_medium()
+        events_data = get_events_from_local_medium_sized()
     except AssertionError as e:
-        events_data = get_events_sample_tiny()
+        events_data = get_events_from_sample_data()
     report_on_nulls(events_data)
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
+def get_external_country_data():
+    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
+                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
+    dataframe = pd.read_csv(filename, delimiter=",",
+                            skiprows=4, dtype=None,
+                            index_col='Country Code',
+                            )
+    tweak_external_data_country_codes(dataframe)
+    return dataframe
+
+
 def get_country_features():
-    dtypes = get_country_features_column_dtypes()
+    dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
     column_names = dtypes.keys()
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
                             'country_features.csv')
-    # The following fails with the error
-    # backtrace reproduced at the end of the file.
-    # On Travis-CI it appeared to be Python 3.5 only (not 3.6 or 3.4)
-    # but now it fails locally on 3.6 as well; don't know about 3.4
-
     country_features_data = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes, index_col=['code'])
     return country_features_data
     # for column in [...]:
     #     events_data[column] = pd.to_numeric(events_data[column])
 
-def get_country_external():
-    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
-                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
-    data = pd.read_csv(filename, header=4)
-    return data
+def report_on_country_mismatches():
+    """This utility function made sense to help me discover what tweaks were necessary.
+    To return everything to the original state (in a messy hacky way), remove the tweak call from
+    get_external_country_data()
+    """
+    feat = get_country_features()
+    ext = get_external_country_data()
+    joined = feat.join(ext, how='outer')
+    print(joined.columns)
 
+    external_nans = joined['2017'].isna()
+    feature_nans = joined['name'].isna()
+    print("Here are the countries in GDELT features but not GDP data:\n")
+    print(joined[external_nans]['name'])
+    print("Here are the countries in GDP data but not GDELT features:\n")
+    print(joined[feature_nans]['Country Name'])
+
+def tweak_external_data_country_codes(ext_data):
+    """Turns out there are only two obvious cases where the same country has different codes.
+    Change the code in external data to match feature data (since GDELT codes should probably be
+    the standard here, even if there are imperfections).
+
+    Returns: The input data frame.
+    Side effects: Changes the data frame in place rather than cloning.
+    """
+    TWEAKS = {
+        'ROU': 'ROM',   #Romania
+        'TLS': 'TMP',   #Timor-Leste
+    }
+    #https://stackoverflow.com/a/40428133
+    as_list = ext_data.index.tolist()
+    for ext_code, feature_code in TWEAKS.items():
+        index = as_list.index(ext_code)
+        as_list[index] = feature_code
+    ext_data.index = as_list
+    return ext_data
 
 def report_on_nulls(events_data):
     count_null = events_data.isna().sum().sum()
@@ -145,53 +166,6 @@ def report_on_nulls(events_data):
                 count_avgtone_null, count_null
             ))
 
-
-
-#
-# ~/code/gdelt-demo/analysis/pandas_gdelt_helper.py in get_country_features()
-#     114                             'country_features.csv')
-#     115     country_features_data = pd.read_csv(filename, delimiter="\t",
-# --> 116                 names=column_names, dtype=dtypes, index_col=['code'])
-#     117     return country_features_data
-#     118     # for column in [...]:
-#
-# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in parser_f(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, squeeze, prefix, mangle_dupe_cols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, dayfirst, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, escapechar, comment, encoding, dialect, tupleize_cols, error_bad_lines, warn_bad_lines, skipfooter, doublequote, delim_whitespace, low_memory, memory_map, float_precision)
-#     676                     skip_blank_lines=skip_blank_lines)
-#     677
-# --> 678         return _read(filepath_or_buffer, kwds)
-#     679
-#     680     parser_f.__name__ = name
-#
-# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in _read(filepath_or_buffer, kwds)
-#     444
-#     445     try:
-# --> 446         data = parser.read(nrows)
-#     447     finally:
-#     448         parser.close()
-#
-# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in read(self, nrows)
-#    1034                 raise ValueError('skipfooter not supported for iteration')
-#    1035
-# -> 1036         ret = self._engine.read(nrows)
-#    1037
-#    1038         # May alter columns / col_dict
-#
-# ~/.local/lib/python3.5/site-packages/pandas/io/parsers.py in read(self, nrows)
-#    1846     def read(self, nrows=None):
-#    1847         try:
-# -> 1848             data = self._reader.read(nrows)
-#    1849         except StopIteration:
-#    1850             if self._first_chunk:
-#
-# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader.read()
-#
-# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._read_low_memory()
-#
-# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._read_rows()
-#
-# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._convert_column_data()
-#
-# pandas/_libs/parsers.pyx in pandas._libs.parsers.TextReader._convert_tokens()
-#
-# ValueError: invalid literal for int() with base 10: 'BOL'
-# ValueError: invalid literal for int() with base 10: 'BOL'
+if __name__ == "__main__":
+    #simple test of new functionality
+    report_on_country_mismatches()

@@ -5,6 +5,8 @@
 # educational) to access everything through pandas read_csv if it's already
 # in a RDBMS.
 
+# So at the moment the MySQL pieces haven't been implemented.
+
 import glob
 import logging
 import os
@@ -85,8 +87,6 @@ def get_events_common(filenames):
                 version of pandas.""")
             events_data = pd.concat([events_data, new_df], )
     return events_data
-
-
 
 def get_events():
     try:
