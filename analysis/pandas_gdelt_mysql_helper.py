@@ -172,9 +172,6 @@ def report_on_nulls(events_data):
             ))
 
 if __name__ == "__main__":
-    #simple test of new functionality
-    feat = get_country_features()
-    print(feat.columns)
-    print(feat.head(10))
+    raise NotImplementedError("Use the non-MySQL helper until MySQL functions are implemented")
 
 
