@@ -10,6 +10,9 @@ import pandas as pd
 THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
 LOCAL_DATA_DIR = "/home/philip/aws/data/original/events" #HARDCODED
+HIGH_INCOME_THRESHOLD = 30000.00
+# Also worth considering: We could calculate a threshold using mean, stdev, etc.
+# or just search for an international standard for "high income"
 
 COUNTRY_FEATURES_COLUMN_DTYPES = {
     #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
@@ -100,6 +103,7 @@ def get_external_country_data():
                             index_col='Country Code',
                             )
     tweak_external_data_country_codes(dataframe)
+    dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
     return dataframe
 
 
@@ -110,26 +114,11 @@ def get_country_features():
                             'country_features.csv')
     country_features_data = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes, index_col=['code'])
-    return country_features_data
+    external_data = get_external_country_data()
+    return country_features_data.join(other=external_data, how='inner')
     # for column in [...]:
     #     events_data[column] = pd.to_numeric(events_data[column])
 
-def report_on_country_mismatches():
-    """This utility function made sense to help me discover what tweaks were necessary.
-    To return everything to the original state (in a messy hacky way), remove the tweak call from
-    get_external_country_data()
-    """
-    feat = get_country_features()
-    ext = get_external_country_data()
-    joined = feat.join(ext, how='outer')
-    print(joined.columns)
-
-    external_nans = joined['2017'].isna()
-    feature_nans = joined['name'].isna()
-    print("Here are the countries in GDELT features but not GDP data:\n")
-    print(joined[external_nans]['name'])
-    print("Here are the countries in GDP data but not GDELT features:\n")
-    print(joined[feature_nans]['Country Name'])
 
 def tweak_external_data_country_codes(ext_data):
     """Turns out there are only two obvious cases where the same country has different codes.
@@ -166,6 +155,26 @@ def report_on_nulls(events_data):
                 count_avgtone_null, count_null
             ))
 
+def util_report_on_country_mismatches():
+    """This utility function made sense to help me discover what tweaks were necessary.
+    To return everything to the original state (in a messy hacky way), remove the tweak call from
+    get_external_country_data()
+    """
+    feat = get_country_features()
+    ext = get_external_country_data()
+    joined = feat.join(ext, how='outer')
+    print(joined.columns)
+
+    external_nans = joined['2017'].isna()
+    feature_nans = joined['name'].isna()
+    print("Here are the countries in GDELT features but not GDP data:\n")
+    print(joined[external_nans]['name'])
+    print("Here are the countries in GDP data but not GDELT features:\n")
+    print(joined[feature_nans]['Country Name'])
+
 if __name__ == "__main__":
     #simple test of new functionality
-    report_on_country_mismatches()
+    # get_external_country_data()
+    features = get_country_features()
+    is_high_income = features['is_high_income']
+    pass
