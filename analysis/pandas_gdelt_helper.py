@@ -95,6 +95,13 @@ def get_events():
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
 
+def clean_up_external_country_columns(dataframe):
+    """Delete unhelpful columns from 1960 to 2016, inclusive"""
+    labels = [str(i) for i in range(1960, 2017)]
+    dataframe.drop(axis='columns', columns=labels, inplace=True)
+    return dataframe
+
+
 def get_external_country_data():
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
                             'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
@@ -103,6 +110,7 @@ def get_external_country_data():
                             index_col='Country Code',
                             )
     tweak_external_data_country_codes(dataframe)
+    clean_up_external_country_columns(dataframe)
     dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
     return dataframe
 
@@ -160,6 +168,8 @@ def util_report_on_country_mismatches():
     To return everything to the original state (in a messy hacky way), remove the tweak call from
     get_external_country_data()
     """
+    assert False, """This is now broken: 
+    ValueError: columns overlap but no suffix specified"""
     feat = get_country_features()
     ext = get_external_country_data()
     joined = feat.join(ext, how='outer')
@@ -174,7 +184,6 @@ def util_report_on_country_mismatches():
 
 if __name__ == "__main__":
     #simple test of new functionality
-    # get_external_country_data()
     features = get_country_features()
     is_high_income = features['is_high_income']
     pass
