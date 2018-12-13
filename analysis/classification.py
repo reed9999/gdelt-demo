@@ -41,7 +41,29 @@ class GdeltClassificationTask():
 
     def do_decision_tree(self):
         self.load_data()
-        print(self._dataframe.head())
+        self._dataframe.dropna()
+        # TODO There is a bogus column called Unnamed: 62 that is full of nan. I
+        # need to figure out where this happened, probably from my joins.
+        print ("\n*****    DECISION TREE    *****")
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_impl()
+        print ("Gini score is {}\n".format(rv))
+        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
+                                          max_depth=3, min_samples_leaf=5)
+        rv = self.do_decision_tree_impl()
+        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
+
+    def do_decision_tree_impl(self):
+        df = self._dataframe
+        X = df.values[:, [1, 2,]]
+        y = df.values[:, -1]
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        clf = self._classifier
+        clf.fit(X_train, y_train)
+        our_score = accuracy_score(y_test, clf.predict(X_test))
+        return our_score
 
 
     def do_svm_sample(self):
@@ -182,6 +204,7 @@ class GdeltClassificationTask():
 
 if __name__ == "__main__":
     task = GdeltClassificationTask()
+    # task.do_decision_tree_demos()
     task.do_decision_tree()
     # task.do_svm()
     # task.do_random_forest()

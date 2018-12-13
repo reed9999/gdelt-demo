@@ -56,7 +56,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
 
     def prepare_data(self):
         self._events_data = get_events()
-        columns_for_X = self._events_data[[ 'fractiondate', 'goldsteinscale' ]]
+        columns_for_X = self._events_data[['fractiondate', 'goldsteinscale']]
         X = np.reshape(np.array(columns_for_X), (self._events_data.shape[0], -1))
         y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
         (
