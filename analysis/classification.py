@@ -49,6 +49,8 @@ class GdeltClassificationTask():
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_impl()
         print ("Gini score is {}\n".format(rv))
+        self.visualize_decision_tree()
+
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_impl()
@@ -61,10 +63,25 @@ class GdeltClassificationTask():
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
-        clf.fit(X_train, y_train)
-        our_score = accuracy_score(y_test, clf.predict(X_test))
-        return our_score
+        try:
+            y_train = y_train.astype('int')
+            y_test = y_test.astype('int')
+            clf.fit(X_train, y_train)
+            our_score = accuracy_score(y_test, clf.predict(X_test))
+            return our_score
+        except ValueError:
+            print(maybe_its_not_failing_now)
+            raise
 
+    def visualize_decision_tree(self):
+        feature_names=['Actor #1 relationships',  'Actor #2 relationships', ]
+        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
+        # them too -- maybe. Try and see!.
+        class_names = ["Not high income", "High income",]
+        graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
+                               feature_names=feature_names, filled=True))
+        #This only displays the tree within the Jupyter Notebook environment
+        display(SVG(graph.pipe(format='svg')))
 
     def do_svm_sample(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
@@ -136,58 +153,66 @@ class GdeltClassificationTask():
     #####
     # DECISION TREE DEMOS
     # These are just part of the sanity check and can be deleted when no longer helpful for reference.
-
-    def do_decision_tree_simple_demo(self):
-        """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
-        Still just a sanity check."""
-        balance_data = pd.read_csv(
-            'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
-            sep=',', header=None)
-        X = balance_data.values[:, 1:5]
-        y = balance_data.values[:, 0]
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
-        clf = self._classifier
-        clf.fit(X_train, y_train)
-        score = self.do_decision_tree_demo_output(X_test, y_test)
-        return score
-
-    def do_decision_tree_demo_output(self, X_test, y_test):
-        """Continuing to refactor the demo from
-        http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
-        just a bit.
-        """
-        what_to_predict = [[4, 4, 3, 3,]]
-        one_pred = self._classifier.predict(what_to_predict)
-        print ("Value {} - prediction {}".format(what_to_predict, one_pred))
-        if one_pred == "R":
-            print(
-                """This illustrates an important point about decision trees. [4, 4, 3, 3,] 
-                means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
-            print(
-                """Why? Because this example is a bit of an outlier (high numbers) and for whatever reason 
-                the tree starts out evaluating R. Most of the time a high R weight and R distance would of
-                course be predictive of R. Note the much higher gini in the extreme lower right node though
-                even though it is still R, which is incorrect in this example.""")
-
-        another_pred = self._classifier.predict([[2, 2, 1, 1,]])
-        print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
-        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
-
-        ya_pred = self._classifier.predict([[1, 1, 1, 1,]])
-        print ("What about [1, 1, 1, 1,] (should be B)? I predict {}".format(ya_pred))
-        our_score = accuracy_score(y_test, self._classifier.predict(X_test))
-
-        feature_names=['L weight', 'L distance', 'R weight', 'R distance']
-        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
-        # them too.
-        class_names=['B', 'L', 'R']
-        graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
-                               feature_names=feature_names, filled=True))
-        #This only displays the tree within the Jupyter Notebook environment
-        display(SVG(graph.pipe(format='svg')))
-
-        return our_score
+    #
+    # def do_decision_tree_simple_demo(self):
+    #     """Demo taken from http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+    #     Still just a sanity check."""
+    #     balance_data = pd.read_csv(
+    #         'https://archive.ics.uci.edu/ml/machine-learning-databases/balance-scale/balance-scale.data',
+    #         sep=',', header=None)
+    #     X = balance_data.values[:, 1:5]
+    #     y = balance_data.values[:, 0]
+    #
+    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+    #     clf = self._classifier
+    #     comparison_tuple = (
+    #         "This fit passes in comparison to the other one",
+    #         y_train,
+    #         type(y_train),
+    #         type(y),
+    #         len(y),
+    #         y[0],
+    #     )
+    #     clf.fit(X_train, y_train)
+    #     score = self.do_decision_tree_demo_output(X_test, y_test)
+    #     return score
+    #
+    # def do_decision_tree_demo_output(self, X_test, y_test):
+    #     """Continuing to refactor the demo from
+    #     http://dataaspirant.com/2017/02/01/decision-tree-algorithm-python-with-scikit-learn/
+    #     just a bit.
+    #     """
+    #     what_to_predict = [[4, 4, 3, 3,]]
+    #     one_pred = self._classifier.predict(what_to_predict)
+    #     print ("Value {} - prediction {}".format(what_to_predict, one_pred))
+    #     if one_pred == "R":
+    #         print(
+    #             """This illustrates an important point about decision trees. [4, 4, 3, 3,]
+    #             means the balance tilts to the left because 4*4 > 3*3 but I predicted right.""")
+    #         print(
+    #             """Why? Because this example is a bit of an outlier (high numbers) and for whatever reason
+    #             the tree starts out evaluating R. Most of the time a high R weight and R distance would of
+    #             course be predictive of R. Note the much higher gini in the extreme lower right node though
+    #             even though it is still R, which is incorrect in this example.""")
+    #
+    #     another_pred = self._classifier.predict([[2, 2, 1, 1,]])
+    #     print ("What about [2, 2, 1, 1,] (should be L)? I predict {}".format(another_pred))
+    #     our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+    #
+    #     ya_pred = self._classifier.predict([[1, 1, 1, 1,]])
+    #     print ("What about [1, 1, 1, 1,] (should be B)? I predict {}".format(ya_pred))
+    #     our_score = accuracy_score(y_test, self._classifier.predict(X_test))
+    #
+    #     feature_names=['L weight', 'L distance', 'R weight', 'R distance']
+    #     # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
+    #     # them too.
+    #     class_names=['B', 'L', 'R']
+    #     graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
+    #                            feature_names=feature_names, filled=True))
+    #     #This only displays the tree within the Jupyter Notebook environment
+    #     display(SVG(graph.pipe(format='svg')))
+    #
+    #     return our_score
 
     def do_decision_tree_demos(self):
         print ("\n*****    DECISION TREE    *****")
@@ -201,6 +226,8 @@ class GdeltClassificationTask():
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_simple_demo()
         print ("Entropy score (i.e. information gain) is {}\n".format(rv))
+        print ("""It's probably not surprising that these two are the same given the tiny number of features 
+        at the moment. I need to think more about why this is.""")
 
 if __name__ == "__main__":
     task = GdeltClassificationTask()
