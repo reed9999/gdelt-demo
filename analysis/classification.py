@@ -117,34 +117,46 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         self._dataframe.dropna()
         # TODO There is a bogus column called Unnamed: 62 that is full of nan. I
         # need to figure out where this happened, probably from my joins.
-        print ("\n*****    DECISION TREE    *****")
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_impl()
+        rv = self.do_minimal_example()
         print ("Gini score is {}\n".format(rv))
         self.visualize_decision_tree()
 
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_impl()
+        rv = self.do_minimal_example()
         print ("Entropy score (i.e. information gain) is {}\n".format(rv))
 
-    def do_decision_tree_impl(self):
+    def do_minimal_example(self):
         df = self._dataframe
-        X = df.values[:, [1, 2,]]
-        y = df.values[:, -1]
+        # X = df.values[:, [1, 2,]]
+        # y = df.values[:, -1]
+        X = df[['actor1_relationships', 'actor2_relationships', ]]
+        y = df['is_high_income']
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
-        try:
-            y_train = y_train.astype('int')
-            y_test = y_test.astype('int')
-            clf.fit(X_train, y_train)
-            our_score = accuracy_score(y_test, clf.predict(X_test))
-            return our_score
-        except ValueError:
-            print(maybe_its_not_failing_now)
-            raise
+
+        y_train = y_train.astype('int')
+        y_test = y_test.astype('int')
+        clf.fit(X_train, y_train)
+        our_score = accuracy_score(y_test, clf.predict(X_test))
+        return our_score
+
+    #REFACTOR DRY
+    # def do_enhanced_example(self):
+    #     df = self._dataframe
+    #     X = df.values[:, [1, 2,]]
+    #     y = df.values[:, -1]
+    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+    #     clf = self._classifier
+    #
+    #     y_train = y_train.astype('int')
+    #     y_test = y_test.astype('int')
+    #     clf.fit(X_train, y_train)
+    #     our_score = accuracy_score(y_test, clf.predict(X_test))
+    #     return our_score
 
     def visualize_decision_tree(self):
         feature_names=['Actor #1 relationships',  'Actor #2 relationships', ]
@@ -160,7 +172,7 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         print ("\n*****    DECISION TREE    *****")
 
         print ("\n\t----- Sanity check 1: simple balance demo -----")
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=8888,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_decision_tree_simple_demo()
         print ("Gini score is {}\n".format(rv))
