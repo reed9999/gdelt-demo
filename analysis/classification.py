@@ -168,20 +168,6 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         #This only displays the tree within the Jupyter Notebook environment
         display(SVG(graph.pipe(format='svg')))
 
-    def do_decision_tree_demos(self):
-        print ("\n*****    DECISION TREE    *****")
-
-        print ("\n\t----- Sanity check 1: simple balance demo -----")
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=8888,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_simple_demo()
-        print ("Gini score is {}\n".format(rv))
-        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.do_decision_tree_simple_demo()
-        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
-        print ("""It's probably not surprising that these two are the same given the tiny number of features 
-        at the moment. I need to think more about why this is.""")
 
 if __name__ == "__main__":
     task = GdeltDecisionTreeTask()
