@@ -117,29 +117,38 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         self._dataframe.dropna()
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_minimal_example()
+        rv = self.do_example()
         print ("Gini score (minimal example) is {}\n".format(rv))
         self.visualize_decision_tree(headings='minimal')
 
-        rv = self.do_enhanced_example()
+        rv = self.do_example('enhanced')
         print ("Gini score (enhanced example) is {}\n".format(rv))
         self.visualize_decision_tree(headings='enhanced')
 
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_minimal_example()
+        rv = self.do_example()
         print ("Entropy score (i.e. information gain) for minimal example is {}\n".format(rv))
-        rv = self.do_enhanced_example()
+        rv = self.do_example('enhanced')
         print ("Entropy score (i.e. information gain) for enhanced example is {}\n".format(rv))
 
         # And one more just for kicks
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=1234,
                                           max_depth=10, min_samples_leaf=5)
-        rv = self.do_enhanced_example()
+        rv = self.do_example('enhanced')
         print ("Deeper tree Gini is {}\n".format(rv))
         self.visualize_decision_tree(headings='enhanced')
 
-    def do_minimal_example(self):
+    def add_enhanced_columns(self):
+        df = self._dataframe
+        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
+        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
+        df = pd.DataFrame(df[df.aggregate_relationships > 0])     #Probably also a good idea for the minimal case.
+        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
+        self._dataframe = df
+        return df
+
+    def do_example(self, featureset='minimal'):
         """The 'minimal' example is literally the simplest thing I could think of to get going
         and demonstrate that decision trees work with the features I extracted, basically a smoke
         test.
@@ -152,40 +161,25 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         one actor 2 for ESP. If there's also a ESP - USA on (at least one event, that also counts
         vice versa for each country.
 
-        Note that I'm discarding actor 3 at the moment."""
-        df = self._dataframe
-        X = df[['actor1_relationships', 'actor2_relationships', ]]
-        y = df['is_high_income']
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
-        clf = self._classifier
-
-        y_train = y_train.astype('int')
-        y_test = y_test.astype('int')
-        clf.fit(X_train, y_train)
-        our_score = accuracy_score(y_test, clf.predict(X_test))
-        return our_score
-
-    def add_enhanced_columns(self):
-        df = self._dataframe
-        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
-        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
-        df = pd.DataFrame(df[df.aggregate_relationships > 0])     #Probably also a good idea for the minimal case.
-        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
-        self._dataframe = df
-        return df
-
-    # REFACTOR DRY
-    def do_enhanced_example(self):
-        """The 'enhanced' example derives from the minimal one, but with the philosophy that
+        The 'enhanced' example derives from the minimal one, but with the philosophy that
         total number of relationships is a more meaningful feature than the highly correlated
         actor 1 alone and actor 2 alone. Proportion of actor 1 is also more interesting in that
-        a small country may have fewer relationships but still dominate them."""
+        a small country may have fewer relationships but still dominate them.
+
+        Note that I'm discarding actor 3 at the moment.
+        """
+        if featureset == 'minimal':
+            featureset = ['actor1_relationships', 'actor2_relationships', ]
+        if featureset == 'enhanced':
+            featureset = ['aggregate_relationships', 'proportion_actor1', ]
+        if type(featureset) != list:
+            raise TypeError("""featureset variable must be a list of features or one of the following words:
+            minimal
+            enhanced""")
         self.add_enhanced_columns()
         df = self._dataframe
 
-        X = df[['aggregate_relationships', 'proportion_actor1', ]]
-        #following not changed...
+        X = df[featureset]
         y = df['is_high_income']
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
