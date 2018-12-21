@@ -1,6 +1,8 @@
 ##############################################################################
 # pandas_gdelt_helper.py
 # Helper module to facilitate the data manipulation involved in this project.
+# See readme_data.md for details on the different data sources. I've created a few too many
+# different ones and need to consolidate.
 
 import glob
 import logging
@@ -105,9 +107,9 @@ def clean_up_external_country_columns(dataframe):
 def get_external_country_data():
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
                             'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
-    dataframe = pd.read_csv(filename, delimiter=",",
-                            skiprows=4, dtype=None,
-                            index_col='Country Code',
+    column_criterion = lambda x: x[0:7] != "Unnamed"
+    dataframe = pd.read_csv(filename, delimiter=",", skiprows=4, dtype=None,
+                            index_col='Country Code', usecols=column_criterion,
                             )
     tweak_external_data_country_codes(dataframe)
     clean_up_external_country_columns(dataframe)
@@ -129,9 +131,9 @@ def get_country_features():
 
 
 def tweak_external_data_country_codes(ext_data):
-    """Turns out there are only two obvious cases where the same country has different codes.
-    Change the code in external data to match feature data (since GDELT codes should probably be
-    the standard here, even if there are imperfections).
+    """For those cases where an external data source uses different country codes for what is
+    obviously the same country as GDELT, convert them all to the GDELT name.
+    It turns out there are only two obvious cases where the same country has different codes.
 
     Returns: The input data frame.
     Side effects: Changes the data frame in place rather than cloning.
@@ -147,6 +149,9 @@ def tweak_external_data_country_codes(ext_data):
         as_list[index] = feature_code
     ext_data.index = as_list
     return ext_data
+
+# The next functions are utilities that probably don't need to be preserved here.
+# TODO maybe offload util functions to a separate file?
 
 def report_on_nulls(events_data):
     count_null = events_data.isna().sum().sum()

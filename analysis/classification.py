@@ -115,8 +115,6 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
     def go(self):
         self.load_data()
         self._dataframe.dropna()
-        # TODO There is a bogus column called Unnamed: 62 that is full of nan. I
-        # need to figure out where this happened, probably from my joins.
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_minimal_example()
@@ -172,7 +170,10 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 if __name__ == "__main__":
     task = GdeltDecisionTreeTask()
     task.go()
-    task = 'something_else'
+
+    # task = ...
     # task.do_svm()
+    # task = ...
     # task.do_random_forest()
+    # task = ...
     # task.do_knn()
