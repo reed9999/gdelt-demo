@@ -2,11 +2,8 @@
 ################################################################################
 # Class to streamline classification tasks.
 # See the classification.ipynb notebook for more.
-import logging
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
 import sys
 from graphviz import Source
 from IPython.display import SVG
@@ -15,31 +12,37 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import LinearSVC, SVC
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor, export_graphviz
+from sklearn.svm import LinearSVC
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
 
 # For reasons I don't yet understand, the project root is added to the search path in PyCharm
 # but not from the command line. For now it's not a big deal to kludge it, but I need to improve
 # my app design. First figure out where the include is coming from (debug and look at sys.path),
 # then look at other good apps to see how I should be structuring this.
 sys.path.insert(1,  os.path.join(os.getcwd()))
-from analysis.pandas_gdelt_helper import get_events, get_country_features
+from analysis.pandas_gdelt_helper import get_country_features
 
 THIS_FILE_DIR = os.path.dirname(__file__)
-
-# For the moment this class name is a mild misnomer. It's really a manager of
-# different classification tasks.
-# However, I might well refactor it to a class hierarchy using polymporphism
-# so each kind of classification "just works."
-
 
 class GdeltClassificationTask:
 
     def load_data(self):
         self._dataframe = get_country_features()
+        self.add_enhanced_columns()
+        self._dataframe.dropna()
 
     def go(self):
         raise NotImplementedError("Abstract base class; implement with a derived class.")
+
+    def add_enhanced_columns(self):
+        df = self._dataframe
+        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
+        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
+        df = pd.DataFrame(df[df.aggregate_relationships > 0])
+        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
+        self._dataframe = df
+        return df
+
 
 class GdeltSvmTask(GdeltClassificationTask):
     def do_svm_sample(self):
@@ -71,25 +74,47 @@ class GdeltSvmTask(GdeltClassificationTask):
         self.do_svm_sample()
 
 class GdeltRandomForestTask(GdeltClassificationTask):
-    def do_random_forest_sample(self):
+    def do_example(self):
         """
-        As above, just a sanity check using sample code from Scikit-learn documentation
+        First attempt to use real GDELT data with a random forest
         :return:
         """
         print("\n*****    RANDOM FOREST    *****")
         clf = self._classifier
-        X = [[0, 0], [1, 1], [0.1, 0.1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1],]
-        Y = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1,]
+        featureset =  ['actor1_relationships', 'actor2_relationships', 'aggregate_relationships',
+                       'proportion_actor1', ]
+        df = self._dataframe
+        X = df[featureset]
+        Y = df['is_high_income']
         clf = clf.fit(X, Y)
 
         scores = cross_val_score(clf, X, Y, cv=2)
         assert scores is not None
         assert len(scores) > 0
+        print("Here are the random forest scores")
         print(scores)
 
+    # def do_sanity_check(self):
+    #     """
+    #     As above, just a sanity check using sample code from Scikit-learn documentation
+    #     :return:
+    #     """
+    #     print("\n*****    RANDOM FOREST    *****")
+    #     clf = self._classifier
+    #     X = [[0, 0], [1, 1], [0.1, 0.1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1],]
+    #     Y = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1,]
+    #     clf = clf.fit(X, Y)
+    #
+    #     scores = cross_val_score(clf, X, Y, cv=2)
+    #     assert scores is not None
+    #     assert len(scores) > 0
+    #     print(scores)
+
     def go(self):
+        self.load_data()
         self._classifier = RandomForestClassifier(n_estimators=10)
-        self.do_random_forest_sample()
+        # self.do_sanity_check()
+        self.do_example()
 
 class GdeltKnnTask(GdeltClassificationTask):
     def do_knn_sample(self):
@@ -114,7 +139,6 @@ class GdeltKnnTask(GdeltClassificationTask):
 class GdeltDecisionTreeTask(GdeltClassificationTask):
     def go(self):
         self.load_data()
-        self._dataframe.dropna()
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_example()
@@ -138,15 +162,6 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         rv = self.do_example('enhanced')
         print ("Deeper tree Gini is {}\n".format(rv))
         self.visualize_decision_tree(headings='enhanced')
-
-    def add_enhanced_columns(self):
-        df = self._dataframe
-        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
-        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
-        df = pd.DataFrame(df[df.aggregate_relationships > 0])     #Probably also a good idea for the minimal case.
-        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
-        self._dataframe = df
-        return df
 
     def do_example(self, featureset='minimal'):
         """The 'minimal' example is literally the simplest thing I could think of to get going
@@ -176,7 +191,7 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
             raise TypeError("""featureset variable must be a list of features or one of the following words:
             minimal
             enhanced""")
-        self.add_enhanced_columns()
+        # self.add_enhanced_columns()
         df = self._dataframe
 
         X = df[featureset]
@@ -203,12 +218,11 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 
 
 if __name__ == "__main__":
-    task = GdeltDecisionTreeTask()
-    task.go()
+    for task in [
+        GdeltDecisionTreeTask(),
+        GdeltRandomForestTask(),
+        # GdeltSvmTask(),
+        # GdeltKnnTask(),
+    ]:
 
-    # task = ...
-    # task.do_svm()
-    # task = ...
-    # task.do_random_forest()
-    # task = ...
-    # task.do_knn()
+        task.go()
