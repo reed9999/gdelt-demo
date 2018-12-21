@@ -118,18 +118,42 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_minimal_example()
-        print ("Gini score is {}\n".format(rv))
-        self.visualize_decision_tree()
+        print ("Gini score (minimal example) is {}\n".format(rv))
+        self.visualize_decision_tree(headings='minimal')
+
+        rv = self.do_enhanced_example()
+        print ("Gini score (enhanced example) is {}\n".format(rv))
+        self.visualize_decision_tree(headings='enhanced')
 
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.do_minimal_example()
-        print ("Entropy score (i.e. information gain) is {}\n".format(rv))
+        print ("Entropy score (i.e. information gain) for minimal example is {}\n".format(rv))
+        rv = self.do_enhanced_example()
+        print ("Entropy score (i.e. information gain) for enhanced example is {}\n".format(rv))
+
+        # And one more just for kicks
+        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=1234,
+                                          max_depth=10, min_samples_leaf=5)
+        rv = self.do_enhanced_example()
+        print ("Deeper tree Gini is {}\n".format(rv))
+        self.visualize_decision_tree(headings='enhanced')
 
     def do_minimal_example(self):
+        """The 'minimal' example is literally the simplest thing I could think of to get going
+        and demonstrate that decision trees work with the features I extracted, basically a smoke
+        test.
+        Features for each country:
+            actor1_relationships
+            actor2_relationships
+
+        These are the total number of other countries with whom they share an event.
+        E.g. USA (actor 1) - ESP (actor 2) only counts as one actor 1 relationship for USA and
+        one actor 2 for ESP. If there's also a ESP - USA on (at least one event, that also counts
+        vice versa for each country.
+
+        Note that I'm discarding actor 3 at the moment."""
         df = self._dataframe
-        # X = df.values[:, [1, 2,]]
-        # y = df.values[:, -1]
         X = df[['actor1_relationships', 'actor2_relationships', ]]
         y = df['is_high_income']
 
@@ -142,24 +166,41 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         our_score = accuracy_score(y_test, clf.predict(X_test))
         return our_score
 
-    #REFACTOR DRY
-    # def do_enhanced_example(self):
-    #     df = self._dataframe
-    #     X = df.values[:, [1, 2,]]
-    #     y = df.values[:, -1]
-    #     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
-    #     clf = self._classifier
-    #
-    #     y_train = y_train.astype('int')
-    #     y_test = y_test.astype('int')
-    #     clf.fit(X_train, y_train)
-    #     our_score = accuracy_score(y_test, clf.predict(X_test))
-    #     return our_score
+    def add_enhanced_columns(self):
+        df = self._dataframe
+        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
+        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
+        df = pd.DataFrame(df[df.aggregate_relationships > 0])     #Probably also a good idea for the minimal case.
+        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
+        self._dataframe = df
+        return df
 
-    def visualize_decision_tree(self):
-        feature_names=['Actor #1 relationships',  'Actor #2 relationships', ]
-        # critically, since sklearn appears to sort the classes alphabetically in exporting to graphviz, we need to sort
-        # them too -- maybe. Try and see!.
+    # REFACTOR DRY
+    def do_enhanced_example(self):
+        """The 'enhanced' example derives from the minimal one, but with the philosophy that
+        total number of relationships is a more meaningful feature than the highly correlated
+        actor 1 alone and actor 2 alone. Proportion of actor 1 is also more interesting in that
+        a small country may have fewer relationships but still dominate them."""
+        self.add_enhanced_columns()
+        df = self._dataframe
+
+        X = df[['aggregate_relationships', 'proportion_actor1', ]]
+        #following not changed...
+        y = df['is_high_income']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        clf = self._classifier
+
+        y_train = y_train.astype('int')
+        y_test = y_test.astype('int')
+        clf.fit(X_train, y_train)
+        our_score = accuracy_score(y_test, clf.predict(X_test))
+        return our_score
+
+    def visualize_decision_tree(self, headings):
+        if headings == 'minimal':
+            feature_names=['Actor #1 relationships',  'Actor #2 relationships', ]
+        if headings == 'enhanced':
+            feature_names=['Aggregate relationships',  'Proportion actor #1 relationships', ]
         class_names = ["Not high income", "High income",]
         graph = Source(export_graphviz(self._classifier, out_file=None, class_names=class_names,
                                feature_names=feature_names, filled=True))
