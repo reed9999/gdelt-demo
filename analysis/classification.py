@@ -43,6 +43,19 @@ class GdeltClassificationTask:
         self._dataframe = df
         return df
 
+    def do_classic_test_train_scoring(self, X, y):
+        """I know cross-validation is important for methods with a lot of metaparameters, and
+        thus I infer it's important to evaluate random forests. However for homogeneity I also
+        want to just do the same old one-time test/train and evaluate the predictions."""
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        clf = self._classifier
+
+        y_train = y_train.astype('int')
+        y_test = y_test.astype('int')
+        clf.fit(X_train, y_train)
+        our_score = accuracy_score(y_test, clf.predict(X_test))
+        return our_score
+
 
 class GdeltSvmTask(GdeltClassificationTask):
     def do_svm_sample(self):
@@ -85,35 +98,21 @@ class GdeltRandomForestTask(GdeltClassificationTask):
                        'proportion_actor1', ]
         df = self._dataframe
         X = df[featureset]
-        Y = df['is_high_income']
-        clf = clf.fit(X, Y)
+        y = df['is_high_income']
+        clf = clf.fit(X, y)
 
-        scores = cross_val_score(clf, X, Y, cv=2)
+        scores = cross_val_score(clf, X, y, cv=2)
         assert scores is not None
         assert len(scores) > 0
         print("Here are the random forest scores")
         print(scores)
 
-    # def do_sanity_check(self):
-    #     """
-    #     As above, just a sanity check using sample code from Scikit-learn documentation
-    #     :return:
-    #     """
-    #     print("\n*****    RANDOM FOREST    *****")
-    #     clf = self._classifier
-    #     X = [[0, 0], [1, 1], [0.1, 0.1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1],]
-    #     Y = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1,]
-    #     clf = clf.fit(X, Y)
-    #
-    #     scores = cross_val_score(clf, X, Y, cv=2)
-    #     assert scores is not None
-    #     assert len(scores) > 0
-    #     print(scores)
+        classic_score = self.do_classic_test_train_scoring(X, y)
+        print("Here is the classic random forest score: {}".format(classic_score))
 
     def go(self):
         self.load_data()
-        self._classifier = RandomForestClassifier(n_estimators=10)
-        # self.do_sanity_check()
+        self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=2, random_state=9999)
         self.do_example()
 
 class GdeltKnnTask(GdeltClassificationTask):
