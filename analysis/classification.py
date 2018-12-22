@@ -44,8 +44,8 @@ class GdeltClassificationTask:
         return df
 
     def do_classic_test_train_scoring(self, X, y):
-        """I know cross-validation is important for methods with a lot of metaparameters, and
-        thus I infer it's important to evaluate random forests. However for homogeneity I also
+        """I know cross-validation is important for methods with a lot of hyperparameters, and
+        so I infer it's important to evaluate random forests. However for homogeneity I also
         want to just do the same old one-time test/train and evaluate the predictions."""
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
@@ -54,6 +54,11 @@ class GdeltClassificationTask:
         y_test = y_test.astype('int')
         clf.fit(X_train, y_train)
         our_score = accuracy_score(y_test, clf.predict(X_test))
+
+        #Confusion matrix
+        predictions = clf.predict(X_test)
+        print(pd.crosstab(y_test, predictions, rownames=['actual'], colnames=['predicted']))
+        # TODO I really want labels like ['not high income', 'high income']))
         return our_score
 
 
@@ -101,6 +106,10 @@ class GdeltRandomForestTask(GdeltClassificationTask):
         y = df['is_high_income']
         clf = clf.fit(X, y)
 
+        print("Feature importances:")
+        for (feature, importance) in zip(featureset, clf.feature_importances_):
+            print("{} -- {}".format(feature, importance))
+
         scores = cross_val_score(clf, X, y, cv=2)
         assert scores is not None
         assert len(scores) > 0
@@ -112,7 +121,8 @@ class GdeltRandomForestTask(GdeltClassificationTask):
 
     def go(self):
         self.load_data()
-        self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=2, random_state=9999)
+        self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=-1, random_state=9999,
+                                                  bootstrap=True,)
         self.do_example()
 
 class GdeltKnnTask(GdeltClassificationTask):
