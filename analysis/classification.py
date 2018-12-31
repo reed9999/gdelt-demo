@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/home/philip/.virtualenvs/gdelt-demo/bin/python
+# Obviously as a user you'll want to adapt to your virtualenv structure.
+# but not #!/usr/bin/python3
 ################################################################################
-# Class to streamline classification tasks.
-# See the classification.ipynb notebook for more.
 import os
 import pandas as pd
 import sys
@@ -15,16 +15,16 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 
-# For reasons I don't yet understand, the project root is added to the search path in PyCharm
-# but not from the command line. For now it's not a big deal to kludge it, but I need to improve
-# my app design. First figure out where the include is coming from (debug and look at sys.path),
-# then look at other good apps to see how I should be structuring this.
+# See NOTES ON IMPORTS at the end of the file.
 sys.path.insert(1,  os.path.join(os.getcwd()))
 from analysis.pandas_gdelt_helper import get_country_features
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 
 class GdeltClassificationTask:
+    """Classes to streamline classification tasks.
+    See the classification.ipynb notebook for more.
+    """
 
     def load_data(self):
         self._dataframe = get_country_features()
@@ -34,6 +34,7 @@ class GdeltClassificationTask:
     def go(self):
         raise NotImplementedError("Abstract base class; implement with a derived class.")
 
+    # This would be better off in the helper.
     def add_enhanced_columns(self):
         df = self._dataframe
         df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
@@ -47,7 +48,7 @@ class GdeltClassificationTask:
         """I know cross-validation is important for methods with a lot of hyperparameters, and
         so I infer it's important to evaluate random forests. However for homogeneity I also
         want to just do the same old one-time test/train and evaluate the predictions."""
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=None)
         clf = self._classifier
 
         y_train = y_train.astype('int')
@@ -77,6 +78,20 @@ class GdeltSvmTask(GdeltClassificationTask):
         assert decision_function.shape[1] > 0
         print ("Classifier coef for SVM:\n{}".format(self._classifier.coef_))
 
+    def sanity_check(self):
+        """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
+        My earlier attempt to adapt to the iris data (see above) was bothering me so I decided
+        to go back to this much simpler example.
+        """
+
+        X = [[0], [1], [2], [3]]
+        Y = [0, 1, 2, 3]
+        self._classifier.fit(X, Y)
+        decision_function = self._classifier.decision_function([[1]])
+        assert decision_function is not None
+        assert decision_function.shape[1] > 0
+        print ("Classifier coef for SVM:\n{}".format(self._classifier.coef_))
+
         # See https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html#sklearn.svm.LinearSVC.decision_function
         # I forget which example I picked up the following code from but clearly I need to
         # implement it better because this errors with  ValueError: X has 1 features per sample; expecting 4
@@ -89,6 +104,7 @@ class GdeltSvmTask(GdeltClassificationTask):
         using Scikit-learn sample data and pasted in code."""
         print ("\n*****        SVM          *****")
         self._classifier = LinearSVC(random_state=0, tol=1e-5)
+        self.sanity_check()
         self.do_svm_sample()
 
 class GdeltRandomForestTask(GdeltClassificationTask):
@@ -118,6 +134,10 @@ class GdeltRandomForestTask(GdeltClassificationTask):
 
         classic_score = self.do_classic_test_train_scoring(X, y)
         print("Here is the classic random forest score: {}".format(classic_score))
+
+        #This is a bit hard to interpret in this format, so I will enhance this later to show
+        # what's going on.
+        print("Decision path:{}".format(clf.decision_path(X)))
 
     def go(self):
         self.load_data()
@@ -228,10 +248,39 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 
 if __name__ == "__main__":
     for task in [
-        GdeltDecisionTreeTask(),
-        GdeltRandomForestTask(),
-        # GdeltSvmTask(),
+        # GdeltDecisionTreeTask(),
+        # GdeltRandomForestTask(),
+        GdeltSvmTask(),
         # GdeltKnnTask(),
     ]:
-
         task.go()
+
+# NOTES ON IMPORTS
+
+# For reasons I don't yet understand, the project root is added to the search path in PyCharm
+# but not from the command line. For now it's not a big deal to kludge it, but I need to improve
+# my app design. First figure out where the include is coming from (debug and look at sys.path),
+# then look at other good apps to see how I should be structuring this.
+
+# Observations for now:
+#   When I run in a terminal
+#       python3 command line imports pandas fine.
+#       ~/.virtualenvs/gdelt-demo/bin/python CL imports fine
+#           sys.path:
+#           ['', '/home/philip/.virtualenvs/gdelt-demo/lib/python36.zip', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/lib-dynload', '/usr/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/site-packages']
+#       Explicit python path running script, also fine
+#        ~/.virtualenvs/gdelt-demo/bin/python analysis/classification.py
+#        Test script says sys.path is:
+#        ['/home/philip/code/gdelt-demo', '/home/philip/.virtualenvs/gdelt-demo/lib/python36.zip', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/lib-dynload', '/usr/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/site-packages'].
+#
+#       Even python analysis/classification.py or python3 analysis/classification.py finds it.
+#       Path:
+# ['/home/philip/code/gdelt-demo', '/home/philip/.virtualenvs/gdelt-demo/lib/python36.zip', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/lib-dynload', '/usr/lib/python3.6', '/home/philip/.virtualenvs/gdelt-demo/lib/python3.6/site-packages']
+
+        # But from direct script, won't import. Oh wait, I know why. Maybe.
+        #   analysis/classification.py
+#           ModuleNotFoundError: No module named 'pandas'
+
+
+
+#   But in Pycharm, this project with virtualenv interp (3.6.6) is fine.
