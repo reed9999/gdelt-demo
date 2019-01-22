@@ -24,6 +24,9 @@ COUNTRY_FEATURES_COLUMN_DTYPES = {
         'actor2_relationships': 'int64',
     }
 
+class PandasGdeltHelper():
+    pass
+
 def get_event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
