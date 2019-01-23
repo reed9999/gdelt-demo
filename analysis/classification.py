@@ -24,7 +24,15 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 class GdeltClassificationTask:
     """Classes to streamline classification tasks.
     See the classification.ipynb notebook for more.
+
+    This is an abstract base class, to the extent that such exists in Python.
+    You should not instantiate this class, but rather use its child classes:
+    GdeltDecisionTreeTask
+    GdeltRandomForestTask
+    GdeltSvmTask
+    GdeltKnnTask
     """
+
 
     def load_data(self):
         self._dataframe = get_country_features()
@@ -80,8 +88,7 @@ class GdeltSvmTask(GdeltClassificationTask):
 
     def sanity_check(self):
         """ Adapting https://scikit-learn.org/stable/modules/generated/sklearn.svm.LinearSVC.html
-        My earlier attempt to adapt to the iris data (see above) was bothering me so I decided
-        to go back to this much simpler example.
+        This should be moved to the test suite.
         """
 
         X = [[0], [1], [2], [3]]
@@ -112,6 +119,7 @@ class GdeltRandomForestTask(GdeltClassificationTask):
         """
         First attempt to use real GDELT data with a random forest
         :return:
+            Nothing
         """
         print("\n*****    RANDOM FOREST    *****")
         clf = self._classifier

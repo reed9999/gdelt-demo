@@ -5,6 +5,7 @@ from shutil import copytree, rmtree
 import analysis.pandas_gdelt_helper as helper
 from analysis.pandas_gdelt_helper import PandasGdeltHelper
 from analysis.pandas_gdelt_helper import get_events_from_sample_data, get_events_from_local_medium_sized
+from analysis.pandas_gdelt_helper import get_country_violence_by_year
 
 # This was where I stored my oracle of correct results in another project.
 # Worth considering here.
@@ -25,13 +26,23 @@ class TestPandasGdeltHelper(TestCase):
         # There's nothing in this class yet. Just testing the plumbing.
         self._helper = PandasGdeltHelper()
 
-    # This organization of sample vs. medium sized data needs to be reworked anyway. But at
-    # least in the spirit of TDD, writing unit tests for it will refresh my memory and help me
-    # better grasp what needs to be done.
+    # This organization of sample vs. medium sized data needs to be reworked anyway.
     def test_get_events_from_sample_data(self):
         rv = get_events_from_sample_data()
         assert rv is not None
 
     def test_get_events_from_sample_data(self):
-        rv = get_events_from_local_medium_sized()
+        try:
+            rv = get_events_from_local_medium_sized()
+        except FileNotFoundError as err:
+            print(err)
+            self.skipTest('Sample data not set up')
+        assert rv is not None
+
+    def test_get_country_violence_by_year(self):
+        try:
+            rv = get_country_violence_by_year()
+        except NotImplementedError as err:
+            print(err)
+            self.skipTest('Not implemented yet.')
         assert rv is not None

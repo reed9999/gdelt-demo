@@ -11,7 +11,7 @@ import pandas as pd
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
-LOCAL_DATA_DIR = "/home/philip/aws/data/original/events" #HARDCODED
+LOCAL_DATA_DIR = "/home/philip/data-gdelt" #HARDCODED
 HIGH_INCOME_THRESHOLD = 30000.00
 # Also worth considering: We could calculate a threshold using mean, stdev, etc.
 # or just search for an international standard for "high income"
@@ -24,6 +24,14 @@ COUNTRY_FEATURES_COLUMN_DTYPES = {
         'actor2_relationships': 'int64',
     }
 
+# TODO REFACTOR the others -- soon.
+FILENAMES = {
+    # not yet in use
+    'country_features':  os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+                            'country_features.csv'),
+    'dyad_events_by_year':  os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+                            'dyad_events_by_year.csv'),
+}
 class PandasGdeltHelper():
     pass
 
@@ -53,7 +61,8 @@ def get_events_from_local_medium_sized():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
-    assert len(filenames) > 0, "There should be at least one data file."
+    if len(filenames) > 0:
+        raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
     return get_events_common(filenames)
 
 def get_events_from_sample_data():
@@ -189,6 +198,14 @@ def util_report_on_country_mismatches():
     print(joined[external_nans]['name'])
     print("Here are the countries in GDP data but not GDELT features:\n")
     print(joined[feature_nans]['Country Name'])
+
+def get_country_violence_by_year():
+    country_df = get_country_features()
+    dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'])
+    assert country_df is not None
+    assert dyad_events_by_year is not None
+    raise NotImplementedError
+
 
 if __name__ == "__main__":
     #simple test of new functionality
