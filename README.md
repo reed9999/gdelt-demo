@@ -2,17 +2,16 @@
 
 
 For the main showcase, [start 
-here](https://github.com/reed9999/gdelt-demo/blob/master/Start_here.ipynb). 
-If you have Jupyter Notebook installed (automatic if you follow the pip3 
-instructions below), run `jupyter notebook Start_here.ipynb` or simply
-`jupyter notebook` and navigate in the Web GUI. 
+here](https://github.com/reed9999/gdelt-demo/blob/master/Start_here.ipynb). You can view it in Jupyter Notebook or at that link.
 
-This is an early-stage demo project to showcase my autodidactic process and my
-acquired skills. Broadly speaking the goal is to continuing building on my 
-competency in Python including data science libraries, regression analysis, 
-and other data science fundamentals while building skills in Spark, AWS and 
-exploring real world questions with DS methodologies that I'd like to continue
-enhancing.
+This is an early-stage demo project to showcase data science, automation, and Python skills. 
+Broadly speaking the goal is to continuing building on my competency in Python and in data science, while building skills in AWS (and Google Query if needed) including Hadoop and eventually Spark.
+
+GDELT is a multi-terabyte dataset of world events that, in its latest versions, 
+is updated often and to a high granularity.
+This project is exploratory, in the sense that I'm still getting a feel for the capabilities of 
+the GDELT data.
+In general, I'm interested in predicting precursors of violence, in media coverage of world events, and in network characteristics of how countries relate.
 
 For [other projects in my showcase](https://github.com/reed9999/gdelt-demo/blob/master/readme_more.md#rest-of-showcase), a task list for this project, and other info, see readme_more.md.
  
@@ -20,18 +19,22 @@ For [other projects in my showcase](https://github.com/reed9999/gdelt-demo/blob/
 Most of this code is Python 3 (3.5 or 3.6). To run the analysis code in Python,
 you'll likely want to do the standard routine of `pip3 install -r requirements.txt`. 
 
-## Roadmap
+## News and roadmap
 
-This is highly iterative and subject to change, as project roadmaps often should be.
+For a while I had turned my attention away from this project to build some Python skills,
+but as of mid-January 2019 I'm actively building it out.
 
-1.1. (done in mid-Oct) - Proof of concept. Run a few basic descriptives and regressions.
-1.2 (in progress, goal: Nov 15) - Extract some features related to countries and how they 
-relate. Demonstrate basic classification and clustering techniques. Add basic 
+The roadmap is highly iterative and subject to change, as project roadmaps often should be.
+
+1. 1. Proof of concept, done.
+   1. 1. Done: Extract some features related to countries and how they 
+relate. Demonstrate basic classification and clustering techniques. 
+      1. Still to do: Add basic 
 visualizations using matplotlib.
-1.3 (goal: Dec 31) - Expand the universe of research questions under 
+   3. Expand the universe of research questions under 
 consideration and deploy the above tools to derive more "real world" value in 
 the findings. Enhance visualizations.
-1.4 - Consider alternative interfaces into the data, at a much higher level of
+   4. Consider alternative interfaces into the data, at a much higher level of
  sophistication and interactivity (e.g. Django site? Interactive 
  visualizations?) to make the findings more accessible to the public. 
 
@@ -39,7 +42,8 @@ the findings. Enhance visualizations.
 
 ### Skills
 
-* **Ideation / asking good questions**: See research questions under Start_here.ipynb.
+* **Ideation and asking "good questions"**: This is the biggest single skill I bring from my research background, and 
+it's something I excel at. Since it's a soft skill, I've documented See research questions under Start_here.ipynb.
 
 * **Regression analysis** (Scikit-learn LinearRegression class): Findings in Start_here.ipynb. See [analysis](https://github.com/reed9999/gdelt-demo/tree/master/queries/analysis) for code. 
 
