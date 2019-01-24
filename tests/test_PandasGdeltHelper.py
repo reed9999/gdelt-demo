@@ -5,7 +5,7 @@ from shutil import copytree, rmtree
 import analysis.pandas_gdelt_helper as helper
 from analysis.pandas_gdelt_helper import PandasGdeltHelper
 from analysis.pandas_gdelt_helper import get_events_from_sample_data, get_events_from_local_medium_sized
-from analysis.pandas_gdelt_helper import get_country_violence_by_year
+from analysis.pandas_gdelt_helper import dyad_aggression_by_year
 
 # This was where I stored my oracle of correct results in another project.
 # Worth considering here.
@@ -39,9 +39,9 @@ class TestPandasGdeltHelper(TestCase):
             self.skipTest('Sample data not set up')
         assert rv is not None
 
-    def test_get_country_violence_by_year(self):
+    def test_dyad_aggression_by_year(self):
         try:
-            rv = get_country_violence_by_year()
+            rv = dyad_aggression_by_year()
         except NotImplementedError as err:
             print(err)
             self.skipTest('Not implemented yet.')

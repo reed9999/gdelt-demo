@@ -3,7 +3,11 @@
 # Helper module to facilitate the data manipulation involved in this project.
 # See readme_data.md for details on the different data sources. I've created a few too many
 # different ones and need to consolidate.
+# For CAMEO codes see http://eventdata.parusanalytics.com/data.dir/cameo.html
+# (latest: http://eventdata.parusanalytics.com/cameo.dir/CAMEO.Manual.1.1b3.pdf )
 
+# I would like to get rid of the get_ prefix in function names below. This is more of a Ruby
+# tendency, but it makes the code read more like plain English and the get_ adds little value.
 import glob
 import logging
 import os
@@ -16,6 +20,9 @@ HIGH_INCOME_THRESHOLD = 30000.00
 # Also worth considering: We could calculate a threshold using mean, stdev, etc.
 # or just search for an international standard for "high income"
 
+# DRY -- there should be one canonical place where we maintain the fields list for all
+# our data tables, be they flat files, MySQL, Hive, etc.
+# It might be worth looking at something like Django migrations just to standardize.
 COUNTRY_FEATURES_COLUMN_DTYPES = {
     #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
         'name': 'object',
@@ -23,6 +30,27 @@ COUNTRY_FEATURES_COLUMN_DTYPES = {
         'actor1_relationships': 'int64',
         'actor2_relationships': 'int64',
     }
+DYAD_EVENTS_BY_YEAR_DTYPES= {
+    #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
+    # CREATE TABLE IF NOT EXISTS dyad_events_by_year AS
+    # SELECT year, actor1code, actor2code, eventcode,
+    # -- I don't see why I can't join on a group field but for for now this throws an error.
+    # -- eventcodes.description,
+    # eventbasecode,  eventrootcode, goldsteinscale, count(*) as count_events
+    # FROM events LEFT JOIN eventcodes
+    #   ON eventcodes.code = events.eventcode
+    # GROUP BY year, actor1code, actor2code, eventcode,
+        'year': 'int64',
+        'actor1code': 'object',
+        'actor2code': 'object',
+        'eventbasecode': 'object',
+        'eventrootcode': 'object',
+        'goldsteinscale': 'float64',
+        'count_events': 'int64',
+    }
+
+# Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
+AGGRESSIVE_CAMEO_CODES = ['13', '14', '15', '16', '17', '18', '19', '20']
 
 # TODO REFACTOR the others -- soon.
 FILENAMES = {
@@ -199,11 +227,35 @@ def util_report_on_country_mismatches():
     print("Here are the countries in GDP data but not GDELT features:\n")
     print(joined[feature_nans]['Country Name'])
 
-def get_country_violence_by_year():
-    country_df = get_country_features()
-    dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'])
-    assert country_df is not None
+
+
+def dyad_aggression_by_year():
+    dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'], delimiter="\t",
+                                      names=DYAD_EVENTS_BY_YEAR_DTYPES.keys(),
+                                      # dtype=None,
+                                      # index_col=['...???...'],
+                                      )
     assert dyad_events_by_year is not None
+    dyad_events_by_year['is_aggressive'] = dyad_events_by_year[
+        dyad_events_by_year['eventrootcode'] in AGGRESSIVE_CAMEO_CODES]
+    foo = dyad_events_by_year.groupby([
+        'actor1code',
+        'actor2code',
+        'year',
+        'is_aggressive',
+    ])
+    rv = dyad_events_by_year.groupby([
+        'actor1code',
+        'actor2code',
+        'year',
+        'is_aggressive',
+    ])['count_events'].sum()
+    return rv
+
+def country_aggression_by_year():
+    country_df = get_country_features()
+    assert country_df is not None
+
     raise NotImplementedError
 
 
