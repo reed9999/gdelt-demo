@@ -7,6 +7,10 @@ from analysis.pandas_gdelt_helper import PandasGdeltHelper
 from analysis.pandas_gdelt_helper import get_events_from_sample_data, get_events_from_local_medium_sized
 from analysis.pandas_gdelt_helper import dyad_aggression_by_year
 
+import logging
+logging.basicConfig(filename='./pandas_gdelt_helper.log',
+                    level=logging.INFO)
+
 # This was where I stored my oracle of correct results in another project.
 # Worth considering here.
 # from .results import TEST_RESULTS

@@ -46,7 +46,7 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
         'eventbasecode': 'object',
         'eventrootcode': 'object',
         'goldsteinscale': 'float64',
-        'count_events': 'int64',
+        'count_events': 'float64',      #I don't understand why it complains about an int64
     }
 
 # Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
@@ -230,21 +230,36 @@ def util_report_on_country_mismatches():
 
 
 def dyad_aggression_by_year():
-    dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'], delimiter="\t",
-                                      names=DYAD_EVENTS_BY_YEAR_DTYPES.keys(),
-                                      # dtype=None,
-                                      # index_col=['...???...'],
-                                      )
+    dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+    column_names = list(dtypes.keys()) #DRY, copied from country_features
+    n = len(column_names)
+    filename = FILENAMES['dyad_events_by_year']
+    dyad_events_by_year = pd.read_csv(filename, delimiter="\t",
+                names=column_names, dtype=dtypes,
+                error_bad_lines=False,
+                usecols=range(0, n), #without this I get cannot convert float NaN to integer
+                           ) #.dropna() #index_col=['code'])
+
+    # dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'], delimiter="\t",
+    #                                   names=DYAD_EVENTS_BY_YEAR_DTYPES.keys(),
+    #                                   # dtype=None,
+    #                                   # index_col=['...???...'],
+    #                                   )
     assert dyad_events_by_year is not None
-    dyad_events_by_year['is_aggressive'] = dyad_events_by_year[
-        dyad_events_by_year['eventrootcode'] in AGGRESSIVE_CAMEO_CODES]
-    foo = dyad_events_by_year.groupby([
+    data = dyad_events_by_year
+    tshoot_criterion = data['eventrootcode'] == '13' #in AGGRESSIVE_CAMEO_CODES]
+    actual_criterion = data['eventrootcode'].isin(AGGRESSIVE_CAMEO_CODES)
+
+    #Note that any(tshoot_criterion) and any(actual_criterion) are both False so something's
+    # wrong with my Booleans.
+    data['is_aggressive'] = [data['eventrootcode'].isin(AGGRESSIVE_CAMEO_CODES)]
+    foo = data.groupby([
         'actor1code',
         'actor2code',
         'year',
         'is_aggressive',
     ])
-    rv = dyad_events_by_year.groupby([
+    rv = data.groupby([
         'actor1code',
         'actor2code',
         'year',
