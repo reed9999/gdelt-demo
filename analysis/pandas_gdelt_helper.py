@@ -49,8 +49,11 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
         'count_events': 'float64',      #I don't understand why it complains about an int64
     }
 
+logging.warning("count_events isn't working properly as a float64 "
+                "but complains about an int64")
+
 # Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
-AGGRESSIVE_CAMEO_CODES = ['13', '14', '15', '16', '17', '18', '19', '20']
+AGGRESSIVE_CAMEO_FAMILIES = ['13', '14', '15', '16', '17', '18', '19', '20']
 
 # TODO REFACTOR the others -- soon.
 FILENAMES = {
@@ -228,31 +231,33 @@ def util_report_on_country_mismatches():
     print(joined[feature_nans]['Country Name'])
 
 
-
-def dyad_aggression_by_year():
-    dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+def open_csv_for_table(table, dtypes=None,):
+    # I should refactor so the two optional params are not needed.
+    filename = FILENAMES[table]
     column_names = list(dtypes.keys()) #DRY, copied from country_features
     n = len(column_names)
-    filename = FILENAMES['dyad_events_by_year']
-    dyad_events_by_year = pd.read_csv(filename, delimiter="\t",
+    df = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes,
                 error_bad_lines=False,
                 usecols=range(0, n), #without this I get cannot convert float NaN to integer
-                           ) #.dropna() #index_col=['code'])
+                           ) # also tried: .dropna() #index_col=['code'])
+    return df
 
-    # dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'], delimiter="\t",
-    #                                   names=DYAD_EVENTS_BY_YEAR_DTYPES.keys(),
-    #                                   # dtype=None,
-    #                                   # index_col=['...???...'],
-    #                                   )
-    assert dyad_events_by_year is not None
-    data = dyad_events_by_year
-    tshoot_criterion = data['eventrootcode'] == '13' #in AGGRESSIVE_CAMEO_CODES]
-    actual_criterion = data['eventrootcode'].isin(AGGRESSIVE_CAMEO_CODES)
+def dyad_events_by_year():
+    dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+    df = open_csv_for_table('dyad_events_by_year')
+    assert df is not None
+    return df
 
-    #Note that any(tshoot_criterion) and any(actual_criterion) are both False so something's
-    # wrong with my Booleans.
-    data['is_aggressive'] = [data['eventrootcode'].isin(AGGRESSIVE_CAMEO_CODES)]
+def dyad_aggression_by_year():
+    data = dyad_events_by_year()
+    data['eventfamily'] = list(map(lambda x: x[:2], data['eventbasecode']))
+    criterion = data['eventfamily'].isin(AGGRESSIVE_CAMEO_FAMILIES)
+
+    raise NotImplementedError
+    #The following is patently not the way to do this. Indexing on a Boolean list
+    # selects the rows for True leading to a shape mismatch.
+    data['is_aggressive'] = [data['eventrootcode'].isin(AGGRESSIVE_CAMEO_FAMILIES)]
     foo = data.groupby([
         'actor1code',
         'actor2code',
