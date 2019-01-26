@@ -230,9 +230,9 @@ def util_report_on_country_mismatches():
     print("Here are the countries in GDP data but not GDELT features:\n")
     print(joined[feature_nans]['Country Name'])
 
-
+# REFACTORING attempt but not yet turned on.
 def open_csv_for_table(table, dtypes=None,):
-    # I should refactor so the two optional params are not needed.
+    # I should refactor so the optional param is not needed.
     filename = FILENAMES[table]
     column_names = list(dtypes.keys()) #DRY, copied from country_features
     n = len(column_names)
@@ -249,8 +249,25 @@ def dyad_events_by_year():
     assert df is not None
     return df
 
+
 def dyad_aggression_by_year():
-    data = dyad_events_by_year()
+    dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+    column_names = list(dtypes.keys()) #DRY, copied from country_features
+    n = len(column_names)
+    filename = FILENAMES['dyad_events_by_year']
+    dyad_events_by_year = pd.read_csv(filename, delimiter="\t",
+                names=column_names, dtype=dtypes,
+                error_bad_lines=False,
+                usecols=range(0, n), #without this I get cannot convert float NaN to integer
+                           ) # also tried: .dropna() #index_col=['code'])
+
+    # dyad_events_by_year = pd.read_csv(FILENAMES['dyad_events_by_year'], delimiter="\t",
+    #                                   names=DYAD_EVENTS_BY_YEAR_DTYPES.keys(),
+    #                                   # dtype=None,
+    #                                   # index_col=['...???...'],
+    #                                   )
+    assert dyad_events_by_year is not None
+    data = dyad_events_by_year
     data['eventfamily'] = list(map(lambda x: x[:2], data['eventbasecode']))
     criterion = data['eventfamily'].isin(AGGRESSIVE_CAMEO_FAMILIES)
 
