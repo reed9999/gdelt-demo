@@ -47,11 +47,8 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
         'eventbasecode': 'object',
         'eventrootcode': 'object',
         'goldsteinscale': 'float64',
-        'count_events': 'float64',      #I don't understand why it complains about an int64
+        'count_events': 'int64',
     }
-
-logging.warning("count_events isn't working properly as a float64 "
-                "but complains about an int64")
 
 # Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
 AGGRESSIVE_CAMEO_FAMILIES = ['13', '14', '15', '16', '17', '18', '19', '20']
@@ -240,7 +237,7 @@ def open_csv_for_table(table, dtypes=None,):
     df = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes,
                 error_bad_lines=False,
-                usecols=range(0, n), #without this I get cannot convert float NaN to integer
+                # usecols=range(0, n),
                            ) # also tried: .dropna() #index_col=['code'])
     return df
 
