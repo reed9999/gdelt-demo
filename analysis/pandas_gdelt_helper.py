@@ -43,6 +43,7 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
         'year': 'int64',
         'actor1code': 'object',
         'actor2code': 'object',
+        'eventcode': 'object',
         'eventbasecode': 'object',
         'eventrootcode': 'object',
         'goldsteinscale': 'float64',
@@ -271,10 +272,9 @@ def dyad_aggression_by_year():
     data['eventfamily'] = list(map(lambda x: x[:2], data['eventbasecode']))
     criterion = data['eventfamily'].isin(AGGRESSIVE_CAMEO_FAMILIES)
 
-    raise NotImplementedError
     #The following is patently not the way to do this. Indexing on a Boolean list
     # selects the rows for True leading to a shape mismatch.
-    data['is_aggressive'] = [data['eventrootcode'].isin(AGGRESSIVE_CAMEO_FAMILIES)]
+    data['is_aggressive'] = data['eventrootcode'].isin(AGGRESSIVE_CAMEO_FAMILIES)
     foo = data.groupby([
         'actor1code',
         'actor2code',

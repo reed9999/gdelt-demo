@@ -50,3 +50,5 @@ class TestPandasGdeltHelper(TestCase):
             print(err)
             self.skipTest('Not implemented yet.')
         assert rv is not None
+        assert rv[18] == 1.0
+        assert rv.index[18] == ('ALBGOV', 'CUB', 1982, False)
