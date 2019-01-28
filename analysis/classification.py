@@ -17,7 +17,7 @@ from sklearn.tree import DecisionTreeClassifier, export_graphviz
 
 # See NOTES ON IMPORTS at the end of the file.
 sys.path.insert(1,  os.path.join(os.getcwd()))
-from analysis.pandas_gdelt_helper import get_country_features
+from analysis.pandas_gdelt_helper import country_features
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 
@@ -35,7 +35,7 @@ class GdeltClassificationTask:
 
 
     def load_data(self):
-        self._dataframe = get_country_features()
+        self._dataframe = country_features()
         self.add_enhanced_columns()
         self._dataframe.dropna()
 

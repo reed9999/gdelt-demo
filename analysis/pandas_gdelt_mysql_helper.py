@@ -122,7 +122,7 @@ def get_country_features():
 def report_on_country_mismatches():
     """This utility function made sense to help me discover what tweaks were necessary.
     To return everything to the original state (in a messy hacky way), remove the tweak call from
-    get_external_country_data()
+    external_country_data()
     """
     feat = get_country_features()
     ext = get_external_country_data()

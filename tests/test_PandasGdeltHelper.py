@@ -4,7 +4,7 @@ from unittest import TestCase
 from shutil import copytree, rmtree
 import analysis.pandas_gdelt_helper as helper
 from analysis.pandas_gdelt_helper import PandasGdeltHelper
-from analysis.pandas_gdelt_helper import get_events_from_sample_data, get_events_from_local_medium_sized
+from analysis.pandas_gdelt_helper import events_from_sample_files, events_from_local_files
 from analysis.pandas_gdelt_helper import dyad_aggression_by_year
 
 import logging
@@ -32,12 +32,12 @@ class TestPandasGdeltHelper(TestCase):
 
     # This organization of sample vs. medium sized data needs to be reworked anyway.
     def test_get_events_from_sample_data(self):
-        rv = get_events_from_sample_data()
+        rv = events_from_sample_files()
         assert rv is not None
 
     def test_get_events_from_sample_data(self):
         try:
-            rv = get_events_from_local_medium_sized()
+            rv = events_from_local_files()
         except FileNotFoundError as err:
             print(err)
             self.skipTest('Sample data not set up')

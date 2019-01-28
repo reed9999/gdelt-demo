@@ -64,7 +64,7 @@ FILENAMES = {
 class PandasGdeltHelper():
     pass
 
-def get_event_column_names_dtypes():
+def event_column_names_dtypes():
     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
                     "events_column_names_dtypes.csv")
@@ -77,7 +77,7 @@ def get_event_column_names_dtypes():
     dtypes = {x['name']: x['dtype'] for x in pairs}
     return dtypes
 
-def get_event_column_names():
+def event_column_names():
     COLUMN_NAMES_FILE = os.path.normpath(
         os.path.join(THIS_FILE_DIR, "..", "data_related",
                     "events_column_names.csv")
@@ -86,25 +86,25 @@ def get_event_column_names():
         column_names = str(f.readline()).split('\t')
     return column_names
 
-def get_events_from_local_medium_sized():
+def events_from_local_files():
     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
     if len(filenames) > 0:
         raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
-    return get_events_common(filenames)
+    return events_common_impl(filenames)
 
-def get_events_from_sample_data():
+def events_from_sample_files():
     TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
                                 "sample_data")
 
     filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
-    return get_events_common(filenames)
+    return events_common_impl(filenames)
 
-def get_events_common(filenames):
+def events_common_impl(filenames):
     """Common refactored functionality to get the events files whether in the sample data or
     in my s3 downloads"""
-    dtypes = get_event_column_names_dtypes()
+    dtypes = event_column_names_dtypes()
     column_names = dtypes.keys()
     events_data = pd.DataFrame(columns=column_names, dtype=None)
     # This didn't work later in the execution but maybe with the empty
@@ -129,11 +129,11 @@ def get_events_common(filenames):
             events_data = pd.concat([events_data, new_df], )
     return events_data
 
-def get_events():
+def events():
     try:
-        events_data = get_events_from_local_medium_sized()
+        events_data = events_from_local_files()
     except AssertionError as e:
-        events_data = get_events_from_sample_data()
+        events_data = events_from_sample_files()
     report_on_nulls(events_data)
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
     return events_data
@@ -145,7 +145,7 @@ def clean_up_external_country_columns(dataframe):
     return dataframe
 
 
-def get_external_country_data():
+def external_country_data():
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
                             'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
     column_criterion = lambda x: x[0:7] != "Unnamed"
@@ -158,14 +158,14 @@ def get_external_country_data():
     return dataframe
 
 
-def get_country_features():
+def country_features():
     dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
     column_names = dtypes.keys()
     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
                             'country_features.csv')
     country_features_data = pd.read_csv(filename, delimiter="\t",
                 names=column_names, dtype=dtypes, index_col=['code'])
-    external_data = get_external_country_data()
+    external_data = external_country_data()
     return country_features_data.join(other=external_data, how='inner')
     # for column in [...]:
     #     events_data[column] = pd.to_numeric(events_data[column])
@@ -212,12 +212,12 @@ def report_on_nulls(events_data):
 def util_report_on_country_mismatches():
     """This utility function made sense to help me discover what tweaks were necessary.
     To return everything to the original state (in a messy hacky way), remove the tweak call from
-    get_external_country_data()
+    external_country_data()
     """
     assert False, """This is now broken: 
     ValueError: columns overlap but no suffix specified"""
-    feat = get_country_features()
-    ext = get_external_country_data()
+    feat = country_features()
+    ext = external_country_data()
     joined = feat.join(ext, how='outer')
     print(joined.columns)
 
@@ -292,7 +292,7 @@ def dyad_aggression_by_year(format="series"):
     return rv
 
 def country_aggression_by_year():
-    country_df = get_country_features()
+    country_df = country_features()
     assert country_df is not None
 
     raise NotImplementedError
@@ -300,6 +300,6 @@ def country_aggression_by_year():
 
 if __name__ == "__main__":
     #simple test of new functionality
-    features = get_country_features()
+    features = country_features()
     is_high_income = features['is_high_income']
     pass
