@@ -248,7 +248,25 @@ def dyad_events_by_year():
     return df
 
 
-def dyad_aggression_by_year():
+def dyad_aggression_by_year_columns():
+    """Implementation of dyad_aggression_by_year that returns a DataFrame with columns for each grouping.
+    This might make it easier to feed the resulting columns directly into analysis e.g. with sklearn.
+    However I'm not even sure this makes any sense so come back to it."""
+    raise NotImplementedError
+
+def dyad_aggression_by_year_series(data):
+    """Implementation of dyad_aggression_by_year that returns a Series with a MultiIndex.
+    The 4 fields in the index are both actorcodes, year, and is_aggressive.
+    Thus, to do analysis, we need to deference the fields in the index."""
+    return data.groupby([
+        'actor1code',
+        'actor2code',
+        'year',
+        'is_aggressive',
+    ])['count_events'].sum()
+
+
+def dyad_aggression_by_year(format="series"):
     dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
     column_names = list(dtypes.keys()) #DRY, copied from country_features
     n = len(column_names)
@@ -269,21 +287,8 @@ def dyad_aggression_by_year():
     data['eventfamily'] = list(map(lambda x: x[:2], data['eventbasecode']))
     criterion = data['eventfamily'].isin(AGGRESSIVE_CAMEO_FAMILIES)
 
-    #The following is patently not the way to do this. Indexing on a Boolean list
-    # selects the rows for True leading to a shape mismatch.
     data['is_aggressive'] = data['eventrootcode'].isin(AGGRESSIVE_CAMEO_FAMILIES)
-    foo = data.groupby([
-        'actor1code',
-        'actor2code',
-        'year',
-        'is_aggressive',
-    ])
-    rv = data.groupby([
-        'actor1code',
-        'actor2code',
-        'year',
-        'is_aggressive',
-    ])['count_events'].sum()
+    rv = dyad_aggression_by_year_series(data)
     return rv
 
 def country_aggression_by_year():
