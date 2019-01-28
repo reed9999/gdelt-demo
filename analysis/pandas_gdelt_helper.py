@@ -248,11 +248,12 @@ def dyad_events_by_year():
     return df
 
 
-def dyad_aggression_by_year_columns():
+def dyad_aggression_by_year_dataframe(data):
     """Implementation of dyad_aggression_by_year that returns a DataFrame with columns for each grouping.
     This might make it easier to feed the resulting columns directly into analysis e.g. with sklearn.
-    However I'm not even sure this makes any sense so come back to it."""
-    raise NotImplementedError
+    For now it's just the simplest possible impl using reset_index() on a series."""
+    return dyad_aggression_by_year_series(data).reset_index()
+
 
 def dyad_aggression_by_year_series(data):
     """Implementation of dyad_aggression_by_year that returns a Series with a MultiIndex.
@@ -266,7 +267,7 @@ def dyad_aggression_by_year_series(data):
     ])['count_events'].sum()
 
 
-def dyad_aggression_by_year(format="series"):
+def dyad_aggression_by_year(format="dataframe"):
     dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
     column_names = list(dtypes.keys()) #DRY, copied from country_features
     n = len(column_names)
@@ -288,7 +289,10 @@ def dyad_aggression_by_year(format="series"):
     criterion = data['eventfamily'].isin(AGGRESSIVE_CAMEO_FAMILIES)
 
     data['is_aggressive'] = data['eventrootcode'].isin(AGGRESSIVE_CAMEO_FAMILIES)
-    rv = dyad_aggression_by_year_series(data)
+    if format == 'series':
+        rv = dyad_aggression_by_year_series(data)
+    else:
+        rv = dyad_aggression_by_year_dataframe(data)
     return rv
 
 def country_aggression_by_year():

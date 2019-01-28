@@ -44,11 +44,14 @@ class TestPandasGdeltHelper(TestCase):
         assert rv is not None
 
     def test_dyad_aggression_by_year(self):
-        try:
-            rv = dyad_aggression_by_year()
-        except NotImplementedError as err:
-            print(err)
-            self.skipTest('Not implemented yet.')
+        rv = dyad_aggression_by_year('series')
         assert rv is not None
         assert rv[18] == 1.0
         assert rv.index[18] == ('ALBGOV', 'CUB', 1982, False)
+        # I don't understand why pandas makes it hard to reference this MultiIndex, e.g.
+        # rv.loc(['ALBGOV', 'CUB', 1982, False]) or rv.loc(('ALBGOV', 'CUB', 1982, False))
+        # Casting it as a new DataFrame doesn't help.
+
+        df = dyad_aggression_by_year()
+        assert df is not None
+        assert 'AUS' == df.loc(0)[25]['actor1code']
