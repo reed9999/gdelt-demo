@@ -132,7 +132,7 @@ def events_common_impl(filenames):
 def events():
     try:
         events_data = events_from_local_files()
-    except AssertionError as e:
+    except FileNotFoundError as e:
         events_data = events_from_sample_files()
     report_on_nulls(events_data)
     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
