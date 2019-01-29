@@ -4,7 +4,7 @@ from unittest import TestCase
 from shutil import copytree, rmtree
 import analysis.pandas_gdelt_helper as helper
 from analysis.pandas_gdelt_helper import PandasGdeltHelper
-from analysis.pandas_gdelt_helper import events_from_sample_files, events_from_local_files
+# from analysis.pandas_gdelt_helper import events_from_sample_files, events_from_local_files
 from analysis.pandas_gdelt_helper import dyad_aggression_by_year
 
 import logging
@@ -27,30 +27,34 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 class TestPandasGdeltHelper(TestCase):
     def setUp(self):
-        # There's nothing in this class yet. Just testing the plumbing.
-        self._helper = PandasGdeltHelper()
+        # self._helper = PandasGdeltHelper('events')
+        pass
 
     # This organization of sample vs. medium sized data needs to be reworked anyway.
-    def test_get_events_from_sample_data(self):
-        rv = events_from_sample_files()
+    def test_events_from_sample_data(self):
+        helper = PandasGdeltHelper('events')
+        rv = helper.events_from_sample_files()
         assert rv is not None
 
-    def test_get_events_from_sample_data(self):
+    def test_events_from_local_files(self):
+        helper = PandasGdeltHelper('events')
         try:
-            rv = events_from_local_files()
+            rv = helper.events_from_local_files()
         except FileNotFoundError as err:
             print(err)
             self.skipTest('Sample data not set up')
         assert rv is not None
 
     def test_dyad_aggression_by_year(self):
+        # helper = PandasGdeltHelper('dyad_aggression_by_year')
         rv = dyad_aggression_by_year('series')
         assert rv is not None
+
+        logging.warning("These tests will all be dependent on using the sample data.")
         assert rv[18] == 1.0
         assert rv.index[18] == ('ALBGOV', 'CUB', 1982, False)
-        # I don't understand why pandas makes it hard to reference this MultiIndex, e.g.
-        # rv.loc(['ALBGOV', 'CUB', 1982, False]) or rv.loc(('ALBGOV', 'CUB', 1982, False))
-        # Casting it as a new DataFrame doesn't help.
+        # From here... sanity check but not quite the same as accessing one row by MultiIndex
+        assert 1982 == rv.index.levels[2][rv.index.labels[2][27]]
 
         df = dyad_aggression_by_year()
         assert df is not None

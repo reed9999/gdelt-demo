@@ -5,9 +5,12 @@
 # different ones and need to consolidate.
 # For CAMEO codes see http://eventdata.parusanalytics.com/data.dir/cameo.html
 # (latest: http://eventdata.parusanalytics.com/cameo.dir/CAMEO.Manual.1.1b3.pdf )
+#
+# I'm pretty sure this kind of pandas wrapper must have been written somewhere before
+# for other purposes. This approach may have some merit:
+# http://devanla.com/case-for-inheriting-from-pandas-dataframe.html
 
-# I would like to get rid of the get_ prefix in function names below. This is more of a Ruby
-# tendency, but it makes the code read more like plain English and the get_ adds little value.
+
 import glob
 import logging
 import os
@@ -62,81 +65,159 @@ FILENAMES = {
                             'dyad_events_by_year.csv'),
 }
 class PandasGdeltHelper():
-    pass
+    def __init__(self, table_name):
+        if table_name != 'events':
+            raise NotImplementedError('This helper only deals with events right now.')
+        self.table_name = table_name
 
-def event_column_names_dtypes():
-    COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
-        os.path.join(THIS_FILE_DIR, "..", "data_related",
-                    "events_column_names_dtypes.csv")
-    )
-    with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
-        lines = f.readlines()
-        pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()}
-            for x in lines]
-        # pairs = str(f.readline()).split('\t')
-    dtypes = {x['name']: x['dtype'] for x in pairs}
-    return dtypes
+    def event_column_names_dtypes(self):
+        COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
+            os.path.join(THIS_FILE_DIR, "..", "data_related",
+                         "events_column_names_dtypes.csv")
+        )
+        with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
+            lines = f.readlines()
+            pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()}
+                     for x in lines]
+            # pairs = str(f.readline()).split('\t')
+        dtypes = {x['name']: x['dtype'] for x in pairs}
+        return dtypes
 
-def event_column_names():
-    COLUMN_NAMES_FILE = os.path.normpath(
-        os.path.join(THIS_FILE_DIR, "..", "data_related",
-                    "events_column_names.csv")
-    )
-    with open(COLUMN_NAMES_FILE, 'r') as f:
-        column_names = str(f.readline()).split('\t')
-    return column_names
+    def event_column_names(self):
+        COLUMN_NAMES_FILE = os.path.normpath(
+            os.path.join(THIS_FILE_DIR, "..", "data_related",
+                         "events_column_names.csv")
+        )
+        with open(COLUMN_NAMES_FILE, 'r') as f:
+            column_names = str(f.readline()).split('\t')
+        return column_names
 
-def events_from_local_files():
-    filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
-    filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
-    # But not e.g., 20150219114500.export.csv, which I think is v 2.0
-    if len(filenames) > 0:
-        raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
-    return events_common_impl(filenames)
+    def events_from_local_files(self):
+        filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
+        filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
+        # But not e.g., 20150219114500.export.csv, which I think is v 2.0
+        if len(filenames) > 0:
+            raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
+        return events_common_impl(filenames)
 
-def events_from_sample_files():
-    TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
-                                "sample_data")
+    def events_from_sample_files(self):
+        TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
+                                     "sample_data")
 
-    filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
-    return events_common_impl(filenames)
+        filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
+        return self.events_common_impl(filenames)
 
-def events_common_impl(filenames):
-    """Common refactored functionality to get the events files whether in the sample data or
-    in my s3 downloads"""
-    dtypes = event_column_names_dtypes()
-    column_names = dtypes.keys()
-    events_data = pd.DataFrame(columns=column_names, dtype=None)
-    # This didn't work later in the execution but maybe with the empty
-    # DataFrame
-    for column in ['nummentions', 'numsources', 'numarticles']:
-        events_data[column] = pd.to_numeric(events_data[column])
+    def events_common_impl(self, filenames):
+        """Common refactored functionality to get the events files whether in the sample data or
+        in my s3 downloads"""
+        dtypes = self.event_column_names_dtypes()
+        column_names = dtypes.keys()
+        events_data = pd.DataFrame(columns=column_names, dtype=None)
+        # This didn't work later in the execution but maybe with the empty
+        # DataFrame
+        for column in ['nummentions', 'numsources', 'numarticles']:
+            events_data[column] = pd.to_numeric(events_data[column])
 
-    for filename in filenames:
+        for filename in filenames:
+            try:
+                new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+                                     dtype=dtypes, index_col=['globaleventid'])
+            except Exception:
+                logging.info("""Fell through to non-dtype (i.e. slow) handling 
+                    on filename: {}""".format(filename))
+                new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+                                     dtype=None, index_col=['globaleventid'])
+            try:
+                events_data = pd.concat([new_df, events_data], sort=False)
+            except TypeError:
+                logging.info("""Version compatibility. Jupyter runs an older
+                    version of pandas.""")
+                events_data = pd.concat([events_data, new_df], )
+        return events_data
+
+    def events():
         try:
-            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
-                                dtype=dtypes, index_col=['globaleventid'])
-        except Exception:
-            logging.info("""Fell through to non-dtype (i.e. slow) handling 
-                on filename: {}""".format(filename))
-            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
-                                dtype=None, index_col=['globaleventid'])
-        try:
-            events_data = pd.concat([new_df, events_data], sort=False)
-        except TypeError:
-            logging.info("""Version compatibility. Jupyter runs an older
-                version of pandas.""")
-            events_data = pd.concat([events_data, new_df], )
-    return events_data
+            events_data = events_from_local_files()
+        except FileNotFoundError as e:
+            events_data = events_from_sample_files()
+        report_on_nulls(events_data)
+        events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
+        return events_data
 
-def events():
-    try:
-        events_data = events_from_local_files()
-    except FileNotFoundError as e:
-        events_data = events_from_sample_files()
-    report_on_nulls(events_data)
-    events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
-    return events_data
+
+# def event_column_names_dtypes():
+#     COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
+#         os.path.join(THIS_FILE_DIR, "..", "data_related",
+#                     "events_column_names_dtypes.csv")
+#     )
+#     with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
+#         lines = f.readlines()
+#         pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()}
+#             for x in lines]
+#         # pairs = str(f.readline()).split('\t')
+#     dtypes = {x['name']: x['dtype'] for x in pairs}
+#     return dtypes
+#
+# def event_column_names():
+#     COLUMN_NAMES_FILE = os.path.normpath(
+#         os.path.join(THIS_FILE_DIR, "..", "data_related",
+#                     "events_column_names.csv")
+#     )
+#     with open(COLUMN_NAMES_FILE, 'r') as f:
+#         column_names = str(f.readline()).split('\t')
+#     return column_names
+
+# def events_from_local_files():
+#     filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
+#     filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
+#     # But not e.g., 20150219114500.export.csv, which I think is v 2.0
+#     if len(filenames) > 0:
+#         raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
+#     return events_common_impl(filenames)
+#
+# def events_from_sample_files():
+#     TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
+#                                 "sample_data")
+#
+#     filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
+#     return events_common_impl(filenames)
+#
+# def events_common_impl(filenames):
+#     """Common refactored functionality to get the events files whether in the sample data or
+#     in my s3 downloads"""
+#     dtypes = event_column_names_dtypes()
+#     column_names = dtypes.keys()
+#     events_data = pd.DataFrame(columns=column_names, dtype=None)
+#     # This didn't work later in the execution but maybe with the empty
+#     # DataFrame
+#     for column in ['nummentions', 'numsources', 'numarticles']:
+#         events_data[column] = pd.to_numeric(events_data[column])
+#
+#     for filename in filenames:
+#         try:
+#             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+#                                 dtype=dtypes, index_col=['globaleventid'])
+#         except Exception:
+#             logging.info("""Fell through to non-dtype (i.e. slow) handling
+#                 on filename: {}""".format(filename))
+#             new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+#                                 dtype=None, index_col=['globaleventid'])
+#         try:
+#             events_data = pd.concat([new_df, events_data], sort=False)
+#         except TypeError:
+#             logging.info("""Version compatibility. Jupyter runs an older
+#                 version of pandas.""")
+#             events_data = pd.concat([events_data, new_df], )
+#     return events_data
+#
+# def events():
+#     try:
+#         events_data = events_from_local_files()
+#     except FileNotFoundError as e:
+#         events_data = events_from_sample_files()
+#     report_on_nulls(events_data)
+#     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
+#     return events_data
 
 def clean_up_external_country_columns(dataframe):
     """Delete unhelpful columns from 1960 to 2016, inclusive"""
