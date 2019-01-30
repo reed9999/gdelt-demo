@@ -4,8 +4,6 @@ from unittest import TestCase
 from shutil import copytree, rmtree
 import analysis.pandas_gdelt_helper as helper
 from analysis.pandas_gdelt_helper import PandasGdeltHelper
-# from analysis.pandas_gdelt_helper import events_from_sample_files, events_from_local_files
-from analysis.pandas_gdelt_helper import dyad_aggression_by_year
 
 import logging
 logging.basicConfig(filename='./pandas_gdelt_helper.log',
@@ -47,7 +45,7 @@ class TestPandasGdeltHelper(TestCase):
 
     def test_dyad_aggression_by_year(self):
         # helper = PandasGdeltHelper('dyad_aggression_by_year')
-        rv = dyad_aggression_by_year('series')
+        rv = PandasGdeltHelper.dyad_aggression_by_year('series')
         assert rv is not None
 
         logging.warning("These tests will all be dependent on using the sample data.")
@@ -56,6 +54,6 @@ class TestPandasGdeltHelper(TestCase):
         # From here... sanity check but not quite the same as accessing one row by MultiIndex
         assert 1982 == rv.index.levels[2][rv.index.labels[2][27]]
 
-        df = dyad_aggression_by_year()
+        df = PandasGdeltHelper.dyad_aggression_by_year()
         assert df is not None
         assert 'AUS' == df.loc(0)[25]['actor1code']
