@@ -65,12 +65,15 @@ FILENAMES = {
                             'dyad_events_by_year.csv'),
 }
 class PandasGdeltHelper():
-    def __init__(self, table_name):
+    # The table_name doesn't mean anything right now because all the methods are class
+    # ("static") methods
+    def __init__(self, table_name='eventss'):
         if table_name != 'events':
             raise NotImplementedError('This helper only deals with events right now.')
         self.table_name = table_name
 
-    def event_column_names_dtypes(self):
+    @classmethod
+    def event_column_names_dtypes(cls):
         COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
             os.path.join(THIS_FILE_DIR, "..", "data_related",
                          "events_column_names_dtypes.csv")
@@ -83,7 +86,8 @@ class PandasGdeltHelper():
         dtypes = {x['name']: x['dtype'] for x in pairs}
         return dtypes
 
-    def event_column_names(self):
+    @classmethod
+    def event_column_names(cls):
         COLUMN_NAMES_FILE = os.path.normpath(
             os.path.join(THIS_FILE_DIR, "..", "data_related",
                          "events_column_names.csv")
@@ -92,7 +96,8 @@ class PandasGdeltHelper():
             column_names = str(f.readline()).split('\t')
         return column_names
 
-    def events_from_local_files(self):
+    @classmethod
+    def events_from_local_files(cls):
         filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
         filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
         # But not e.g., 20150219114500.export.csv, which I think is v 2.0
@@ -100,17 +105,19 @@ class PandasGdeltHelper():
             raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
         return events_common_impl(filenames)
 
-    def events_from_sample_files(self):
+    @classmethod
+    def events_from_sample_files(cls):
         TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
                                      "sample_data")
 
         filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
-        return self.events_common_impl(filenames)
+        return cls.events_common_impl(filenames)
 
-    def events_common_impl(self, filenames):
+    @classmethod
+    def events_common_impl(cls, filenames):
         """Common refactored functionality to get the events files whether in the sample data or
         in my s3 downloads"""
-        dtypes = self.event_column_names_dtypes()
+        dtypes = cls.event_column_names_dtypes()
         column_names = dtypes.keys()
         events_data = pd.DataFrame(columns=column_names, dtype=None)
         # This didn't work later in the execution but maybe with the empty
@@ -135,14 +142,69 @@ class PandasGdeltHelper():
                 events_data = pd.concat([events_data, new_df], )
         return events_data
 
-    def events():
+    @classmethod
+    def events(cls):
         try:
-            events_data = events_from_local_files()
+            events_data = cls.events_from_local_files()
         except FileNotFoundError as e:
-            events_data = events_from_sample_files()
+            events_data = cls.events_from_sample_files()
         report_on_nulls(events_data)
         events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
         return events_data
+
+    @classmethod
+    def clean_up_external_country_columns(cls, dataframe):
+        """Delete unhelpful columns from 1960 to 2016, inclusive"""
+        labels = [str(i) for i in range(1960, 2017)]
+        dataframe.drop(axis='columns', columns=labels, inplace=True)
+        return dataframe
+
+    @classmethod
+    def external_country_data(cls):
+        filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
+                                'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
+        column_criterion = lambda x: x[0:7] != "Unnamed"
+        dataframe = pd.read_csv(filename, delimiter=",", skiprows=4, dtype=None,
+                                index_col='Country Code', usecols=column_criterion,
+                                )
+        cls.tweak_external_data_country_codes(dataframe)
+        cls.clean_up_external_country_columns(dataframe)
+        dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
+        return dataframe
+
+    @classmethod
+    def country_features(cls):
+        dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
+        column_names = dtypes.keys()
+        filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+                                'country_features.csv')
+        country_features_data = pd.read_csv(filename, delimiter="\t",
+                                            names=column_names, dtype=dtypes, index_col=['code'])
+        external_data = cls.external_country_data()
+        return country_features_data.join(other=external_data, how='inner')
+        # for column in [...]:
+        #     events_data[column] = pd.to_numeric(events_data[column])
+
+    @classmethod
+    def tweak_external_data_country_codes(cls, ext_data):
+        """For those cases where an external data source uses different country codes for what is
+        obviously the same country as GDELT, convert them all to the GDELT name.
+        It turns out there are only two obvious cases where the same country has different codes.
+
+        Returns: The input data frame.
+        Side effects: Changes the data frame in place rather than cloning.
+        """
+        TWEAKS = {
+            'ROU': 'ROM',  # Romania
+            'TLS': 'TMP',  # Timor-Leste
+        }
+        # https://stackoverflow.com/a/40428133
+        as_list = ext_data.index.tolist()
+        for ext_code, feature_code in TWEAKS.items():
+            index = as_list.index(ext_code)
+            as_list[index] = feature_code
+        ext_data.index = as_list
+        return ext_data
 
 
 # def event_column_names_dtypes():
@@ -219,58 +281,58 @@ class PandasGdeltHelper():
 #     events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
 #     return events_data
 
-def clean_up_external_country_columns(dataframe):
-    """Delete unhelpful columns from 1960 to 2016, inclusive"""
-    labels = [str(i) for i in range(1960, 2017)]
-    dataframe.drop(axis='columns', columns=labels, inplace=True)
-    return dataframe
-
-
-def external_country_data():
-    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
-                            'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
-    column_criterion = lambda x: x[0:7] != "Unnamed"
-    dataframe = pd.read_csv(filename, delimiter=",", skiprows=4, dtype=None,
-                            index_col='Country Code', usecols=column_criterion,
-                            )
-    tweak_external_data_country_codes(dataframe)
-    clean_up_external_country_columns(dataframe)
-    dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
-    return dataframe
-
-
-def country_features():
-    dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
-    column_names = dtypes.keys()
-    filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
-                            'country_features.csv')
-    country_features_data = pd.read_csv(filename, delimiter="\t",
-                names=column_names, dtype=dtypes, index_col=['code'])
-    external_data = external_country_data()
-    return country_features_data.join(other=external_data, how='inner')
-    # for column in [...]:
-    #     events_data[column] = pd.to_numeric(events_data[column])
-
-
-def tweak_external_data_country_codes(ext_data):
-    """For those cases where an external data source uses different country codes for what is
-    obviously the same country as GDELT, convert them all to the GDELT name.
-    It turns out there are only two obvious cases where the same country has different codes.
-
-    Returns: The input data frame.
-    Side effects: Changes the data frame in place rather than cloning.
-    """
-    TWEAKS = {
-        'ROU': 'ROM',   #Romania
-        'TLS': 'TMP',   #Timor-Leste
-    }
-    #https://stackoverflow.com/a/40428133
-    as_list = ext_data.index.tolist()
-    for ext_code, feature_code in TWEAKS.items():
-        index = as_list.index(ext_code)
-        as_list[index] = feature_code
-    ext_data.index = as_list
-    return ext_data
+# def clean_up_external_country_columns(dataframe):
+#     """Delete unhelpful columns from 1960 to 2016, inclusive"""
+#     labels = [str(i) for i in range(1960, 2017)]
+#     dataframe.drop(axis='columns', columns=labels, inplace=True)
+#     return dataframe
+#
+#
+# def external_country_data():
+#     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'external',
+#                             'API_NY.GDP.PCAP.CD_DS2_en_csv_v2_10181232.csv')
+#     column_criterion = lambda x: x[0:7] != "Unnamed"
+#     dataframe = pd.read_csv(filename, delimiter=",", skiprows=4, dtype=None,
+#                             index_col='Country Code', usecols=column_criterion,
+#                             )
+#     tweak_external_data_country_codes(dataframe)
+#     clean_up_external_country_columns(dataframe)
+#     dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
+#     return dataframe
+#
+#
+# def country_features():
+#     dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
+#     column_names = dtypes.keys()
+#     filename = os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
+#                             'country_features.csv')
+#     country_features_data = pd.read_csv(filename, delimiter="\t",
+#                 names=column_names, dtype=dtypes, index_col=['code'])
+#     external_data = external_country_data()
+#     return country_features_data.join(other=external_data, how='inner')
+#     # for column in [...]:
+#     #     events_data[column] = pd.to_numeric(events_data[column])
+#
+#
+# def tweak_external_data_country_codes(ext_data):
+#     """For those cases where an external data source uses different country codes for what is
+#     obviously the same country as GDELT, convert them all to the GDELT name.
+#     It turns out there are only two obvious cases where the same country has different codes.
+#
+#     Returns: The input data frame.
+#     Side effects: Changes the data frame in place rather than cloning.
+#     """
+#     TWEAKS = {
+#         'ROU': 'ROM',   #Romania
+#         'TLS': 'TMP',   #Timor-Leste
+#     }
+#     #https://stackoverflow.com/a/40428133
+#     as_list = ext_data.index.tolist()
+#     for ext_code, feature_code in TWEAKS.items():
+#         index = as_list.index(ext_code)
+#         as_list[index] = feature_code
+#     ext_data.index = as_list
+#     return ext_data
 
 # The next functions are utilities that probably don't need to be preserved here.
 # TODO maybe offload util functions to a separate file?

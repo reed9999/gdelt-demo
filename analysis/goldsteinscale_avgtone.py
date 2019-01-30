@@ -12,7 +12,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
-from analysis.pandas_gdelt_helper import events
+from analysis.pandas_gdelt_helper import PandasGdeltHelper
 
 THIS_FILE_DIR = os.path.dirname(__file__)
 INDEPENDENT_COLUMNS = ['fractiondate', 'goldsteinscale']
@@ -55,7 +55,7 @@ class GoldsteinscaleAvgtoneRegression(LinearRegression):
         self._r2 = r2_score(self._y_test, self._predictions)
 
     def prepare_data(self):
-        self._events_data = events()
+        self._events_data = PandasGdeltHelper.events()
         columns_for_X = self._events_data[['fractiondate', 'goldsteinscale']]
         X = np.reshape(np.array(columns_for_X), (self._events_data.shape[0], -1))
         y = np.reshape(np.array(self._events_data.avgtone), (self._events_data.shape[0], -1))
