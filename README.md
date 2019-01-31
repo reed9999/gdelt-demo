@@ -4,8 +4,10 @@
 For the main showcase, [start 
 here](https://github.com/reed9999/gdelt-demo/blob/master/Start_here.ipynb). You can view it in Jupyter Notebook or at that link.
 
-This is an early-stage demo project to showcase data science, automation, and Python skills. 
-Broadly speaking the goal is to continuing building on my competency in Python and in data science, while building skills in AWS (and Google Query if needed) including Hadoop and eventually Spark.
+This is an early-stage demo project to showcase my competency in Python and in data science; at the same time it has been a platform to build skills in AWS (and soon, Google Query as needed for real-time GDELT v.2), including Hadoop and to an extent Spark.
+So far I have examples of analytics involving classification, using decision trees, *k* nearest neighbors, simple vector machines, and random forests.
+I also have an example of linear regression.
+As this project progresses, it will more extensively showcase a full data science life-cycle, but the pieces are already there in some form: exploratory analysis, hypothesis testing, data wrangling/data munging, modeling, and drawing conclusions.
 
 GDELT is a multi-terabyte dataset of world events that, in its latest versions, 
 is updated often and to a high granularity.
@@ -13,7 +15,7 @@ This project is exploratory, in the sense that I'm still getting a feel for the 
 the GDELT data.
 In general, I'm interested in predicting precursors of violence, in media coverage of world events, and in network characteristics of how countries relate.
 
-For [other projects in my showcase](https://github.com/reed9999/gdelt-demo/blob/master/readme_more.md#rest-of-showcase), a task list for this project, and other info, see readme_more.md.
+For [other projects in my showcase](https://github.com/reed9999/gdelt-demo/blob/master/readme_more.md#rest-of-showcase), a task list for this project, and other info, see readme\_more.md.
  
 ## Setup
 Most of this code is Python 3 (3.5 or 3.6). To run the analysis code in Python,
@@ -42,10 +44,10 @@ the findings. Enhance visualizations.
 
 ### Skills
 
-* **Ideation and asking "good questions"**: This is the biggest single skill I bring from my research background, and 
-it's something I excel at. Since it's a soft skill, I've documented See research questions under Start_here.ipynb.
+* **Ideation and asking "good questions"**: Since ideation is an important soft skill that I can contribute in abundance, I've documented my thought process in devising new questions.
+ See research questions under Start\_here.ipynb.
 
-* **Regression analysis** (Scikit-learn LinearRegression class): Findings in Start_here.ipynb. See [analysis](https://github.com/reed9999/gdelt-demo/tree/master/queries/analysis) for code. 
+* **Regression analysis** (Scikit-learn LinearRegression class): Findings in Start\_here.ipynb. See [analysis](https://github.com/reed9999/gdelt-demo/tree/master/queries/analysis) for code. 
 
 * **SQL and HiveQL**: The most complex examples are my first cuts at feature 
 extraction; see [queries/feature_extrac](https://github.com/reed9999/gdelt-demo/tree/master/queries/exploration). See [queries/exploration](https://github.com/reed9999/gdelt-demo/tree/master/queries/exploration). The SQL ones should run against a local MySQL. Many of the Hive ones will run against MySQL with minimal modification.
