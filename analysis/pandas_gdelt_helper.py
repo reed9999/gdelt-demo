@@ -65,9 +65,16 @@ FILENAMES = {
                             'dyad_events_by_year.csv'),
 }
 class PandasGdeltHelper():
-    # The table_name doesn't mean anything right now because all the methods are class
-    # ("static") methods
-    def __init__(self, table_name='eventss'):
+    """Helper class to enable queries on the GDELT tab-delimeted (.csv) database files
+    returning pandas classes such as DataFrames.
+    At present most of the methods here are class methods (aka static methods in other languages).
+    This is not necessarily because class methods are the best design choice, but because I'm in
+    the process of cleaning up this helper code and because I want to make it more O-O.
+
+    The table_name in the constructor doesn't mean anything right now because all the methods
+    are class methods
+    """
+    def __init__(self, table_name='events'):
         if table_name != 'events':
             raise NotImplementedError('This helper only deals with events right now.')
         self.table_name = table_name
@@ -212,7 +219,6 @@ class PandasGdeltHelper():
         df = open_csv_for_table('dyad_events_by_year')
         assert df is not None
         return df
-
 
     @classmethod
     def dyad_aggression_by_year_dataframe(cls, data):

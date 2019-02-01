@@ -229,13 +229,14 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
             minimal
             enhanced""")
         # self.add_enhanced_columns()
-        df = self._dataframe
+        return self.analysis_core(featureset, 'is_high_income')
 
+    def analysis_core(self, featureset, outcome_variable):
+        df = self._dataframe
         X = df[featureset]
-        y = df['is_high_income']
+        y = df[outcome_variable]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=100)
         clf = self._classifier
-
         y_train = y_train.astype('int')
         y_test = y_test.astype('int')
         clf.fit(X_train, y_train)
@@ -253,13 +254,18 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         #This only displays the tree within the Jupyter Notebook environment
         display(SVG(graph.pipe(format='svg')))
 
+    def better_example(self,):
+        pass
+        # analysis_core(...)
+
+
 
 if __name__ == "__main__":
     for task in [
         # GdeltDecisionTreeTask(),
         # GdeltRandomForestTask(),
         GdeltSvmTask(),
-        # GdeltKnnTask(),
+        GdeltKnnTask(),
     ]:
         task.go()
 
