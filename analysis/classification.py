@@ -115,7 +115,7 @@ class GdeltSvmTask(GdeltClassificationTask):
         self.do_svm_sample()
 
 class GdeltRandomForestTask(GdeltClassificationTask):
-    def do_example(self):
+    def predict_gdp_category(self):
         """
         First attempt to use real GDELT data with a random forest
         :return:
@@ -151,7 +151,7 @@ class GdeltRandomForestTask(GdeltClassificationTask):
         self.load_data()
         self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=-1, random_state=9999,
                                                   bootstrap=True,)
-        self.do_example()
+        self.predict_gdp_category()
 
 class GdeltKnnTask(GdeltClassificationTask):
     def do_knn_sample(self):
@@ -178,29 +178,29 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
         self.load_data()
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_example()
+        rv = self.predict_gdp_category()
         print ("Gini score (minimal example) is {}\n".format(rv))
         self.visualize_decision_tree(headings='minimal')
 
-        rv = self.do_example('enhanced')
+        rv = self.predict_gdp_category('enhanced')
         print ("Gini score (enhanced example) is {}\n".format(rv))
         self.visualize_decision_tree(headings='enhanced')
 
         self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
                                           max_depth=3, min_samples_leaf=5)
-        rv = self.do_example()
+        rv = self.predict_gdp_category()
         print ("Entropy score (i.e. information gain) for minimal example is {}\n".format(rv))
-        rv = self.do_example('enhanced')
+        rv = self.predict_gdp_category('enhanced')
         print ("Entropy score (i.e. information gain) for enhanced example is {}\n".format(rv))
 
         # And one more just for kicks
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=1234,
                                           max_depth=10, min_samples_leaf=5)
-        rv = self.do_example('enhanced')
+        rv = self.predict_gdp_category('enhanced')
         print ("Deeper tree Gini is {}\n".format(rv))
         self.visualize_decision_tree(headings='enhanced')
 
-    def do_example(self, featureset='minimal'):
+    def predict_gdp_category(self, featureset='minimal'):
         """The 'minimal' example is literally the simplest thing I could think of to get going
         and demonstrate that decision trees work with the features I extracted, basically a smoke
         test.
