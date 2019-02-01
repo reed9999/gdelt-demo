@@ -180,6 +180,14 @@ class PandasGdeltHelper():
         return dataframe
 
     @classmethod
+    def add_enhanced_country_features_columns(cls, df):
+        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
+        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
+        df = pd.DataFrame(df[df.aggregate_relationships > 0])
+        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
+        return df
+
+    @classmethod
     def country_features(cls):
         dtypes = COUNTRY_FEATURES_COLUMN_DTYPES
         column_names = dtypes.keys()
@@ -188,9 +196,8 @@ class PandasGdeltHelper():
         country_features_data = pd.read_csv(filename, delimiter="\t",
                                             names=column_names, dtype=dtypes, index_col=['code'])
         external_data = cls.external_country_data()
-        return country_features_data.join(other=external_data, how='inner')
-        # for column in [...]:
-        #     events_data[column] = pd.to_numeric(events_data[column])
+        df = country_features_data.join(other=external_data, how='inner')
+        return cls.add_enhanced_country_features_columns(df)
 
     @classmethod
     def tweak_external_data_country_codes(cls, ext_data):

@@ -39,22 +39,12 @@ class GdeltClassificationTask:
 
     def load_country_features(self):
         self.load_dataframe(PandasGdeltHelper.country_features)
-        self.add_enhanced_columns()
+        # self.add_enhanced_columns() #Moved to the helper.
 
 
 
     def go(self):
         raise NotImplementedError("Abstract base class; implement with a derived class.")
-
-    # This would be better off in the helper.
-    def add_enhanced_columns(self):
-        df = self._dataframe
-        df['aggregate_relationships'] = df.actor1_relationships + df.actor2_relationships
-        # Note that we create a new DF as the safest way to avoid trying to work on a slice.
-        df = pd.DataFrame(df[df.aggregate_relationships > 0])
-        df['proportion_actor1'] = df.actor1_relationships / df.aggregate_relationships
-        self._dataframe = df
-        return df
 
     def do_classic_test_train_scoring(self, X, y):
         """I know cross-validation is important for methods with a lot of hyperparameters, and
