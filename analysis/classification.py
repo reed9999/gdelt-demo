@@ -33,11 +33,15 @@ class GdeltClassificationTask:
     GdeltKnnTask
     """
 
-
-    def load_data(self):
-        self._dataframe = PandasGdeltHelper.country_features()
-        self.add_enhanced_columns()
+    def load_dataframe(self, helper_method):
+        self._dataframe = helper_method()
         self._dataframe.dropna()
+
+    def load_country_features(self):
+        self.load_dataframe(PandasGdeltHelper.country_features)
+        self.add_enhanced_columns()
+
+
 
     def go(self):
         raise NotImplementedError("Abstract base class; implement with a derived class.")
@@ -69,6 +73,8 @@ class GdeltClassificationTask:
         print(pd.crosstab(y_test, predictions, rownames=['actual'], colnames=['predicted']))
         # TODO I really want labels like ['not high income', 'high income']))
         return our_score
+
+
 
 
 class GdeltSvmTask(GdeltClassificationTask):
@@ -148,7 +154,7 @@ class GdeltRandomForestTask(GdeltClassificationTask):
         print("Decision path:{}".format(clf.decision_path(X)))
 
     def go(self):
-        self.load_data()
+        self.load_country_features()
         self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=-1, random_state=9999,
                                                   bootstrap=True,)
         self.predict_gdp_category()
@@ -175,7 +181,7 @@ class GdeltKnnTask(GdeltClassificationTask):
 
 class GdeltDecisionTreeTask(GdeltClassificationTask):
     def go(self):
-        self.load_data()
+        self.load_country_features()
         self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
                                           max_depth=3, min_samples_leaf=5)
         rv = self.predict_gdp_category()
@@ -230,6 +236,18 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
             enhanced""")
         # self.add_enhanced_columns()
         return self.analysis_core(featureset, 'is_high_income')
+
+    def predict_aggressive_events(self, featureset='minimal'):
+        """First attempt at using time t-1 data to predict time t outcomes.
+        """
+        raise NotImplementedError
+        # This is sort of like TDD -- start writing to the interface I want to help me know what
+        # to implement.
+
+        featureset = ["root_code_{}_minus_{}".format(rc, yr) for rc in ['01', '02', '03',]
+                      for yr in range(1982, 2019) ]
+        self.load_dataframe(PandasGdeltHelper.dyad_aggression_by_year)
+        return self.analysis_core(featureset, 'has_aggression')
 
     def analysis_core(self, featureset, outcome_variable):
         df = self._dataframe
