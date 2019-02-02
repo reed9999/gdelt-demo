@@ -75,9 +75,25 @@ class PandasGdeltHelper():
     are class methods
     """
     def __init__(self, table_name='events'):
-        if table_name != 'events':
-            raise NotImplementedError('This helper only deals with events right now.')
         self.table_name = table_name
+
+    def fetch(self, alt_table_name=None, filenames=None):
+        tn = alt_table_name or self.table_name
+        if filenames is None:
+            try:
+                filenames = FILENAMES[tn]
+            except KeyError as e:
+                raise KeyError("FILENAMES needs to be set up to include key {}".format(tn))
+        #for filename in filenames
+
+        #just stubbing out to watch this crash and burn
+        filename = filenames[0]
+        column_names = DYAD_EVENTS_BY_YEAR_DTYPES.keys()
+        dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+        index_col = None    #An array like ['globaleventid'] for events
+        new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+                             dtype=dtypes, index_col=index_col)
+        return new_df
 
     @classmethod
     def event_column_names_dtypes(cls):

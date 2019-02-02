@@ -43,8 +43,29 @@ class TestPandasGdeltHelper(TestCase):
             self.skipTest('Sample data not set up')
         assert rv is not None
 
+    def test_country_features(self):
+        df = PandasGdeltHelper.country_features()
+        new_columns = ['proportion_actor1', 'aggregate_relationships',]
+        assert True == all([df[c] is not None for c in new_columns])
+
+    def test_dyad_events_by_year(self):
+        """This is my present thinking about what the 'conventional' path going forward should be:
+        Instantiate the helper class with a table name and load the table.
+
+        However I don't yet know how to deal with other functionality that doesn't pertain to a
+        table in the datafiles. Thus, for now, something like test_dyad_aggression_by_year will
+        still use the class methods rather than instance methods. The obvious solution is to
+        somehow make the PandasGdeltHelper class smart enough to handle 'virtual tables'
+        like dyad_aggression_by_year that requires some sort of data munging.
+        That said I need to think whether the logic (what are aggressive codes?) needs to live in
+        the data helper or in the classification file."""
+
+        helper = PandasGdeltHelper('dyad_events_by_year')
+        assert helper is not None
+        rv = helper.fetch()
+        assert rv is not None
+
     def test_dyad_aggression_by_year(self):
-        # helper = PandasGdeltHelper('dyad_aggression_by_year')
         rv = PandasGdeltHelper.dyad_aggression_by_year('series')
         assert rv is not None
 

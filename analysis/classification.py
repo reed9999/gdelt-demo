@@ -230,7 +230,6 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
     def predict_aggressive_events(self, featureset='minimal'):
         """First attempt at using time t-1 data to predict time t outcomes.
         """
-        raise NotImplementedError
         # This is sort of like TDD -- start writing to the interface I want to help me know what
         # to implement.
 
