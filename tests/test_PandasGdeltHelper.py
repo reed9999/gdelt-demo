@@ -63,6 +63,8 @@ class TestPandasGdeltHelper(TestCase):
         helper = PandasGdeltHelper('dyad_events_by_year')
         assert helper is not None
         rv = helper.fetch()
+        assert rv.shape[0] > 0
+        assert rv.shape[1] > 0
         assert rv is not None
 
     def test_dyad_aggression_by_year(self):

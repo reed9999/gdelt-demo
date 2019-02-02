@@ -81,7 +81,7 @@ class PandasGdeltHelper():
         tn = alt_table_name or self.table_name
         if filenames is None:
             try:
-                filenames = FILENAMES[tn]
+                filenames = [FILENAMES[tn]]
             except KeyError as e:
                 raise KeyError("FILENAMES needs to be set up to include key {}".format(tn))
         #for filename in filenames
