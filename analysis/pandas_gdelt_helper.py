@@ -285,6 +285,27 @@ class PandasGdeltHelper():
             rv = cls.dyad_aggression_by_year_dataframe(data)
         return rv
 
+    def dyad_aggression_time_series(self, trailing_years=5):
+        """Returns the dyad aggression data reconfigured into a time series.
+        As part of my transition to more O-O (not just a bunch of class methods, this is an
+        instance method. That leaves some heterogeneity but the others should adapt to be more
+        like this, not vice-versa.
+
+        This is an implementation using iteration, probably non-performant. There may be pandas
+        methods to better rearrange the table data in the way I want to do this.
+        Also MultiIndexes would be theoretically better for the trailing years/event code pairs, but
+        they can be tricky to use so start here."""
+        df = self.__class__.dyad_aggression_by_year()
+        start = min(df.year) + trailing_years
+        for current_year in range(start, max(df.year)):
+            filtered = df[df.year == current_year]
+            # That's a bug... .actually we want to filter out the DF for the entire time range.
+            root_codes = set(filtered.eventrootcode)
+            for root_code in root_codes:
+                print("Eventually I will create a column root_code_{}_minus_{}_years")
+        raise NotImplementedError
+
+
     @classmethod
     def country_aggression_by_year(cls):
         country_df = cls.country_features()

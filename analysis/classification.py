@@ -235,7 +235,9 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 
         featureset = ["root_code_{}_minus_{}".format(rc, yr) for rc in ['01', '02', '03',]
                       for yr in range(1982, 2019) ]
-        self.load_dataframe(PandasGdeltHelper.dyad_aggression_by_year)
+        helper = PandasGdeltHelper(None)
+        self._dataframe = helper.dyad_aggression_time_series(5)
+
         return self.analysis_core(featureset, 'has_aggression')
 
     def analysis_core(self, featureset, outcome_variable):

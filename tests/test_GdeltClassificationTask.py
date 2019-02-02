@@ -27,6 +27,11 @@ class TestGdeltClassificationTask(TestCase):
         pass
 
     def test_all_four(self):
+        self.skipTest("For now I know it passes and I want to see output from the other test.")
         for task_class in [GdeltDecisionTreeTask, GdeltRandomForestTask, GdeltSvmTask,
                            GdeltKnnTask, ]:
             task_class().go()
+
+    def test_aggression_timeseries_with_decisiontree(self):
+        task = GdeltDecisionTreeTask()
+        task.predict_aggressive_events()
