@@ -59,20 +59,43 @@ NEW_STEP_1 = {
         }
 
 emr_client = boto3.client('emr', region_name=REGION)
+# See https://stackoverflow.com/a/27768332/742573
+# However it seems at some point they got rid of the boto3.emr module (maybe?) so
+# from boto3.emr.instance_group import InstanceGroup
+# is no longer the way to do this!
+
+instance_groups = []
+instance_groups.append({
+    'InstanceCount': 1,
+    'InstanceRole': "MASTER",
+    'InstanceType': INSTANCE_TYPE,
+    'Market': "SPOT",
+    'Name': "Master node",
+})
+instance_groups.append({
+    'InstanceCount': 1,
+    'InstanceRole': "CORE",
+    'InstanceType': INSTANCE_TYPE,
+    'Market': "SPOT",
+    'Name': "Core node",
+})
+
 response = emr_client.run_job_flow(
     Name='boto3 EMR creation test 2',
     # LogUri='string',
     # AdditionalInfo='string',
     # AmiVersion='string',
     ReleaseLabel='emr-4.6.0',
+    # Has to be either instance_groups or Instances.
     Instances={
-        'MasterInstanceType': INSTANCE_TYPE,
-        'SlaveInstanceType': INSTANCE_TYPE,
-        'InstanceCount': 2,
-        'Ec2KeyName' : 'MainKeyPair',
-        # InstanceGroups, InstanceFleets not accepted because we specified
-         # the above]
+        'InstanceGroups': instance_groups
     },
+    #     'MasterInstanceType': INSTANCE_TYPE,
+    #     'SlaveInstanceType': INSTANCE_TYPE,
+    #     'InstanceCount': 2,
+    #     'Ec2KeyName' : 'MainKeyPair',
+    # },
+
     Steps=[
     ],
     BootstrapActions=[],
@@ -87,7 +110,7 @@ response = emr_client.run_job_flow(
     VisibleToAllUsers=True,
     JobFlowRole='EMR_EC2_DefaultRole',
     ServiceRole='EMR_DefaultRole',
-    ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
+    # ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
 
 )
 
