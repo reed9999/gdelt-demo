@@ -10,6 +10,10 @@ this as I go.
 
 - emr\_create\_and\_run\_all.py: Probably the starting point. I want to reconfigure it to use spot 
 pricing. For now just see if it runs.
+- `scripts\emr_create_and_run_all.sh`: Shell version of same.
+- `scripts\emr_create_demo.sh`: An earlier demo version upon which the others are based. It's just
+hanging around for troubleshooting, and there's a lot of copy/paste with its successor that
+should be refactored out if we actually use this for anything.
 
 Example using spot pricing: https://stackoverflow.com/questions/26314316/how-to-launch-and-configure-an-emr-cluster-using-boto
 

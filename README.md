@@ -28,7 +28,7 @@ but as of mid-January 2019 I'm actively building it out.
 
 At present I'm working on using the dyad queries (from Hadoop/Hive) to predict aggressive 
 events, still using version 1 of GDELT. However, disappointingly it seems the only artifact 
-I have of data\_related/features/dyad\_events\_by\_year.csv is only for 2016. I don't know
+I have of data\_related/features/dyad\_events\_by\_year.csv is only for 1982. I don't know
 where the rest went but I am in the process of recreating it, which means revisiting my 
 `automation` directory.
 

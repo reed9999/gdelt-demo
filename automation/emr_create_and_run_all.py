@@ -17,7 +17,7 @@ QUERIES_DIR = os.path.join('queries')
 
 AUTOTERMINATE_OR_NOT = False
 DEMO_NUMBER = "003 through 006"
-# # REGION = 'us-west-2'
+REGION = 'us-west-2'
 # REGION = 'ap-south-1'
 INSTANCE_TYPE = 'm1.large'
 
@@ -58,7 +58,7 @@ NEW_STEP_1 = {
             }
         }
 
-emr_client = boto3.client('emr')
+emr_client = boto3.client('emr', region_name=REGION)
 response = emr_client.run_job_flow(
     Name='boto3 EMR creation test 2',
     # LogUri='string',
@@ -66,8 +66,8 @@ response = emr_client.run_job_flow(
     # AmiVersion='string',
     ReleaseLabel='emr-4.6.0',
     Instances={
-        'MasterInstanceType': 'm1.large',
-        'SlaveInstanceType': 'm1.large',
+        'MasterInstanceType': INSTANCE_TYPE,
+        'SlaveInstanceType': INSTANCE_TYPE,
         'InstanceCount': 2,
         'Ec2KeyName' : 'MainKeyPair',
         # InstanceGroups, InstanceFleets not accepted because we specified
@@ -88,6 +88,7 @@ response = emr_client.run_job_flow(
     JobFlowRole='EMR_EC2_DefaultRole',
     ServiceRole='EMR_DefaultRole',
     ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
+
 )
 
 if response:
