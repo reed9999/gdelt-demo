@@ -45,7 +45,7 @@ DROP TABLE IF EXISTS country_features;
 
 
 
--- THE SCRIPT ONLY WORKS TO HERE
+-- THE SCRIPT ONLY WORKS TO HERE (possibly an old comment?)
 -- And the third order table, which has a second query.
 -- This explains a bit about Hive subtleties I need to consider:
 -- https://stackoverflow.com/q/28405367/
@@ -68,10 +68,10 @@ FROM gdelt_countries c LEFT JOIN dyad_features;
 ; --works
 
 
-INSERT OVERWRITE DIRECTORY '${OUTPUT}/dyad_events_by_year/'
+INSERT OVERWRITE DIRECTORY '${hiveconf:OUTPUT}/dyad_events_by_year/'
 SELECT * FROM dyad_events_by_year;
-INSERT OVERWRITE DIRECTORY '${OUTPUT}/dyad_features/'
+INSERT OVERWRITE DIRECTORY '${hiveconf:OUTPUT}/dyad_features/'
 SELECT * FROM dyad_features;
--- INSERT OVERWRITE DIRECTORY '${OUTPUT}/country_features/'
+-- INSERT OVERWRITE DIRECTORY '${hiveconf:OUTPUT}/country_features/'
 -- SELECT * FROM country_features;
 

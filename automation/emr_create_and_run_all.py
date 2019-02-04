@@ -8,7 +8,7 @@
 import os
 import boto3
 import botocore.client
-APPLICATIONS_SET_CHOSEN = 'spark'
+DEFAULT_APPLICATIONS_SET = 'hadoop'
 
 #Following DRY violations- see sync-to-s3
 S3_BUCKET = 'philip-hadoop-bucket'
@@ -27,35 +27,23 @@ APPLICATIONS_SETS = {
     'spark': ['Pig', 'Spark', ]
 }
 
-OLD_STEP_1 = {
-            'Name': 'Load the gdelt_events table',
-            'ActionOnFailure': 'CONTINUE',
-            'HadoopJarStep': {
-                'Properties': [
-                    {
-                        'Key': 'string',
-                        'Value': 'string'
-                    },
-                ],
-                'Jar': 'command-runner.jar',
-                # 'Args': [
-                # ]
-            }
-        }
 
-NEW_STEP_1 = {
+# https://stackoverflow.com/questions/32410325/boto3-emr-hive-step
+hive_script = 's3://reed9999/queries/dyad_classification_features.q'
+output = 's3://reed9999/output'
+hive_args = "hive -v -f {} -hiveconf OUTPUT={}".format(hive_script, output).split()
+HIVE_SCRIPT = {
             'Name': 'Load the gdelt_events table',
             'ActionOnFailure': 'CONTINUE',
             'HadoopJarStep': {
                 'Properties': [
                     {
-                        'Key': 'string',
-                        'Value': 'string'
+                        'Key': 'Hive',
+                        'Value': 'True'
                     },
                 ],
                 'Jar': 'command-runner.jar',
-                'Args': [ '--help',
-                    'Is there a jar to run PySpark steps?'],
+                'Args': hive_args,
             }
         }
 
@@ -86,6 +74,10 @@ class EmrClientWrapper():
     def run_job_flow(self):
         self.create_cluster()
 
+    def applications(self, set_chosen=None):
+        set_chosen = set_chosen or DEFAULT_APPLICATIONS_SET
+        return [{'Name': x} for x in APPLICATIONS_SETS[set_chosen]]
+
     def create_cluster(self):
         self.response = self.client.run_job_flow(
             # Un-hardcode these as I go....
@@ -103,9 +95,7 @@ class EmrClientWrapper():
             BootstrapActions=[],
             # SupportedProducts=[ #incompatible with Applications stating versions
             # ],
-            Applications=[
-                {'Name': x} for x in APPLICATIONS_SETS[APPLICATIONS_SET_CHOSEN]
-            ],
+            Applications=self.applications(),
             VisibleToAllUsers=True,
             JobFlowRole='EMR_EC2_DefaultRole',
             ServiceRole='EMR_DefaultRole',
@@ -155,3 +145,19 @@ wrapper.create_cluster()
 #     'InstanceCount': 2,
 #     'Ec2KeyName' : 'MainKeyPair',
 # },
+
+# OLD_STEP_1 = {
+#             'Name': 'Load the gdelt_events table',
+#             'ActionOnFailure': 'CONTINUE',
+#             'HadoopJarStep': {
+#                 'Properties': [
+#                     {
+#                         'Key': 'string',
+#                         'Value': 'string'
+#                     },
+#                 ],
+#                 'Jar': 'command-runner.jar',
+#                 # 'Args': [
+#                 # ]
+#             }
+#         }
