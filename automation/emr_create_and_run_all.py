@@ -7,6 +7,7 @@
 
 import os
 import boto3
+import botocore.client
 APPLICATIONS_SET_CHOSEN = 'spark'
 
 #Following DRY violations- see sync-to-s3
@@ -58,65 +59,86 @@ NEW_STEP_1 = {
             }
         }
 
-emr_client = boto3.client('emr', region_name=REGION)
-# See https://stackoverflow.com/a/27768332/742573
-# However it seems at some point they got rid of the boto3.emr module (maybe?) so
-# from boto3.emr.instance_group import InstanceGroup
-# is no longer the way to do this!
+# Not sure if this inheritance will work properly....
+# class EmrClient(botocore.client.BaseClient):
+#     def __init__(self):
+#         super(EmrClient, self).__init__('emr', )
 
-instance_groups = []
-instance_groups.append({
+class EmrClientWrapper():
+    def __init__(self, region_name=None):
+        region_name = region_name or REGION
+        self.client = boto3.client('emr', region_name=region_name)
+        self.instance_groups = []
+
+    def append_instance_group(self, ig=None, name='Default name', instance_count=1,
+                          instance_type=INSTANCE_TYPE, instance_role='MASTER', market='SPOT',):
+        if ig is not None:
+            self.instance_groups.append(ig)
+        else:
+            self.instance_groups.append({
+                'InstanceCount': instance_count,
+                'InstanceRole': instance_role,
+                'InstanceType': instance_type,
+                'Market': market,
+                'Name': name,
+            })
+
+    def run_job_flow(self):
+        self.create_cluster()
+
+    def create_cluster(self):
+        self.response = self.client.run_job_flow(
+            # Un-hardcode these as I go....
+            Name='boto3 EMR creation test 3',
+            # LogUri='string',
+            # AdditionalInfo='string',
+            # AmiVersion='string',
+            ReleaseLabel='emr-4.6.0',
+            Instances={
+                'InstanceGroups': self.instance_groups
+            },
+
+            Steps=[
+            ],
+            BootstrapActions=[],
+            # SupportedProducts=[ #incompatible with Applications stating versions
+            # ],
+            Applications=[
+                {'Name': x} for x in APPLICATIONS_SETS[APPLICATIONS_SET_CHOSEN]
+            ],
+            VisibleToAllUsers=True,
+            JobFlowRole='EMR_EC2_DefaultRole',
+            ServiceRole='EMR_DefaultRole',
+        )
+        self.test_response()
+
+    def test_response(self):
+        if self.response:
+            print("Succeded (probably). Here is response:\n")
+            print(self.response)
+        else:
+            raise botocore.client.ClientError
+
+
+wrapper = EmrClientWrapper(REGION)
+wrapper.append_instance_group({
     'InstanceCount': 1,
     'InstanceRole': "MASTER",
     'InstanceType': INSTANCE_TYPE,
     'Market': "SPOT",
     'Name': "Master node",
 })
-instance_groups.append({
+wrapper.append_instance_group({
     'InstanceCount': 1,
     'InstanceRole': "CORE",
     'InstanceType': INSTANCE_TYPE,
     'Market': "SPOT",
     'Name': "Core node",
 })
+wrapper.create_cluster()
 
-response = emr_client.run_job_flow(
-    Name='boto3 EMR creation test 2',
-    # LogUri='string',
-    # AdditionalInfo='string',
-    # AmiVersion='string',
-    ReleaseLabel='emr-4.6.0',
-    # Has to be either instance_groups or Instances.
-    Instances={
-        'InstanceGroups': instance_groups
-    },
-    #     'MasterInstanceType': INSTANCE_TYPE,
-    #     'SlaveInstanceType': INSTANCE_TYPE,
-    #     'InstanceCount': 2,
-    #     'Ec2KeyName' : 'MainKeyPair',
-    # },
 
-    Steps=[
-    ],
-    BootstrapActions=[],
-    # SupportedProducts=[ #incompatible with Applications stating versions
-        # I think (cryptic error message)
-        # Tez is all that's missing but I don't know if that's a problem.
-    #     'tez',
-    # ],
-    Applications=[
-        {'Name': x} for x in APPLICATIONS_SETS[APPLICATIONS_SET_CHOSEN]
-    ],
-    VisibleToAllUsers=True,
-    JobFlowRole='EMR_EC2_DefaultRole',
-    ServiceRole='EMR_DefaultRole',
-    # ScaleDownBehavior='TERMINATE_AT_INSTANCE_HOUR',
 
-)
-
-if response:
-    print("Succeded (probably). Here is response:\n")
-    print(response)
 
 
 ##
@@ -125,3 +147,11 @@ if response:
 # understanding.
 # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/emr.html
 # https://github.com/aws-samples/aws-python-sample/issues/8
+
+
+# Alternative Instances parameter when we don't use InstanceGroups:
+#     'MasterInstanceType': INSTANCE_TYPE,
+#     'SlaveInstanceType': INSTANCE_TYPE,
+#     'InstanceCount': 2,
+#     'Ec2KeyName' : 'MainKeyPair',
+# },
