@@ -6,12 +6,13 @@
 ###############################################################################
 
 import os
+import datetime
 import boto3
 import botocore.client
 DEFAULT_APPLICATIONS_SET = 'hadoop'
 
 #Following DRY violations- see sync-to-s3
-S3_BUCKET = 'philip-hadoop-bucket'
+S3_BUCKET = 'reed9999'
 SCRIPTS_DIR = os.path.join('automation', 'scripts')
 QUERIES_DIR = os.path.join('queries')
 
@@ -27,13 +28,16 @@ APPLICATIONS_SETS = {
     'spark': ['Pig', 'Spark', ]
 }
 
+def handy_name():
+    now = datetime.datetime.now()
+    return 'boto3 EMR creation {}'.format(now.strftime('%a %R'))
 
 # https://stackoverflow.com/questions/32410325/boto3-emr-hive-step
-hive_script = 's3://reed9999/queries/dyad_classification_features.q'
+hive_script = 's3://reed9999/queries/feature_extraction/dyad_classification_features.q'
 output = 's3://reed9999/output'
 hive_args = "hive -v -f {} -hiveconf OUTPUT={}".format(hive_script, output).split()
 HIVE_SCRIPT = {
-            'Name': 'Load the gdelt_events table',
+            'Name': 'Load the dyad_classification_features table',
             'ActionOnFailure': 'CONTINUE',
             'HadoopJarStep': {
                 'Properties': [
@@ -71,18 +75,22 @@ class EmrClientWrapper():
                 'Name': name,
             })
 
-    def run_job_flow(self):
-        self.create_cluster()
-
     def applications(self, set_chosen=None):
         set_chosen = set_chosen or DEFAULT_APPLICATIONS_SET
         return [{'Name': x} for x in APPLICATIONS_SETS[set_chosen]]
 
+    def steps(self, steps_set='hive'):
+        self.steps = [HIVE_SCRIPT] if steps_set == 'hive' else []
+        return self.steps
+
+    def run_job_flow(self): #Synonym to match weird/outdated boto3 terminology.
+        self.create_cluster()
+
     def create_cluster(self):
         self.response = self.client.run_job_flow(
             # Un-hardcode these as I go....
-            Name='boto3 EMR creation test 3',
-            # LogUri='string',
+            Name=handy_name(),
+            LogUri='s3://{}/logs'.format(S3_BUCKET),
             # AdditionalInfo='string',
             # AmiVersion='string',
             ReleaseLabel='emr-4.6.0',
@@ -90,8 +98,7 @@ class EmrClientWrapper():
                 'InstanceGroups': self.instance_groups
             },
 
-            Steps=[
-            ],
+            Steps=self.steps(),
             BootstrapActions=[],
             # SupportedProducts=[ #incompatible with Applications stating versions
             # ],

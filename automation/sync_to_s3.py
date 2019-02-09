@@ -32,10 +32,10 @@ def aws_cli(*cmd):
         os.environ.clear()
         os.environ.update(old_env)
 
-S3_BUCKET = 'philip-hadoop-bucket'
+S3_BUCKET = 'reed9999'
 SCRIPTS_DIR = os.path.join('automation', 'scripts')
 QUERIES_DIR = os.path.join('queries')
-BASE_DIR = os.path.join(str(Path.home()), 'aws', 'gdelt-demo')
+BASE_DIR = os.path.join(str(Path.home()), 'aws',)
 dirs_to_sync = [SCRIPTS_DIR, QUERIES_DIR]
 for dir in dirs_to_sync:
     local_dir = os.path.join(BASE_DIR, dir)
