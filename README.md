@@ -4,16 +4,23 @@
 For the main showcase, [start 
 here](https://github.com/reed9999/gdelt-demo/blob/master/Start_here.ipynb). You can view it in Jupyter Notebook or at that link.
 
-This is an early-stage demo project to showcase my competency in Python and in data science; at the same time it has been a platform to build skills in AWS (and soon, Google Query as needed for real-time GDELT v.2), including Hadoop and to an extent Spark.
-So far I have examples of analytics involving classification, using decision trees, *k* nearest neighbors, simple vector machines, and random forests.
-I also have an example of linear regression.
-As this project progresses, it will more extensively showcase a full data science life-cycle, but the pieces are already there in some form: exploratory analysis, hypothesis testing, data wrangling/data munging, modeling, and drawing conclusions.
+This is an early-stage demo project to show how data science can be applied to the 
+Global Database of Events, Language and Tone (GDELT), a multi-terabyte dataset of world events. 
+From this analysis I expect to derive insights into how nations and societies interact, 
+particularly in predicting precursors to violence that may not be obvious.
 
-GDELT is a multi-terabyte dataset of world events that, in its latest versions, 
-is updated often and to a high granularity.
 This project is exploratory, in the sense that I'm still getting a feel for the capabilities of 
 the GDELT data.
-In general, I'm interested in predicting precursors of violence, in media coverage of world events, and in network characteristics of how countries relate.
+
+It showcases my competency in Python and in data science, and has been a platform to build 
+skills in AWS (and soon, Google Query as needed for real-time GDELT v.2), including Hadoop and 
+to an extent Spark.
+So far I have examples of analytics involving classification, 
+using decision trees, *k* nearest neighbors, simple vector machines, and random forests.
+I also have an example of linear regression.
+As this project progresses, it will more extensively showcase a full data science life-cycle, 
+but the pieces are already there in some form: exploratory analysis, hypothesis testing, 
+data wrangling/data munging, modeling, and drawing conclusions.
 
 For [other projects in my showcase](https://github.com/reed9999/gdelt-demo/blob/master/readme_more.md#rest-of-showcase), a task list for this project, and other info, see readme\_more.md.
  
