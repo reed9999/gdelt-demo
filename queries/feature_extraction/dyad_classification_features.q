@@ -18,7 +18,7 @@ LOCATION 's3://reed9999/data/eventcodes/';
 -- I stopped this before it could run its course but seems to start up OK on EMR
 DROP TABLE IF EXISTS dyad_events_by_year; 
 CREATE TABLE dyad_events_by_year AS
-SELECT year, actor1code, actor2code, eventcode, 
+SELECT year, actor1code, actor2code, eventcode,
 eventbasecode,  eventrootcode, goldsteinscale, count(e.year) as count_events
 FROM gdelt_events e  LEFT JOIN gdelt_event_codes ec
   ON ec.code = e.eventcode

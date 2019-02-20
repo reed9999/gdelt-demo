@@ -43,7 +43,7 @@ HIVE_SCRIPT = {
                 'Properties': [
                     {
                         'Key': 'Hive',
-                        'Value': 'True'
+                        'Value': 'True',
                     },
                 ],
                 'Jar': 'command-runner.jar',
