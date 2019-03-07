@@ -15,11 +15,10 @@ import glob
 import logging
 import os
 import pandas as pd
+from analysis.settings import PATHS, SCHEMA, MISC
 
 THIS_FILE_DIR = os.path.dirname(__file__)
-INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
-LOCAL_DATA_DIR = "/home/philip/data-gdelt" #HARDCODED
-HIGH_INCOME_THRESHOLD = 30000.00
+
 # Also worth considering: We could calculate a threshold using mean, stdev, etc.
 # or just search for an international standard for "high income"
 
@@ -54,9 +53,9 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
     }
 
 # Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
-AGGRESSIVE_CAMEO_FAMILIES = ['13', '14', '15', '16', '17', '18', '19', '20']
+AGGRESSIVE_CAMEO_FAMILIES = SCHEMA['events']['aggressive-cameo-families']
 
-# TODO REFACTOR the others -- soon.
+# TODO REFACTOR the others -- and move this into the settings setup.
 FILENAMES = {
     # not yet in use
     'country_features':  os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
@@ -121,8 +120,8 @@ class PandasGdeltHelper():
 
     @classmethod
     def events_from_local_files(cls):
-        filenames = glob.glob(os.path.join(LOCAL_DATA_DIR, "????.csv"))
-        filenames += glob.glob(os.path.join(LOCAL_DATA_DIR, "????????.export.csv"))
+        filenames = glob.glob(os.path.join(PATHS['legacy-local-data'], "????.csv"))
+        filenames += glob.glob(os.path.join(PATHS['legacy-local-data'], "????????.export.csv"))
         # But not e.g., 20150219114500.export.csv, which I think is v 2.0
         if len(filenames) > 0:
             raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
@@ -172,7 +171,7 @@ class PandasGdeltHelper():
         except FileNotFoundError as e:
             events_data = cls.events_from_sample_files()
         report_on_nulls(events_data)
-        events_data = events_data.dropna(subset=INDEPENDENT_COLUMNS)
+        events_data = events_data.dropna(subset=SCHEMA['events']['independent-columns'])
         return events_data
 
     @classmethod
@@ -192,7 +191,7 @@ class PandasGdeltHelper():
                                 )
         cls.tweak_external_data_country_codes(dataframe)
         cls.clean_up_external_country_columns(dataframe)
-        dataframe['is_high_income'] = dataframe['2017'] >= HIGH_INCOME_THRESHOLD
+        dataframe['is_high_income'] = dataframe['2017'] >= MISC['high-income-threshold']
         return dataframe
 
     @classmethod

@@ -11,10 +11,12 @@ import glob
 import logging
 import os
 import pandas as pd
+# A lot of this refactoring is untested in the MySQL helper.
+from analysis.settings import PATHS, MYSQL, SCHEMA, MISC
 
 THIS_FILE_DIR = os.path.dirname(__file__)
-INDEPENDENT_COLUMNS = ['fractiondate','goldsteinscale']
-MYSQL_SERVER = ''
+INDEPENDENT_COLUMNS = SCHEMA['events']['independent-columns']
+MYSQL_SERVER = ''   #or MYSQL['server']
 
 COUNTRY_FEATURES_COLUMN_DTYPES = {
     #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
