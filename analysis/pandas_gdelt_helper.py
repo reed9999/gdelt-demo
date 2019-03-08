@@ -53,15 +53,8 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
     }
 
 AGGRESSIVE_CAMEO_FAMILIES = SCHEMA['events']['aggressive-cameo-families']
+FILENAMES = PATHS
 
-# TODO REFACTOR the others -- and move this into the settings setup.
-FILENAMES = {
-    # not yet in use
-    'country_features':  os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
-                            'country_features.csv'),
-    'dyad_events_by_year':  os.path.join(THIS_FILE_DIR, '..', 'data_related', 'features',
-                            'dyad_events_by_year.csv'),
-}
 class PandasGdeltHelper():
     """Helper class to enable queries on the GDELT tab-delimeted (.csv) database files
     returning pandas classes such as DataFrames.
