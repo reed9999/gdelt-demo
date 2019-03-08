@@ -52,7 +52,6 @@ DYAD_EVENTS_BY_YEAR_DTYPES= {
         'count_events': 'int64',
     }
 
-# Obviously this is a judgment call and some included (like 14 Protest) or excluded are debatable.
 AGGRESSIVE_CAMEO_FAMILIES = SCHEMA['events']['aggressive-cameo-families']
 
 # TODO REFACTOR the others -- and move this into the settings setup.
