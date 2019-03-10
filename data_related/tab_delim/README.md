@@ -15,3 +15,9 @@ Note:For some reason I named the file where I replaced this character with my ow
 `conventional_spaces.csv` at first, but it should be.
 
 
+## What works
+- `original_delim.csv` - very short
+- `original_delim_100.csv` - 100 lines
+
+## What might
+- `original_delim_longer.csv` - 100 lines

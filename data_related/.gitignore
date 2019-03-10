@@ -1,0 +1,7 @@
+#Temporary .gitignore for some stuff I'm tweaking in the data_related folder.
+sample_data/v2/
+tab_delim/000002_0.csv
+tab_delim/sed_ouput
+
+
+
