@@ -20,4 +20,12 @@ Note:For some reason I named the file where I replaced this character with my ow
 - `original_delim_100.csv` - 100 lines
 
 ## What might
-- `original_delim_longer.csv` - 100 lines
+- `original_delim_longer.csv` 
+
+## What is too slow to work
+- Using MySQL Workbench to load the full 000000\_0.csv file with its 5325071 rows is intractable. 
+I ran it for two hours
+and saw fewer than 20k load messages in the on-screen log, which I presume is one per row.
+
+
+
