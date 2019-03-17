@@ -65,8 +65,13 @@ class PandasGdeltHelper():
     The table_name in the constructor doesn't mean anything right now because all the methods
     are class methods
     """
-    def __init__(self, table_name='events'):
+    def __init__(self, table_name='events', data_source='local'):
         self.table_name = table_name
+        self.data_source = data_source
+        if data_source == 'sample':
+            self.filenames = self.__class__.sample_filenames()
+        else:
+            self.filenames = self.__class__.local_filenames()
 
     def fetch(self, alt_table_name=None, filenames=None):
         tn = alt_table_name or self.table_name
@@ -120,12 +125,27 @@ class PandasGdeltHelper():
         return events_common_impl(filenames)
 
     @classmethod
+    def local_filenames(cls):
+        filenames = glob.glob(os.path.join(PATHS['legacy-local-data'], "????.csv"))
+        filenames += glob.glob(os.path.join(PATHS['legacy-local-data'], "????????.export.csv"))
+        # But not something like 20150219114500.export.csv, which I think is v 2.0
+        if len(filenames) <= 0:
+            raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
+        return filenames
+
+    @classmethod
     def events_from_sample_files(cls):
         TINY_DATA_DIR = os.path.join(THIS_FILE_DIR, "..", "data_related",
                                      "sample_data")
 
         filenames = glob.glob(os.path.join(TINY_DATA_DIR, "events.csv"))
         return cls.events_common_impl(filenames)
+
+    @classmethod
+    def sample_filenames(cls):
+        # Really just one filename but for parallelism of interface....
+        filenames = [os.path.join(PATHS['sample-data'], "events.csv")]
+        return filenames
 
     @classmethod
     def events_common_impl(cls, filenames):
