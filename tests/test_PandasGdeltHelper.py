@@ -23,19 +23,24 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 
 
+
 class TestPandasGdeltHelper(TestCase):
     def setUp(self):
         # self._helper = PandasGdeltHelper('events')
         pass
 
-    # This organization of sample vs. medium sized data needs to be reworked anyway.
+    def test_events_default(self):
+        helper = PandasGdeltHelper(table_name='events')
+        rv = helper.events_from_sample_files()
+        assert rv is not None
+
     def test_events_from_sample_data(self):
-        helper = PandasGdeltHelper('events')
+        helper = PandasGdeltHelper(table_name='events', data_source='sample')
         rv = helper.events_from_sample_files()
         assert rv is not None
 
     def test_events_from_local_files(self):
-        helper = PandasGdeltHelper('events')
+        helper = PandasGdeltHelper(table_name='events', data_source='local')
         try:
             rv = helper.events_from_local_files()
         except FileNotFoundError as err:
