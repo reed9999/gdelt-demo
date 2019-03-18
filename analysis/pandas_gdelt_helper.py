@@ -116,15 +116,6 @@ class PandasGdeltHelper():
         return column_names
 
     @classmethod
-    def events_from_local_files(cls):
-        filenames = glob.glob(os.path.join(PATHS['legacy-local-data'], "????.csv"))
-        filenames += glob.glob(os.path.join(PATHS['legacy-local-data'], "????????.export.csv"))
-        # But not e.g., 20150219114500.export.csv, which I think is v 2.0
-        if len(filenames) > 0:
-            raise FileNotFoundError("There should be at least one data file. Is the medium-sized CSV db set up here?")
-        return events_common_impl(filenames)
-
-    @classmethod
     def local_filenames(cls):
         filenames = glob.glob(os.path.join(PATHS['legacy-local-data'], "????.csv"))
         filenames += glob.glob(os.path.join(PATHS['legacy-local-data'], "????????.export.csv"))
@@ -176,12 +167,8 @@ class PandasGdeltHelper():
                 events_data = pd.concat([events_data, new_df], )
         return events_data
 
-    @classmethod
-    def events(cls):
-        try:
-            events_data = cls.events_from_local_files()
-        except FileNotFoundError as e:
-            events_data = cls.events_from_sample_files()
+    def events(self):
+        events_data = self.events_common_impl(self.filenames)
         report_on_nulls(events_data)
         events_data = events_data.dropna(subset=SCHEMA['events']['independent-columns'])
         return events_data

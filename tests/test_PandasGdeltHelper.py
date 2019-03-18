@@ -30,23 +30,27 @@ class TestPandasGdeltHelper(TestCase):
         pass
 
     def test_events_default(self):
+        self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
+                      'stubbed files.')
+        #... and that would necessitate changing the interface to allow passed-in settings,
+        # which is a very good thing.
         helper = PandasGdeltHelper(table_name='events')
-        rv = helper.events_from_sample_files()
+        rv = helper.events()
         assert rv is not None
 
     def test_events_from_sample_data(self):
         helper = PandasGdeltHelper(table_name='events', data_source='sample')
-        rv = helper.events_from_sample_files()
+        rv = helper.events()
         assert rv is not None
+        logging.warning("This isn't testing that the data being used is sample data.")
 
     def test_events_from_local_files(self):
+        self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
+                      'stubbed files.')
         helper = PandasGdeltHelper(table_name='events', data_source='local')
-        try:
-            rv = helper.events_from_local_files()
-        except FileNotFoundError as err:
-            print(err)
-            self.skipTest('Sample data not set up')
+        rv = helper.events()
         assert rv is not None
+        logging.warning("This isn't testing that the data being used is local data.")
 
     def test_country_features(self):
         df = PandasGdeltHelper.country_features()
