@@ -5,6 +5,7 @@ metastore_db
 juliensimon-aws
 manual-steps.md
 temp*
+*.swp*
 
 
 ### Temporary ignores -- very new and ugly stuff
