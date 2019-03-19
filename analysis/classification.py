@@ -170,31 +170,29 @@ class GdeltKnnTask(GdeltClassificationTask):
         self.do_knn_sample()
 
 class GdeltDecisionTreeTask(GdeltClassificationTask):
-    def go(self):
+    def go(self, print_output=True):
         self.load_country_features()
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=999,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.predict_gdp_category()
-        print ("Gini score (minimal example) is {}\n".format(rv))
-        self.visualize_decision_tree(headings='minimal')
 
-        rv = self.predict_gdp_category('enhanced')
-        print ("Gini score (enhanced example) is {}\n".format(rv))
-        self.visualize_decision_tree(headings='enhanced')
+        for (name, classifier) in {
+            'gini normal depth':
+                DecisionTreeClassifier(criterion="gini", random_state=999,
+                    max_depth=3, min_samples_leaf=5),
+            'entropy normal depth':
+                DecisionTreeClassifier(criterion="entropy", random_state=9999,
+                    max_depth=3, min_samples_leaf=5),
+            'gini extra max depth (=10)':
+                DecisionTreeClassifier(criterion="gini", random_state=1234,
+                                   max_depth=10, min_samples_leaf=5),
+        }.items():
 
-        self._classifier = DecisionTreeClassifier(criterion="entropy", random_state=9999,
-                                          max_depth=3, min_samples_leaf=5)
-        rv = self.predict_gdp_category()
-        print ("Entropy score (i.e. information gain) for minimal example is {}\n".format(rv))
-        rv = self.predict_gdp_category('enhanced')
-        print ("Entropy score (i.e. information gain) for enhanced example is {}\n".format(rv))
+            self._classifier = classifier
+            rv = self.predict_gdp_category("minimal")
+            print ("Score for {} (minimal example) is {}\n".format(name, rv))
+            self.visualize_decision_tree(headings='minimal')
 
-        # And one more just for kicks
-        self._classifier = DecisionTreeClassifier(criterion="gini", random_state=1234,
-                                          max_depth=10, min_samples_leaf=5)
-        rv = self.predict_gdp_category('enhanced')
-        print ("Deeper tree Gini is {}\n".format(rv))
-        self.visualize_decision_tree(headings='enhanced')
+            rv = self.predict_gdp_category("enhanced")
+            print ("Score for {} (enhanced example) is {}\n".format(name, rv))
+            self.visualize_decision_tree(headings='enhanced')
 
     def predict_gdp_category(self, featureset='minimal'):
         """The 'minimal' example is literally the simplest thing I could think of to get going
@@ -271,8 +269,8 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 
 if __name__ == "__main__":
     for task in [
-        # GdeltDecisionTreeTask(),
-        GdeltRandomForestTask(),
+        GdeltDecisionTreeTask(),
+        # GdeltRandomForestTask(),
         # GdeltSvmTask(),
         # GdeltKnnTask(),
     ]:
