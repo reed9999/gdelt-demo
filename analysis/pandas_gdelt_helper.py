@@ -14,6 +14,7 @@
 import glob
 import logging
 import os
+import sys
 import pandas as pd
 from analysis.settings import PATHS, SCHEMA, MISC
 
@@ -83,13 +84,17 @@ class PandasGdeltHelper():
         #for filename in filenames
 
         #just stubbing out to watch this crash and burn
-        filename = filenames[0]
-        column_names = DYAD_EVENTS_BY_YEAR_DTYPES.keys()
-        dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
-        index_col = None    #An array like ['globaleventid'] for events
-        new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
-                             dtype=dtypes, index_col=index_col)
-        return new_df
+        if True:
+            logging.warning("Not yet implemented: fetch()")
+            return None
+        else:
+            filename = filenames[0]
+            column_names = DYAD_EVENTS_BY_YEAR_DTYPES.keys()
+            dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+            index_col = None    #An array like ['globaleventid'] for events
+            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+                                 dtype=dtypes, index_col=index_col)
+            return new_df
 
     @classmethod
     def event_column_names_dtypes(cls):
@@ -134,7 +139,8 @@ class PandasGdeltHelper():
 
     @classmethod
     def sample_filenames(cls):
-        # Really just one filename but for parallelism of interface....
+        # Really just one filename but for parallelism of interface I made it plural.
+
         filenames = [os.path.join(PATHS['sample-data'], "events.csv")]
         return filenames
 
