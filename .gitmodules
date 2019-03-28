@@ -1,0 +1,3 @@
+[submodule "flask-rest-setup"]
+	path = flask-rest-setup
+	url = https://github.com/mnguyenngo/flask-rest-setup.git
