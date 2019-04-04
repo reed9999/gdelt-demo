@@ -12,5 +12,4 @@ VIRTUALENVS=~/.virtualenvs
 VENV_NAME=gdelt-demo
 ALIAS_NAME=act
 alias $ALIAS_NAME="source $VIRTUALENVS/$VENV_NAME/bin/activate"
-echo "You now have an alias that can be used to access this virtual env from a prompt like so:"
-echo "$ $ALIAS_NAME"
+echo "Alias: $ALIAS_NAME --> activate $VENV_NAME"
