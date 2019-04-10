@@ -22,17 +22,20 @@ which alas doesn't seem to be pasteable from the article or in his GitHub:
     "min_samples_split": 3
 }
 ```
-5. Then likewise access http://127.0.0.1:8000/predict and likewise paste in this JSON:
+5. Then likewise access http://127.0.0.1:8000/predict and likewise paste in this JSON.
 ```json5
-{
-    "model_name": "model_1",
-    "sepal length (cm)": 5.1,
-    "sepal width (cm)": 3.5,
-    "petal length (cm)": 1.4,
-    "petal width (cm)": 0.2
-}
+[
+    {
+        "model_name": "model_1",
+        "sepal length (cm)": 5.1,
+        "sepal width (cm)": 3.5,
+        "petal length (cm)": 1.4,
+        "petal width (cm)": 0.2
+    }
+]
 ```
-There seems to be another set of inputs but they're unreadable there.
+There seems to be another set of inputs but they're unreadable there; 
+even so note that our one prediction dict needs to be sent as a one-item list.  
 
 ## Results
 Not good on the first try:

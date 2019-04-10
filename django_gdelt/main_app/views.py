@@ -34,6 +34,8 @@ class Train(views.APIView):
 class Predict(views.APIView):
     def post(self, request):
         predictions = []
+        # entry here represents one of the dicts representing a prediction, 
+        # all of which are combined in the single JSON request. 
         for entry in request.data:
             model_name = entry.pop('model_name')
             path = os.path.join(settings.MODEL_ROOT, model_name)
