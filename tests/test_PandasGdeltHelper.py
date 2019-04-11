@@ -8,6 +8,7 @@ from analysis.pandas_gdelt_helper import PandasGdeltHelper
 import logging
 logging.basicConfig(filename='./pandas_gdelt_helper.log',
                     level=logging.INFO)
+LONG_TEST_TOLERANCE = 120
 
 # This was where I stored my oracle of correct results in another project.
 # Worth considering here.
@@ -30,7 +31,8 @@ class TestPandasGdeltHelper(TestCase):
         pass
 
     def test_events_default(self):
-        self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
+        if LONG_TEST_TOLERANCE < 120:
+            self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
                       'stubbed files.')
         #... and that would necessitate changing the interface to allow passed-in settings,
         # which is a very good thing.
@@ -45,7 +47,8 @@ class TestPandasGdeltHelper(TestCase):
         logging.warning("This isn't testing that the data being used is sample data.")
 
     def test_events_from_local_files(self):
-        self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
+        if LONG_TEST_TOLERANCE < 120:
+            self.skipTest('Test takes 2 minutes or more. Would be better to work on some smaller '
                       'stubbed files.')
         helper = PandasGdeltHelper(table_name='events', data_source='local')
         rv = helper.events()

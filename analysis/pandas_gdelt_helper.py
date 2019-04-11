@@ -98,17 +98,7 @@ class PandasGdeltHelper():
 
     @classmethod
     def event_column_names_dtypes(cls):
-        COLUMN_NAMES_DTYPES_FILE = os.path.normpath(
-            os.path.join(THIS_FILE_DIR, "..", "data_related",
-                         "events_column_names_dtypes.csv")
-        )
-        with open(COLUMN_NAMES_DTYPES_FILE, 'r') as f:
-            lines = f.readlines()
-            pairs = [{'name': x.split('\t')[0], 'dtype': x.split('\t')[1].rstrip()}
-                     for x in lines]
-            # pairs = str(f.readline()).split('\t')
-        dtypes = {x['name']: x['dtype'] for x in pairs}
-        return dtypes
+        return SCHEMA['events']['columns-dtypes']
 
     @classmethod
     def event_column_names(cls):
