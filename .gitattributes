@@ -1,0 +1,2 @@
+# See https://medium.com/@porteneuve/how-to-make-git-preserve-specific-files-while-merging-18c92343826b
+README-branch.md merge=ours
