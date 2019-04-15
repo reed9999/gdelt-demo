@@ -10,6 +10,9 @@
 
 VIRTUALENVS=~/.virtualenvs
 VENV_NAME=gdelt-demo
-ALIAS_NAME=act
+
+OLD_ALIAS_NAME=act
+ALIAS_NAME=vgdelt
+alias $OLD_ALIAS_NAME="echo 'deprecated -- use $ALIAS_NAME instead'"
 alias $ALIAS_NAME="source $VIRTUALENVS/$VENV_NAME/bin/activate"
 echo "Alias: $ALIAS_NAME --> activate $VENV_NAME"
