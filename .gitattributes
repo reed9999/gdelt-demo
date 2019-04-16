@@ -1,3 +1,9 @@
-# See https://medium.com/@porteneuve/how-to-make-git-preserve-specific-files-while-merging-18c92343826b
+# See 
+# https://medium.com/@porteneuve/how-to-make-git-preserve-specific-files-while-merging-18c92343826b
+# https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes
+
+# Probably need to also run:
+# git config --global merge.ours.driver true
+
 README-branch.md merge=ours
 branch-* merge=ours
