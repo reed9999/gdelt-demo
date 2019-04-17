@@ -268,11 +268,15 @@ class GdeltDecisionTreeTask(GdeltClassificationTask):
 
 
 if __name__ == "__main__":
-    for task in [
-        GdeltDecisionTreeTask(),
-        # GdeltRandomForestTask(),
-        # GdeltSvmTask(),
-        # GdeltKnnTask(),
+    task_classes = []
+    for (switch, cls) in [
+        ('dt', GdeltDecisionTreeTask,),
+        ('rf', GdeltRandomForestTask,),
+        ('svm', GdeltSvmTask,),
+        ('knn', GdeltKnnTask,),
     ]:
-        task.go()
+        if ("-"+switch in sys.argv):
+            task_classes.append(cls)
+    for cls in task_classes:
+        cls().go()
 
