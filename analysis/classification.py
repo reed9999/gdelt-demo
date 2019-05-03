@@ -111,13 +111,31 @@ class GdeltSvmTask(GdeltClassificationTask):
         self.do_svm_sample()
 
 class GdeltRandomForestTask(GdeltClassificationTask):
+    def report_gdp_category_prediction(self):
+        """Rudimentary wrapper to extract out the output from predict_gdp_category().
+
+        A good example of how to make sense of the decision path is at
+        https://scikit-learn.org/stable/auto_examples/tree/plot_unveil_tree_structure.html
+        This might be worth merging in here."""
+        pred = self.predict_gdp_category()
+        print("\n*****    RANDOM FOREST    *****")
+        print("Original feature importances:")
+        for (feature, importance) in zip(pred['featureset'], pred['original_feature_importances']):
+            print("{} -- {}".format(feature, importance))
+        print("\n")
+        print("Final feature importances:")
+        for (feature, importance) in zip(pred['featureset'], pred['final_feature_importances']):
+            print("{} -- {}".format(feature, importance))
+        print("Cross-validation random forest scores:")
+        print(pred['scores'])
+        print("Here is the classic random forest score: {}".format(pred['classic_score']))
+
     def predict_gdp_category(self):
         """
         First attempt to use real GDELT data with a random forest
         :return:
             Nothing
         """
-        print("\n*****    RANDOM FOREST    *****")
         clf = self._classifier
         featureset =  ['actor1_relationships', 'actor2_relationships', 'aggregate_relationships',
                        'proportion_actor1', ]
@@ -125,29 +143,32 @@ class GdeltRandomForestTask(GdeltClassificationTask):
         X = df[featureset]
         y = df['is_high_income']
         clf = clf.fit(X, y)
-
-        print("Feature importances:")
-        for (feature, importance) in zip(featureset, clf.feature_importances_):
-            print("{} -- {}".format(feature, importance))
+        # I don't exactly understand why these change; maybe steps below change the X?
+        original_feature_importances = clf.feature_importances_
 
         scores = cross_val_score(clf, X, y, cv=2)
         assert scores is not None
         assert len(scores) > 0
-        print("Here are the random forest scores")
-        print(scores)
 
         classic_score = self.do_classic_test_train_scoring(X, y)
-        print("Here is the classic random forest score: {}".format(classic_score))
 
         #This is a bit hard to interpret in this format, so I will enhance this later to show
         # what's going on.
         print("Decision path:{}".format(clf.decision_path(X)))
+        return {
+            'featureset': featureset,
+            'original_feature_importances': original_feature_importances,
+            'final_feature_importances': clf.feature_importances_,
+            'scores': scores,
+            'classic_score': classic_score,
+        }
 
     def go(self):
         self.load_country_features()
         self._classifier = RandomForestClassifier(n_estimators=10, n_jobs=-1, random_state=9999,
                                                   bootstrap=True,)
-        self.predict_gdp_category()
+        # self.predict_gdp_category()
+        self.report_gdp_category_prediction()
 
 class GdeltKnnTask(GdeltClassificationTask):
     def do_knn_sample(self):
