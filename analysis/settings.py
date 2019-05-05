@@ -10,8 +10,9 @@ PATHS = {
     #underscores when it's referring to a table name
     'country_features':  os.path.join('data_related', 'features',
                             'country_features.csv'),
-    'dyad_events_by_year':  os.path.join('data_related', 'features',
-                            'dyad_events_by_year.csv'),
+    # The previous version of dyad_events_by_year had mistakenly only included one year (1982).
+    'dyad_events_by_year':  os.path.join('data_related', '__local',
+                            'dyad_features_by_year', '000*.csv'),
 }
 
 SCHEMA = {

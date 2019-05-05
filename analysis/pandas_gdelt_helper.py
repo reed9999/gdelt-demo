@@ -84,7 +84,7 @@ class PandasGdeltHelper():
         #for filename in filenames
 
         #just stubbing out to watch this crash and burn
-        if True:
+        if False:
             logging.warning("Not yet implemented: fetch()")
             return None
         else:
