@@ -27,8 +27,9 @@ THIS_FILE_DIR = os.path.dirname(__file__)
 
 class TestPandasGdeltHelper(TestCase):
     def setUp(self):
-        # self._helper = PandasGdeltHelper('events')
-        pass
+        expected_path = os.path.abspath(os.path.join(THIS_FILE_DIR, '..'))
+        actual_path = os.path.abspath(os.getcwd())
+        assert expected_path == actual_path, 'Must be run from {}, not {}'.format(expected_path, actual_path)
 
     def test_events_default(self):
         if LONG_TEST_TOLERANCE < 120:
@@ -60,6 +61,14 @@ class TestPandasGdeltHelper(TestCase):
         new_columns = ['proportion_actor1', 'aggregate_relationships',]
         assert True == all([df[c] is not None for c in new_columns])
 
+    def test_fetch(self):
+        helper = PandasGdeltHelper('dyad_events_by_year')
+        assert helper is not None
+        fn = '/home/philip/gdelt/data_related/__local/dyad_features_by_year/000002_0.csv'
+        rv = helper.fetch(None, [fn])
+        assert (len(rv.columns) > 0)
+        assert (len(rv) > 100)
+
     def test_dyad_events_by_year(self):
         """This is my present thinking about what the 'conventional' path going forward should be:
         Instantiate the helper class with a table name and load the table.
@@ -75,7 +84,7 @@ class TestPandasGdeltHelper(TestCase):
         helper = PandasGdeltHelper('dyad_events_by_year')
         assert helper is not None
 
-        # self.skipTest('fetch() method is not yet fully implemented.')
+        self.skipTest('fetch() method is not yet fully implemented.')
         rv = helper.fetch()
         assert rv.shape[0] > 0
         assert rv.shape[1] > 0

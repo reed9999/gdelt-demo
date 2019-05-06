@@ -80,8 +80,30 @@ SCHEMA = {
             'actiongeo_featureid': 'object',	### Seems to be alphanumeri
             'dateadded': 'int64',
             'sourceurl': 'object',
-        }
+        },
+
     },
+    'dyad_events_by_year': {
+        'columns-dtypes': {
+            # old comment, maybe worth following up on?
+            # CREATE TABLE IF NOT EXISTS dyad_events_by_year AS
+            # SELECT year, actor1code, actor2code, eventcode,
+            # -- I don't see why I can't join on a group field but for for now this throws an error.
+            # -- eventcodes.description,
+            # eventbasecode,  eventrootcode, goldsteinscale, count(*) as count_events
+            # FROM events LEFT JOIN eventcodes
+            #   ON eventcodes.code = events.eventcode
+            # GROUP BY year, actor1code, actor2code, eventcode,
+            'year': 'int64',
+            'actor1code': 'object',
+            'actor2code': 'object',
+            'eventcode': 'object',
+            'eventbasecode': 'object',
+            'eventrootcode': 'object',
+            'goldsteinscale': 'float64',
+            'count_events': 'int64',
+        }
+    }
 
 }
 

@@ -33,26 +33,7 @@ COUNTRY_FEATURES_COLUMN_DTYPES = {
         'actor1_relationships': 'int64',
         'actor2_relationships': 'int64',
     }
-DYAD_EVENTS_BY_YEAR_DTYPES= {
-    #At one point these were coming out misaligned, but that doesn't appear to be a problem now.
-    # CREATE TABLE IF NOT EXISTS dyad_events_by_year AS
-    # SELECT year, actor1code, actor2code, eventcode,
-    # -- I don't see why I can't join on a group field but for for now this throws an error.
-    # -- eventcodes.description,
-    # eventbasecode,  eventrootcode, goldsteinscale, count(*) as count_events
-    # FROM events LEFT JOIN eventcodes
-    #   ON eventcodes.code = events.eventcode
-    # GROUP BY year, actor1code, actor2code, eventcode,
-        'year': 'int64',
-        'actor1code': 'object',
-        'actor2code': 'object',
-        'eventcode': 'object',
-        'eventbasecode': 'object',
-        'eventrootcode': 'object',
-        'goldsteinscale': 'float64',
-        'count_events': 'int64',
-    }
-
+DYAD_EVENTS_BY_YEAR_DTYPES = SCHEMA['dyad_events_by_year']['columns-dtypes']
 AGGRESSIVE_CAMEO_FAMILIES = SCHEMA['events']['aggressive-cameo-families']
 FILENAMES = PATHS
 
@@ -81,19 +62,23 @@ class PandasGdeltHelper():
                 filenames = [FILENAMES[tn]]
             except KeyError as e:
                 raise KeyError("FILENAMES needs to be set up to include key {}".format(tn))
-        #for filename in filenames
+        column_names = DYAD_EVENTS_BY_YEAR_DTYPES.keys()
+        dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
+
+
 
         #just stubbing out to watch this crash and burn
         if False:
             logging.warning("Not yet implemented: fetch()")
             return None
         else:
-            filename = filenames[0]
-            column_names = DYAD_EVENTS_BY_YEAR_DTYPES.keys()
-            dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
-            index_col = None    #An array like ['globaleventid'] for events
-            new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
-                                 dtype=dtypes, index_col=index_col)
+            for filename in filenames:
+
+                filename = filenames[0]
+                index_col = None    #An array like ['globaleventid'] for events
+                new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
+                                     dtype=dtypes, index_col=index_col)
+            # TODO utter nonsense at the moment; concatenate rather than returning last one!
             return new_df
 
     @classmethod
