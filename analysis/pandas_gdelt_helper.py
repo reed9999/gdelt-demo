@@ -76,8 +76,9 @@ class PandasGdeltHelper():
 
                 filename = filenames[0]
                 index_col = None    #An array like ['globaleventid'] for events
-                new_df = pd.read_csv(filename, delimiter="\t", names=column_names,
-                                     dtype=dtypes, index_col=index_col)
+                new_df = pd.read_csv(filename, delimiter=chr(1), names=column_names,
+                                     dtype=None, index_col=index_col)
+                                     # dtype=dtypes, index_col=index_col)
             # TODO utter nonsense at the moment; concatenate rather than returning last one!
             return new_df
 
@@ -245,14 +246,19 @@ class PandasGdeltHelper():
 
     @classmethod
     def dyad_aggression_by_year(cls, format="dataframe"):
-        dtypes = DYAD_EVENTS_BY_YEAR_DTYPES
-        column_names = list(dtypes.keys()) #DRY, copied from country_features
+        dtypes = SCHEMA['dyad_events_by_year']['columns-dtypes']
+        column_names = list(dtypes.keys())
         n = len(column_names)
-        filename = FILENAMES['dyad_events_by_year']
+        filename_glob = FILENAMES['dyad_events_by_year']
+        # TODO of course we need to expand and concat the glob; DRY suggests we should use the
+        # dyad_events_by_year() method to do it.
+
+        filename = glob.glob(filename_glob)[0]
         dyad_events_by_year = pd.read_csv(filename, delimiter="\t",
-                    names=column_names, dtype=dtypes,
+                    # names=column_names,
+                    #                       dtype=dtypes,
                     error_bad_lines=False,
-                    usecols=range(0, n), #without this I get cannot convert float NaN to integer
+                    # usecols=range(0, n), #without this I get cannot convert float NaN to integer
                                ) # also tried: .dropna() #index_col=['code'])
 
         assert dyad_events_by_year is not None

@@ -61,10 +61,20 @@ class TestPandasGdeltHelper(TestCase):
         new_columns = ['proportion_actor1', 'aggregate_relationships',]
         assert True == all([df[c] is not None for c in new_columns])
 
+    def special_troubleshooting(self):
+        infile = '/home/philip/gdelt/data_related/__local/dyad_features_by_year/000002_0.csv'
+        outfile = '/home/philip/gdelt/data_related/__local/dyad_features_by_year/temp_000002_0.csv'
+        with open(infile, 'r') as inf:
+            head = [next(inf) for x in range(102)]
+            with open(outfile, 'w') as outf:
+                outf.writelines(head)
+
     def test_fetch(self):
+        self.special_troubleshooting()
         helper = PandasGdeltHelper('dyad_events_by_year')
         assert helper is not None
         fn = '/home/philip/gdelt/data_related/__local/dyad_features_by_year/000002_0.csv'
+        # fn = '/home/philip/gdelt/data_related/__local/dyad_features_by_year/temp_000002_0.csv'
         rv = helper.fetch(None, [fn])
         assert (len(rv.columns) > 0)
         assert (len(rv) > 100)
@@ -91,6 +101,7 @@ class TestPandasGdeltHelper(TestCase):
         assert rv is not None
 
     def test_dyad_aggression_by_year(self):
+        # self.skipTest('This functionality is being overhauled.')
         rv = PandasGdeltHelper.dyad_aggression_by_year('series')
         assert rv is not None
 
