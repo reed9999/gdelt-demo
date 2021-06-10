@@ -1,6 +1,10 @@
 # gdelt-demo
+## Note about this project
+I am not actively working on this project, so it is a snapshot of what I was learning in 2019. 
+Even though it remains an unfinished hodgepodge, it demonstrates some of my capabilities in a way that I can't do
+with code written in my present role.
 
-
+## Archival README
 For the main showcase, [start 
 here](https://github.com/reed9999/gdelt-demo/blob/master/Start_here.ipynb). You can view it in Jupyter Notebook or at that link.
 
